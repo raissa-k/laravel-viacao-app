@@ -1,0 +1,131 @@
+# Docker Compose: configuração base (todos os ambientes)
+#
+# Como rodar localmente:
+#   cd docker && docker compose up -d
+#   cd docker && docker compose down
+#   cd docker && docker compose logs -f app
+#
+# Por que entrar em docker/ antes?
+# O Docker Compose auto-descobre docker-compose.yml e docker-compose.override.yml no diretório atual.
+# Entrando em docker/, ambos são carregados automaticamente.
+# Rodar de fora exigiria -f docker/docker-compose.yml em cada comando.
+#
+# Ambientes:
+# - docker-compose.yml          : base (este arquivo), seguro para todos os ambientes
+# - docker-compose.override.yml : local-only com Mailhog, APP_DEBUG=true, etc.
+#   O override é carregado automaticamente pelo Docker Compose quando você roda de dentro da pasta docker/.
+#
+# Pesquise: "docker compose override", "docker compose auto-merge"
+
+name: viacao-demo-laravel
+services:
+  # App Laravel (PHP + Apache)
+  #
+  # Objetivo deste compose:
+  # - ser previsível em start
+  # - evitar defaults inseguros (ex: APP_DEBUG=true hardcoded)
+  # - evitar side effects surpresa (ex: seed automático em boot)
+  viacoes_laravel_demo_app:
+    build:
+      # context aponta pra raiz do projeto (um nível acima de docker/)
+      context: ..
+      dockerfile: Dockerfile
+    container_name: viacoes_laravel_demo_app
+    ports:
+      - "8082:80"
+    command: >
+      sh -c "set -e;
+      if [ ! -f vendor/autoload.php ]; then composer install --no-interaction --prefer-dist; fi;
+      if [ ! -f .env ]; then cp .env.example .env; fi;
+      if ! grep -q '^APP_KEY=base64:' .env; then php artisan key:generate --force; fi;
+      attempts=0;
+      until php artisan migrate --force; do
+        attempts=$$((attempts + 1));
+        if [ $$attempts -ge 20 ]; then
+          echo 'MySQL indisponível após 20 tentativas; encerrando.';
+          exit 1;
+        fi;
+        echo 'Aguardando MySQL aceitar conexão...';
+        sleep 3;
+      done;
+      chown -R www-data:www-data storage bootstrap/cache;
+      php artisan optimize:clear;
+      apache2-foreground"
+    volumes:
+      # Monta a raiz do projeto (um nível acima de docker/) dentro do container.
+      # Isso significa que qualquer mudança de arquivo no host é imediatamente visível
+      # no container sem precisar fazer rebuild ou restart:
+      #   - Blade templates (resources/views/)   → recompilados automaticamente pelo Laravel
+      #   - CSS/JS (public/)                     → servidos diretamente, sem cache intermediário
+      #   - PHP classes (app/, routes/, config/) → lidos a cada request (sem OPcache ativo)
+      #
+      # O que ainda exige atenção:
+      #   - Novos pacotes Composer → rebuild (docker compose up --build)
+      #   - Mudanças no Dockerfile → rebuild
+      #   - Mudanças no .env → php artisan config:clear (ou restart)
+      #
+      # Por que optimize:clear no startup acima?
+      # Se alguém rodar php artisan optimize (ou view:cache, route:cache, config:cache)
+      # dentro do container, o Laravel passa a usar as versões cacheadas e ignorar os
+      # arquivos do volume. O optimize:clear no boot garante que esses caches sejam sempre
+      # descartados, restaurando o comportamento de hot reload.
+      # Pesquise "php artisan optimize:clear", "Laravel cache commands".
+      - ../:/var/www/html
+    environment:
+      # Nada de APP_DEBUG fixo aqui: usamos .env (ou fallback seguro false)
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8082}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Sao_Paulo}
+      APP_LOCALE: ${APP_LOCALE:-pt_BR}
+      APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-pt_BR}
+      APP_FAKER_LOCALE: ${APP_FAKER_LOCALE:-pt_BR}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stack}
+      LOG_STACK: ${LOG_STACK:-single}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      TZ: ${APP_TIMEZONE:-America/Sao_Paulo}
+      DB_CONNECTION: ${DB_CONNECTION:-mysql}
+      DB_HOST: ${DB_HOST:-viacoes_laravel_demo_db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE:-viacoes_demo}
+      DB_USERNAME: ${DB_USERNAME:-viacoes_user}
+      DB_PASSWORD: ${DB_PASSWORD:-viacoes_pass}
+      DB_TIMEZONE: ${DB_TIMEZONE:--03:00}
+      DB_CHARSET: ${DB_CHARSET:-utf8mb4}
+      DB_COLLATION: ${DB_COLLATION:-utf8mb4_unicode_ci}
+      SESSION_DRIVER: ${SESSION_DRIVER:-database}
+      SESSION_LIFETIME: ${SESSION_LIFETIME:-120}
+      FILESYSTEM_DISK: ${FILESYSTEM_DISK:-local}
+      CACHE_STORE: ${CACHE_STORE:-file}
+      # MAIL_* não está aqui intencionalmente.
+      # Em produção, configure via variáveis de ambiente do servidor ou CI secrets.
+      # Localmente, o docker-compose.override.yml aponta pro Mailhog.
+    depends_on:
+      viacoes_laravel_demo_db:
+        condition: service_healthy
+
+  # Banco MySQL da aplicação
+  viacoes_laravel_demo_db:
+    image: mysql:8.0
+    container_name: viacoes_laravel_demo_db
+    restart: unless-stopped
+    command: --default-time-zone=${MYSQL_DEFAULT_TIMEZONE:--03:00} --character-set-server=${DB_CHARSET:-utf8mb4} --collation-server=${DB_COLLATION:-utf8mb4_unicode_ci}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-viacoes_demo}
+      MYSQL_USER: ${MYSQL_USER:-viacoes_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-viacoes_pass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      TZ: ${APP_TIMEZONE:-America/Sao_Paulo}
+    ports:
+      - "3309:3306"
+    volumes:
+      - viacoes_laravel_demo_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      start_period: 20s
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  viacoes_laravel_demo_mysql_data:

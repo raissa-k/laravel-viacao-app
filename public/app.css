@@ -121,6 +121,48 @@ textarea {
   resize: vertical;
 }
 
+/*
+input[type="file"]: o navegador renderiza dois elementos juntos, um botão "Escolher arquivo" e um texto com o nome do arquivo selecionado.
+Sem estilos explícitos, o botão fica com a aparência padrão do sistema operacional.
+
+::file-selector-button estiliza especificamente o botão "Escolher arquivo".
+
+Por que appearance: none?
+Navegadores (Chrome, Safari) aplicam -webkit-appearance: button ao ::file-selector-button, o que faz propriedades como background serem ignoradas.
+appearance: none remove esse estilo do sistema operacional e permite estilizar.
+
+O input[type="file"] em si fica sem borda (border: none) para que o botão interno se pareça com um <button>.
+*/
+input[type="file"] {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 6px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  padding: 0;
+}
+
+input[type="file"]::-webkit-file-upload-button,
+input[type="file"]::file-selector-button {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-block;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover,
+input[type="file"]::file-selector-button:hover {
+  border-color: #c7cbd1;
+}
+
 button {
   display: inline-block;
   padding: 9px 12px;
@@ -190,4 +232,50 @@ button[type="submit"]:hover {
 
 .small {
   font-size: 13px;
+}
+
+/* .inline-form: form que deve ficar na mesma linha do conteúdo ao redor.
+Uso clássico: botão de logout dentro do nav, ao lado de links.
+*/
+.inline-form {
+  display: inline;
+}
+
+/* .form-group: espaçamento vertical entre campos de formulário.
+Separa os campos sem precisar de margin em cada input individualmente.
+*/
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+/* .form-actions: linha de botões no final do formulário.
+align-items: center alinha verticalmente o botão e o link de cancelar.
+*/
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* .error-list: lista de erros de validação. */
+.error-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--danger);
+}
+
+/* .logo-preview: miniatura do logo atual de uma viação. */
+.logo-preview {
+  height: 40px;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+/* .w-full: ocupa toda a largura disponível do container pai */
+.w-full {
+  width: 100%;
 }

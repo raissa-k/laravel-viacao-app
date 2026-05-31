@@ -27,11 +27,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
+            /*
+             * ModelNotFoundException é lançada pelo route model binding quando o model não é encontrado.
+             * Exemplo: Route::get('/viacoes/{viacao}', ...) com ID inexistente -> ModelNotFoundException.
+             * O ViacaoApiController atual usa int $id + find() manual e retorna JSON diretamente,
+             * aqui só entra em ação se as rotas de API passarem a usar route model binding.
+             * A mensagem é genérica ("Recurso") para funcionar com qualquer model.
+             */
             $isModelMiss = $e->getPrevious() instanceof ModelNotFoundException;
 
             return response()->json([
                 'ok' => false,
-                'message' => $isModelMiss ? 'Task not found.' : 'Route not found.',
+                'message' => $isModelMiss ? 'Recurso não encontrado.' : 'Rota não encontrada.',
             ], 404);
         });
 
@@ -39,7 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($isApi($request)) {
                 return response()->json([
                     'ok' => false,
-                    'message' => 'Method not allowed.',
+                    'message' => 'Método não permitido.',
                 ], 405);
             }
         });

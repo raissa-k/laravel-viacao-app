@@ -1,21 +1,55 @@
+### Arquivo com exemplos de requests pra testar API na IDE
 @baseUrl = http://localhost:8082
 
-### Lista todas as tasks (JSON)
+### Cole aqui o token exibido pelo seeder após "php artisan db:seed"
+### (o token muda a cada seed, Sanctum só exibe o plain text uma vez)
+@apiToken = COLE_O_TOKEN_DO_SEEDER_AQUI_MAS_NAO_COMITTE
+
+### API - listar viações (atalho)
 GET {{baseUrl}}/api
 Accept: application/json
 
-### Lista todas as tasks (JSON) — alias
-GET {{baseUrl}}/api/tasks
+### API - listar viações
+GET {{baseUrl}}/api/viacoes
 Accept: application/json
 
-### Busca task específica
-GET {{baseUrl}}/api/tasks/1
+### API - buscar viação por id (válido)
+GET {{baseUrl}}/api/viacoes/1
 Accept: application/json
 
-### 404: task inexistente
-GET {{baseUrl}}/api/tasks/99999
+### API - buscar viação inexistente
+GET {{baseUrl}}/api/viacoes/99999
 Accept: application/json
 
-### 404: rota inexistente
+### API - criar viação (precisa Bearer token do Sanctum)
+POST {{baseUrl}}/api/viacoes
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{apiToken}}
+
+{
+  "nome": "Nova Viação",
+  "cidade": "Florianópolis",
+  "ativa": 1
+}
+
+### API - atualizar viação (precisa Bearer token do Sanctum)
+PUT {{baseUrl}}/api/viacoes/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{apiToken}}
+
+{
+  "nome": "Expresso Guanabara Atualizado",
+  "cidade": "Rio de Janeiro",
+  "ativa": 1
+}
+
+### API - excluir viação (precisa Bearer token do Sanctum)
+DELETE {{baseUrl}}/api/viacoes/99
+Accept: application/json
+Authorization: Bearer {{apiToken}}
+
+### API - rota inexistente
 GET {{baseUrl}}/api/nao-existe
 Accept: application/json
