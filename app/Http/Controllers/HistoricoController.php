@@ -2,6 +2,7 @@
 
 // Controller do histórico
 // No Laravel, o service usa Eloquent com when()
+// Passa $filter->entidade pra view controlar qual aba está ativa.
 
 namespace App\Http\Controllers;
 

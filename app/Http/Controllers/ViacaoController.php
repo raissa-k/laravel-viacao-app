@@ -1,11 +1,10 @@
 <?php
 
-// Diferenças principais:
-// - Route model binding: o Laravel injeta $viacao diretamente (sem buscar por ID manualmente)
-// - ViacaoRequest: validação automática antes da execução (sem try/catch)
-// - redirect()->route(): URL nomeada em vez de string hardcoded
-// - auth()->id(): equivalente ao $this->auth->userId() do PHP puro
-// - response 404 automático via abort() em vez de http_response_code(404) + echo
+// Controller de viações.
+// show(): exibe uma viação com seu histórico.
+// restore(): restaura soft-deleted via ViacaoService.
+// Os demais métodos (index/create/store/edit/update/destroy) são iguais ao original
+// com a diferença que destroy() agora é soft delete e all() retorna paginator.
 
 namespace App\Http\Controllers;
 
@@ -74,11 +73,20 @@ class ViacaoController extends Controller
     }
 
     /**
-     * Exibe o formulário de edição com os dados atuais.
-     *
-     * Route model binding: o Laravel busca automaticamente Viacao::find($id).
-     * Se não encontrar, retorna 404 automaticamente.
+     * Exibe uma única viação com seu histórico de alterações.
+     * Route model binding busca só registros não excluídos.
      */
+    public function show(Viacao $viacao): View
+    {
+        $historico = $viacao->historico()->with('ator')->orderByDesc('criado_em')->get();
+
+        return view('admin.viacoes.show', [
+            'title' => 'Viação: '.$viacao->nome,
+            'viacao' => $viacao,
+            'historico' => $historico,
+        ]);
+    }
+
     public function edit(Viacao $viacao): View
     {
         return view('admin.viacoes.edit', [
@@ -103,14 +111,29 @@ class ViacaoController extends Controller
         $data = $request->validated();
         $this->viacaoService->update($viacao, $data['nome'], $data['cidade'], $data['ativa'], $logo, auth()->id());
 
-        return redirect()->route('viacoes.index')->with('success', 'Viação atualizada.');
+        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação atualizada.');
     }
 
-    /** Remove a viação do banco. */
+    /** Marca a viação como excluída. */
     public function destroy(Viacao $viacao): RedirectResponse
     {
         $this->viacaoService->delete($viacao, auth()->id());
 
-        return redirect()->route('viacoes.index')->with('success', 'Viação removida.');
+        return redirect()->route('viacoes.index')->with('success', 'Viação excluída (pode ser restaurada).');
+    }
+
+    /**
+     * Restaura uma viação soft-deleted.
+     *
+     * Recebe o ID como int porque route model binding padrão não encontra soft-deleted.
+     * withTrashed() inclui registros com deleted_at preenchido na query.
+     * Pesquise "Eloquent withTrashed", "soft delete restore".
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $viacao = Viacao::withTrashed()->findOrFail($id);
+        $this->viacaoService->restore($viacao, auth()->id());
+
+        return redirect()->route('viacoes.index')->with('success', 'Viação restaurada.');
     }
 }

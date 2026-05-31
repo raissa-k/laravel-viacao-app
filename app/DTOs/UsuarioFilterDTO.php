@@ -17,12 +17,14 @@ final readonly class UsuarioFilterDTO implements FilterDTO
 {
     public function __construct(
         public string $q = '',
+        public bool $deletado = false,
     ) {}
 
     public static function fromRequest(Request $request): static
     {
         return new self(
             q: trim((string) $request->input('q', '')),
+            deletado: $request->boolean('deletado'),
         );
     }
 }

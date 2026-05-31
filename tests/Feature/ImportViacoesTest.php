@@ -5,8 +5,8 @@
 // É mais direto que $this->artisan() (PendingCommand) e não tem problemas de interação com buffers de saída em alguns ambientes de teste.
 // Pesquise "Laravel Artisan::call", "artisan command testing".
 
+use App\Models\Historico;
 use App\Models\Viacao;
-use App\Models\ViacaoHistorico;
 use Illuminate\Support\Facades\Artisan;
 
 it('importa viações válidas de um arquivo JSON', function () {
@@ -20,7 +20,7 @@ it('importa viações válidas de um arquivo JSON', function () {
 
     expect($exitCode)->toBe(0)
         ->and(Viacao::count())->toBe(2)
-        ->and(ViacaoHistorico::where('acao', 'Criado')->count())->toBe(2);
+        ->and(Historico::where('acao', 'Criado')->count())->toBe(2);
 
     unlink($file);
 });

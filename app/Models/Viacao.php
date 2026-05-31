@@ -7,14 +7,16 @@
 
 namespace App\Models;
 
+use App\Services\UploadService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Viacao extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     // O Eloquent é bem espertinho com pluralização em inglês.
     // Se o seu model fosse "User", ele automaticamente buscaria na tabela 'users' exceto se você declarasse outra coisa aqui.
@@ -57,10 +59,21 @@ class Viacao extends Model
     ];
 
     /*
-     * Relacionamento: uma viação tem muitos registros de histórico.
+     * Relacionamento polimórfico: registros de auditoria desta viação.
+     * O Laravel filtra automaticamente por entidade_type='viacao' + entidade_id=$this->id.
+     * Pesquise "Eloquent morphMany", "polymorphic relationships".
      */
-    public function historico(): HasMany
+    public function historico(): MorphMany
     {
-        return $this->hasMany(ViacaoHistorico::class, 'viacao_id');
+        return $this->morphMany(Historico::class, 'entidade');
+    }
+
+    protected static function booted(): void
+    {
+        static::forceDeleted(function (self $viacao): void {
+            if ($viacao->logo !== null) {
+                app(UploadService::class)->delete($viacao->logo);
+            }
+        });
     }
 }

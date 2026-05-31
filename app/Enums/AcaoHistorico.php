@@ -33,6 +33,7 @@ enum AcaoHistorico: string
     case Criado = 'Criado';
     case Editado = 'Editado';
     case Excluido = 'Excluido';
+    case Restaurado = 'Restaurado';
 
     /*
      * tryFrom() vs from():

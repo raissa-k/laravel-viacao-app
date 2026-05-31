@@ -1,18 +1,9 @@
-{{-- View de listagem admin das viações.
-Compare com src/views/admin/viacoes/index.php do PHP puro.
-{{ }} escapa automaticamente (htmlspecialchars). @if/@foreach substituem <?php if/foreach ?>.
-@csrf e @method() substituem os helpers manuais.
-
-IMPORTANTE: route() vs hardcoded URLs
-- No PHP puro: href="/admin/viacoes" (string hardcoded então se muda a rota, quebra)
-- No Laravel: href="{{ route('viacoes.index') }}" (URL nomeada então se muda a rota, aqui atualiza automático)
-- Pesquise "named routes Laravel", "benefits of route() helper"
-
-@selected() e @checked() são "syntactic sugar" do Blade:
-- {{ $filter->ativa === true ? 'selected' : '' }} é long, ilegível
-- @selected($filter->ativa === true) gera o atributo apenas se true
-- Mesmo para checkbox: @checked(old('ativa', true))
-- Pesquise "Blade directives", "conditional attributes"
+{{-- Listagem admin de viações com filtros, paginação e ações condicionais por status de exclusão.
+NOVIDADES vs versão anterior:
+- Filtro "deletado": alterna entre registros ativos e soft-deleted
+- Ações condicionais: Editar/Excluir só aparecem pra ativos; Restaurar só pra excluídos
+- $viacoes->links(): links de paginação gerados pelo Eloquent LengthAwarePaginator
+- $viacoes->withQueryString(): garante que ?q=...&ativa=... seja preservado nos links de página
 --}}
 
 {{-- @use importa a classe para uso direto na view, equivalente ao `use` do PHP.
@@ -53,6 +44,18 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
         </select>
     </div>
 
+    {{-- Filtro de exclusão: só aparece quando há algo útil pra mostrar.
+    hidden+checkbox: o checkbox desmarcado não envia o campo; o hidden garante que 'deletado=0'
+    seja enviado quando a view precisar limpar o filtro via URL.
+    Aqui usamos submit automático ao mudar o select pra UX mais fluída. --}}
+    <div class="filter-field">
+        <label class="filter-label" for="f-deletado">Situação</label>
+        <select class="filter-input-md" id="f-deletado" name="deletado" onchange="this.form.submit()">
+            <option value="0" @selected(!$filter->deletado)>Não excluídos</option>
+            <option value="1" @selected($filter->deletado)>Excluídos</option>
+        </select>
+    </div>
+
     <div class="filter-field">
         <span class="filter-label">&nbsp;</span>
         <div class="actions">
@@ -65,6 +68,8 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
 @if ($viacoes->isEmpty())
     <p class="muted">Nenhuma viação cadastrada ainda.</p>
 @else
+    <p class="small muted">{{ $viacoes->total() }} viação(ões) encontrada(s)</p>
+
     <table class="admin-table">
         <thead>
             <tr>
@@ -80,7 +85,13 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
         @foreach ($viacoes as $v)
             <tr>
                 <td class="small muted">{{ $v->id }}</td>
-                <td>{{ $v->nome }}</td>
+                <td>
+                    @if (!$v->trashed())
+                        <a href="{{ route('viacoes.show', $v) }}">{{ $v->nome }}</a>
+                    @else
+                        <span class="muted">{{ $v->nome }}</span>
+                    @endif
+                </td>
                 <td>{{ $v->cidade }}</td>
                 <td>{{ $v->ativa ? 'Sim' : 'Não' }}</td>
                 <td>
@@ -96,27 +107,46 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
                 </td>
                 <td>
                     <div class="actions">
-                        <a href="{{ route('viacoes.edit', $v) }}">Editar</a>
-
-                        {{-- Form de exclusão: @@method('DELETE') gera o campo _method oculto.
-                        O Laravel detecta _method e reescreve o verbo, igual ao PHP puro.
-                        @@csrf gera o token oculto, equivalente ao View::csrfField(). --}}
-                        <form
-                            class="inline-form"
-                            method="POST"
-                            action="{{ route('viacoes.destroy', $v) }}"
-                            onsubmit="return confirm('Confirmar exclusão de ' + {{ Js::from($v->nome) }} + '?')"
-                        >
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit">Excluir</button>
-                        </form>
+                        {{-- Ações condicionais: apenas registros não excluídos podem ser editados/excluídos.
+                        deleted_at null = ativo; não null = excluído (soft deleted).
+                        Pesquise "Eloquent soft deletes", "trashed()". --}}
+                        @if (!$v->trashed())
+                            <a href="{{ route('viacoes.show', $v) }}">Ver</a>
+                            <a href="{{ route('viacoes.edit', $v) }}">Editar</a>
+                            <form
+                                class="inline-form"
+                                method="POST"
+                                action="{{ route('viacoes.destroy', $v) }}"
+                                onsubmit="return confirm('Confirmar exclusão de ' + {{ Js::from($v->nome) }} + '?')"
+                            >
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit">Excluir</button>
+                            </form>
+                        @else
+                            {{-- Restaurar só aparece pra registros excluídos. --}}
+                            <form
+                                class="inline-form"
+                                method="POST"
+                                action="{{ route('viacoes.restore', $v->id) }}"
+                            >
+                                @csrf
+                                <button type="submit">Restaurar</button>
+                            </form>
+                        @endif
                     </div>
                 </td>
             </tr>
         @endforeach
         </tbody>
     </table>
+
+    {{-- links() gera os links de paginação.
+    withQueryString() (chamado no service) preserva os filtros ativos nos links de página.
+    Pesquise "Laravel pagination", "LengthAwarePaginator". --}}
+    <div class="paginacao">
+        {{ $viacoes->links() }}
+    </div>
 @endif
 
 @endsection

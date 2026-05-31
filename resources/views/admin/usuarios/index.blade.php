@@ -1,6 +1,6 @@
-{{-- View admin de usuários: listagem somente leitura.
-Compare com src/views/admin/usuarios/index.php do PHP puro.
-Estrutura idêntica: filtro de busca + tabela. --}}
+{{-- Listagem admin de usuários: CRUD completo, filtros, paginação e ações condicionais. --}}
+@use('Illuminate\Support\Js')
+
 @extends('layouts.app')
 
 @section('title', $title)
@@ -9,9 +9,7 @@ Estrutura idêntica: filtro de busca + tabela. --}}
 
 <h1>{{ $title }}</h1>
 
-<p class="muted small">
-    Usuários são cadastrados via seed/banco diretamente. CRUD de usuários será implementado em breve.
-</p>
+<p><a href="{{ route('usuarios.create') }}">Cadastrar novo usuário</a></p>
 
 <form class="filter-form" method="GET" action="{{ route('usuarios.index') }}">
     <div class="filter-field">
@@ -25,6 +23,15 @@ Estrutura idêntica: filtro de busca + tabela. --}}
             value="{{ $filter->q }}"
         >
     </div>
+
+    <div class="filter-field">
+        <label class="filter-label" for="f-deletado">Situação</label>
+        <select class="filter-input-md" id="f-deletado" name="deletado" onchange="this.form.submit()">
+            <option value="0" @selected(!$filter->deletado)>Não excluídos</option>
+            <option value="1" @selected($filter->deletado)>Excluídos</option>
+        </select>
+    </div>
+
     <div class="filter-field">
         <span class="filter-label">&nbsp;</span>
         <div class="actions">
@@ -37,6 +44,8 @@ Estrutura idêntica: filtro de busca + tabela. --}}
 @if ($usuarios->isEmpty())
     <p>Nenhum usuário cadastrado.</p>
 @else
+    <p class="small muted">{{ $usuarios->total() }} usuário(s) encontrado(s)</p>
+
     <table class="admin-table">
         <thead>
             <tr>
@@ -44,17 +53,24 @@ Estrutura idêntica: filtro de busca + tabela. --}}
                 <th>Nome</th>
                 <th>E-mail</th>
                 <th>Cadastrado em</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($usuarios as $u)
                 <tr>
-                    <td>{{ $u->id }}</td>
-                    <td>{{ $u->nome }}</td>
+                    <td class="small muted">{{ $u->id }}</td>
+                    <td>
+                        @if (!$u->trashed())
+                            <a href="{{ route('usuarios.show', $u) }}">{{ $u->nome }}</a>
+                        @else
+                            <span class="muted">{{ $u->nome }}</span>
+                        @endif
+                    </td>
                     <td>{{ $u->email }}</td>
                     {{-- Carbon no Laravel: $u->created_at é automaticamente uma instância Carbon.
                     Aqui formatamos com ->format() pra exibir data legível.
-                    
+
                     Métodos úteis do Carbon:
                     - ->format('d/m/Y H:i'): formatação clássica
                     - ->toDateString(): "2026-01-23"
@@ -62,14 +78,48 @@ Estrutura idêntica: filtro de busca + tabela. --}}
                     - ->diffForHumans(): "2 hours ago" (com locale)
                     - ->isToday(), ->isYesterday(), ->isBetween(): comparações
                     - ->addDays(7), ->subMonths(1): manipulação
-                    
+
                     Pesquise: "Carbon methods", "Carbon chaining", "Carbon timezone handling".
                     --}}
                     <td class="muted small">{{ $u->created_at->format('d/m/Y H:i') }}</td>
+                    <td>
+                        <div class="actions">
+                            @if (!$u->trashed())
+                                <a href="{{ route('usuarios.show', $u) }}">Ver</a>
+                                <a href="{{ route('usuarios.edit', $u) }}">Editar</a>
+                                {{-- Não exibe "Excluir" para o usuário logado --}}
+                                @if ($u->id !== auth()->id())
+                                    <form
+                                        class="inline-form"
+                                        method="POST"
+                                        action="{{ route('usuarios.destroy', $u) }}"
+                                        onsubmit="return confirm('Confirmar exclusão de ' + {{ Js::from($u->nome) }} + '?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit">Excluir</button>
+                                    </form>
+                                @endif
+                            @else
+                                <form
+                                    class="inline-form"
+                                    method="POST"
+                                    action="{{ route('usuarios.restore', $u->id) }}"
+                                >
+                                    @csrf
+                                    <button type="submit">Restaurar</button>
+                                </form>
+                            @endif
+                        </div>
+                    </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
+    <div class="paginacao">
+        {{ $usuarios->links() }}
+    </div>
 @endif
 
 @endsection

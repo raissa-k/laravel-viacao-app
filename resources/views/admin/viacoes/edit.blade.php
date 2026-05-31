@@ -11,7 +11,7 @@ old('campo', $viacao->campo): repopula com o valor atual se não houve erro, ou 
 <h1>{{ $title }}</h1>
 
 <p>
-    <a href="{{ route('historico.index', ['viacao_id' => $viacao->id]) }}">Ver histórico desta viação</a>
+    <a href="{{ route('viacoes.show', $viacao) }}">Ver histórico desta viação</a>
 </p>
 
 @if ($errors->any())

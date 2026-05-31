@@ -20,13 +20,18 @@ final readonly class ViacaoFilterDTO implements FilterDTO
     public function __construct(
         public string $q = '',
         public ?bool $ativa = null,
+        /*
+         * deletado: exibir apenas registros soft-deleted (deleted_at IS NOT NULL).
+         * false (padrão) = listagem normal, apenas ativos.
+         * true           = apenas excluídos (permite restaurar).
+         */
+        public bool $deletado = false,
     ) {}
 
     public static function fromRequest(Request $request): static
     {
         $q = trim((string) $request->input('q', ''));
 
-        // Converte '1'/'0'/'' para true/false/null sem lançar erro em valores inválidos.
         $ativaRaw = $request->input('ativa');
         $ativa = match (true) {
             $ativaRaw === '1' || $ativaRaw === 1 => true,
@@ -34,6 +39,10 @@ final readonly class ViacaoFilterDTO implements FilterDTO
             default => null,
         };
 
-        return new self(q: $q, ativa: $ativa);
+        return new self(
+            q: $q,
+            ativa: $ativa,
+            deletado: $request->boolean('deletado'),
+        );
     }
 }

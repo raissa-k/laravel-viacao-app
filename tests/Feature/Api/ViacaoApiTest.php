@@ -111,7 +111,10 @@ it('remove viação com token Sanctum e retorna 204', function () {
     $this->deleteJson("/api/viacoes/{$viacao->id}")
         ->assertNoContent();                       // 204
 
-    $this->assertDatabaseMissing('viacoes', ['id' => $viacao->id]);
+    $this->assertDatabaseHas('viacoes', ['id' => $viacao->id]);
+
+    $softDeleted = Viacao::withTrashed()->find($viacao->id);
+    $this->assertNotEquals(null, $softDeleted->deleted_at);
 });
 
 it('retorna 404 ao excluir viação inexistente', function () {

@@ -2,8 +2,13 @@
 
 namespace App\Providers;
 
+use App\Enums\EntidadeHistorico;
+use App\Models\Usuario;
+use App\Models\Viacao;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +35,30 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        /*
+         * Morph map: define os aliases que o Eloquent grava em entidade_type.
+         *
+         * Sem morph map, o Eloquent gravaria o FQCN completo (App\Models\Viacao).
+         * Não é um problema, MAS renomear/mover o model (coisa rara de acontecer) corromperia todas as linhas do banco.
+         * Usar um morph map também ajuda a deixar mais livres de detalhes do PHP (namespace, etc).
+         *
+         * As chaves vêm de EntidadeHistorico->value. Se o alias mudar, ele muda em um lugar só.
+         *
+         * Pesquise "Eloquent morph map", "polymorphic relationship custom type".
+         */
+        Relation::morphMap([
+            EntidadeHistorico::Viacao->value => Viacao::class,
+            EntidadeHistorico::Usuario->value => Usuario::class,
+        ]);
+
+        /*
+         * View customizada de paginação (resources/views/vendor/pagination/default.blade.php).
+         * Sem isso, o Laravel usa a view Tailwind padrão, que precisa de classes CSS do Tailwind.
+         * Customizamos essa view pra poder controlar exatamente a estilização.
+         * Pesquise "Paginator::defaultView", "custom pagination view Laravel".
+         */
+        Paginator::defaultView('vendor.pagination.default');
+
         /*
          * Rate limits da API separados leitura vs escrita.
          *

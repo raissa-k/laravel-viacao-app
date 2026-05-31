@@ -1,15 +1,16 @@
 <?php
 
-// Diferença principal desta versão: usa factories para criar registros, em vez de arrays hardcoded passados direto para ::create().
-// Isso mantém a lógica de geração de dados em um lugar só (a factory), e o seeder descreve QUAIS dados quer, não COMO construir.
-// Pesquise "factory vs seeder responsibility", "idempotent seed".
+// Seeder de demonstração.
+// Cria usuário admin, usuários extras, viações nomeadas e histórico variado.
+// Pesquise "factory vs seeder responsibility".
 
 namespace Database\Seeders;
 
 use App\Enums\AcaoHistorico;
+use App\Enums\EntidadeHistorico;
+use App\Models\Historico;
 use App\Models\Usuario;
 use App\Models\Viacao;
-use App\Models\ViacaoHistorico;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
@@ -21,11 +22,11 @@ class DatabaseSeeder extends Seeder
         /*
          * GUARD DE AMBIENTE: este seeder NÃO deve rodar em produção.
          *
-         * Por quê isso importa?
+         * Por que isso importa?
          * Este seeder cria o usuário admin@admin.com com a senha "admin123".
-         * Essas credenciais são públicas (estão no README e no requests.http).
-         * Se alguém rodar "php artisan db:seed" ou "php artisan migrate --seed"
-         * acidentalmente em produção, qualquer pessoa com esse conhecimento consegue logar como admin e ter acesso total ao sistema.
+         * Essas credenciais são públicas (estão no README).
+         * Se alguém rodar "php artisan db:seed" ou "php artisan migrate --seed" acidentalmente em produção,
+         * qualquer pessoa com esse conhecimento consegue logar como admin e ter acesso total ao sistema.
          *
          * O abort() aqui garante que isso nunca aconteça.
          * Em produção, use dados reais configurados manualmente ou via CI secrets.
@@ -96,46 +97,38 @@ class DatabaseSeeder extends Seeder
 
         $allViacoes = $namedViacoes->merge($extraViacoes);
 
-        // Histórico "Criado" para viações nomeadas
-        //
-        // for($viacao) e for($admin): associa o historico a models já existentes sem criar novas viações ou usuários (a factory criaria por padrão).
-        //
-        // Pesquise "for() factory Laravel" e compare com o que acontece sem ele:
-        // ViacaoHistorico::factory()->criado()->create() criaria uma Viacao e um Usuario novos, além do historico
-        //
-        // ViacaoHistorico::factory()->criado()->for($viacao)->for($admin)->create() reutiliza os models fornecidos
         foreach ($namedViacoes as $viacao) {
-            if (! ViacaoHistorico::where('viacao_id', $viacao->id)->where('acao', AcaoHistorico::Criado->value)->exists()) {
-                ViacaoHistorico::factory()
+            // $viacao->historico() é o morphMany — já filtra por entidade_type e entidade_id.
+            // Mais idiomático e menos frágil do que replicar o filtro manualmente via where().
+            if (! $viacao->historico()->where('acao', AcaoHistorico::Criado->value)->exists()) {
+                Historico::factory()
                     ->criado()
-                    ->for($viacao)
-                    ->for($admin)
+                    ->for($viacao, 'entidade')
+                    ->state(['usuario_id' => $admin->id])
                     ->create();
             }
         }
 
-        // Histórico variado usando recycle()
-        //
-        // recycle($collection): quando a factory precisaria criar um model relacionado (ex: viacao_id => Viacao::factory()),
-        // ela pega um aleatório da collection em vez de criar um novo.
-        //
-        // Isso é diferente de for():
-        // for($viacao)         -> sempre usa ESSA viação específica
-        // recycle($collection) -> sorteia uma a cada registro criado
-        //
-        // Resultado: 10 registros de histórico distribuídos pelas viações e usuários existentes.
-        ViacaoHistorico::factory()
+        // Histórico variado: state() com closure para aleatorizar por registro.
+        // ->value garante que o alias gravado no banco vem do enum, não de string avulsa.
+        Historico::factory()
             ->count(5)
             ->editado()
-            ->recycle($allViacoes)
-            ->recycle($allUsers)
+            ->state(fn () => [
+                'entidade_type' => EntidadeHistorico::Viacao->value,
+                'entidade_id' => $allViacoes->random()->id,
+                'usuario_id' => $allUsers->random()->id,
+            ])
             ->create();
 
-        ViacaoHistorico::factory()
+        Historico::factory()
             ->count(2)
             ->excluido()
-            ->recycle($allViacoes)
-            ->recycle($allUsers)
+            ->state(fn () => [
+                'entidade_type' => EntidadeHistorico::Viacao->value,
+                'entidade_id' => $allViacoes->random()->id,
+                'usuario_id' => $allUsers->random()->id,
+            ])
             ->create();
     }
 }

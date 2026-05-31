@@ -9,7 +9,7 @@ namespace App\Services;
 use App\DTOs\ViacaoFilterDTO;
 use App\Enums\AcaoHistorico;
 use App\Models\Viacao;
-use App\Models\ViacaoHistorico;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -20,25 +20,20 @@ class ViacaoService
     ) {}
 
     /**
-     * Retorna viações com filtros encapsulados no DTO. O DTO já normalizou e tipou os valores antes de chegar no service.
+     * Retorna viações paginadas com filtros.
      *
-     * NOTA EDUCACIONAL sobre Eager Loading:
-     * Aqui NÃO usamos with() para carregar relacionamentos (ex: historico).
-     * Por quê?
-     * - A view admin/viacoes/index.blade.php SÓ mostra campos da viação (nome, cidade, ativa)
-     * - O histórico é acessado via rota separada (/admin/historico ou /admin/viacoes/{id}/historico)
-     * - Se no futuro necessitar do histórico aqui, ENTÃO adicionar with(['historico'])
-     * - Até lá deixar sem with() economiza queries desnecessárias
+     * onlyTrashed() vs withTrashed():
+     * - onlyTrashed(): WHERE deleted_at IS NOT NULL  -> só excluídos
+     * - withTrashed(): sem filtro em deleted_at       -> todos (ativos + excluídos)
+     * - padrão (sem nenhum): WHERE deleted_at IS NULL -> só ativos
      *
-     * Regra: eager-load APENAS os relacionamentos que você SABE que vai usar na view/response.
-     * Compare com HistoricoService que SEMPRE usa with(['viacao', 'usuario']) porque a
-     * view admin/historico/index.blade.php sempre acessa $h->viacao->nome e $h->usuario->nome.
-     *
-     * Pesquise: "lazy vs eager loading trade-offs", "premature optimization".
+     * Aqui: deletado=true mostra APENAS excluídos (para ação de restaurar).
+     * O usuário filtra entre "ativos" e "excluídos" explicitamente, nunca mistura.
      */
-    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO): Collection
+    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO): LengthAwarePaginator
     {
         return Viacao::query()
+            ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
             ->when($filter->q !== '', function ($query) use ($filter) {
                 // addcslashes escapa % e _ que o MySQL interpreta como wildcards no LIKE.
                 // Sem isso, "100%" no campo de busca viraria "qualquer coisa começando com 100".
@@ -51,7 +46,8 @@ class ViacaoService
             })
             ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
             ->orderByDesc('id')
-            ->get();
+            ->paginate(15)
+            ->withQueryString(); // preserva ?q=...&ativa=... nos links de paginação
     }
 
     /** Retorna só as viações ativas. Usada na home pública. */
@@ -86,15 +82,8 @@ class ViacaoService
                 'logo' => $logo,
             ]);
 
-            // Histórico: before = null (não existia), after = estado inicial
-            ViacaoHistorico::create([
-                'viacao_id' => $viacao->id,
+            $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
-                /*
-                 * AcaoHistorico::Criado->value, string derivada do enum.
-                 * Não há como salvar um valor inválido ("Criad" ao invés de "Criado") acidentalmente.
-                 * Pesquise "Backed enums PHP 8.1", "type safety".
-                 */
                 'acao' => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
@@ -108,14 +97,7 @@ class ViacaoService
 
     /**
      * Edita uma viação e registra o antes/depois no histórico.
-     *
-     * $viacao->only([...]) retorna valores já convertidos pelo cast (bool, não "1"/"0")
-     * O diff funciona igual, a diferença é o tipo dos valores armazenados no JSON.
-     *
-     * Transações: DB::transaction() com rollback automático
-     * - Se qualquer Eloquent::create() ou update() falhar dentro da closure, a exception é propagada
-     * - O rollback é automático, não precisa try/catch explícito
-     * - Pesquise "Laravel DB::transaction", "ACID properties", "database transactions".
+     * Só salva no log os campos que efetivamente mudaram (diffRows).
      */
     public function update(Viacao $viacao, string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
     {
@@ -139,8 +121,7 @@ class ViacaoService
             // Só salva os campos que realmente mudaram
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
 
-            ViacaoHistorico::create([
-                'viacao_id' => $viacao->id,
+            $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
                 'acao' => AcaoHistorico::Editado->value,
                 'alteracoes' => ['before' => $diffBefore, 'after' => $diffAfter],
@@ -148,11 +129,9 @@ class ViacaoService
         });
 
         /*
-         * Remoção do logo antigo DEPOIS do commit (fora da transação).
-         * Pattern importante: side effects (arquivo, cache, webhooks) devem ficar fora da transação.
-         * Se deletar dentro da closure e o commit falhar, o arquivo sumiu com o rollback. A viação não foi alterada mas ficou sem logo.
-         * Fora do DB::transaction(), só chegamos aqui se o commit foi bem-sucedido.
-         * Pesquise "distributed transactions", "two-phase commit", "saga pattern".
+         * Side effects (arquivo) ficam FORA da transação.
+         * Se o commit falhar, o arquivo não é deletado.
+         * Pesquise "saga pattern", "two-phase commit".
          */
         if ($oldLogo !== null && $oldLogo !== $logo) {
             $this->uploadService->delete($oldLogo);
@@ -161,28 +140,48 @@ class ViacaoService
         return $viacao;
     }
 
-    /** Exclui uma viação e registra no histórico. */
+    /** Soft-deleta uma viação e registra no histórico. */
     public function delete(Viacao $viacao, ?int $usuarioId = null): void
     {
-        $oldLogo = $viacao->logo;
-        $id = $viacao->id;
         $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
 
-        DB::transaction(function () use ($viacao, $id, $usuarioId, $before) {
-            $viacao->delete();
+        DB::transaction(function () use ($viacao, $usuarioId, $before) {
+            $viacao->delete(); // Com trait de SoftDeletes: seta deleted_at, não remove o registro. Pra remover MESMO, teria que usar forceDelete()
 
-            // after = null porque a viação não existe mais
-            ViacaoHistorico::create([
-                'viacao_id' => $id,
+            $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
                 'acao' => AcaoHistorico::Excluido->value,
                 'alteracoes' => ['before' => $before, 'after' => null],
             ]);
         });
 
-        if ($oldLogo !== null) {
+        // Agora que a viação não é mais removida de verdade melhor manter o logo pra não perder o vínculo ao restaurar.
+        // Normalmente esse trecho seria removido do código, mas deixei só pra mostrar onde era chamado.
+        /*if ($oldLogo !== null) {
             $this->uploadService->delete($oldLogo);
-        }
+        }*/
+    }
+
+    /**
+     * Restaura uma viação soft-deleted e registra no histórico.
+     *
+     * $viacao deve vir com withTrashed() (já buscado pelo controller).
+     * restore() seta deleted_at = null, tornando o registro visível novamente.
+     */
+    public function restore(Viacao $viacao, ?int $usuarioId = null): void
+    {
+        DB::transaction(function () use ($viacao, $usuarioId) {
+            $viacao->restore();
+
+            $viacao->historico()->create([
+                'usuario_id' => $usuarioId,
+                'acao' => AcaoHistorico::Restaurado->value,
+                'alteracoes' => [
+                    'before' => null,
+                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo']),
+                ],
+            ]);
+        });
     }
 
     /**

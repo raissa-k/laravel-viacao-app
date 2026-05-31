@@ -1,27 +1,38 @@
-{{-- View admin do histórico: filtros + tabela de alterações.
-$h é um ViacaoHistorico (Eloquent model).
-O cast json:unicode decodifica alteracoes para array automaticamente.
-Os relacionamentos viacao/usuario são eager-loaded em HistoricoService (with()),
-então $h->viacao->nome não dispara queries adicionais aqui. --}}
+{{-- Histórico unificado: abas para viações e usuários.
+A aba ativa é controlada pelo parâmetro GET 'entidade' (via HistoricoFilterDTO -> EntidadeHistorico enum).
+Troca de aba = nova requisição GET preservando os outros filtros.
+Pesquise "URL-based tabs", "HTTP idempotency", "GET vs POST". --}}
+
+{{-- @use importa o enum pra uso direto na view, sem FQCN nos comparativos.
+Mesmo padrão do @use('Illuminate\Support\Js') em outras views. --}}
+
 @extends('layouts.app')
 
 @section('title', $title)
-
+@use('App\Enums\EntidadeHistorico')
 @section('content')
 
 <h1>{{ $title }}</h1>
 
-{{-- Form de filtro usa GET (não POST):
-1. URL vira compartilhável
-2. Botão "voltar" do browser funciona corretamente
-POST é pra MUDAR dados, GET é pra LER/FILTRAR. Pesquise "HTTP idempotency". --}}
-<form class="filter-form" method="GET" action="{{ route('historico.index') }}">
+{{-- ABAS: links GET com ?entidade=viacao ou ?entidade=usuario.
+O href usa ->value pra gerar a string do parâmetro de URL. --}}
+<div class="abas">
+    <a
+        class="aba {{ $filter->entidade === EntidadeHistorico::Viacao ? 'aba-ativa' : '' }}"
+        href="{{ route('historico.index', array_merge(request()->except(['entidade', 'page']), ['entidade' => EntidadeHistorico::Viacao->value])) }}"
+    >
+        Viações
+    </a>
+    <a
+        class="aba {{ $filter->entidade === EntidadeHistorico::Usuario ? 'aba-ativa' : '' }}"
+        href="{{ route('historico.index', array_merge(request()->except(['entidade', 'page']), ['entidade' => EntidadeHistorico::Usuario->value])) }}"
+    >
+        Usuários
+    </a>
+</div>
 
-    {{-- viacao_id preservado como campo oculto: o link "Ver histórico desta viação"
-    na tela de edição passa esse parâmetro, e ele precisa sobreviver ao submit do form. --}}
-    @if ($filter->viacaoId !== null)
-        <input type="hidden" name="viacao_id" value="{{ $filter->viacaoId }}">
-    @endif
+<form class="filter-form" method="GET" action="{{ route('historico.index') }}">
+    <input type="hidden" name="entidade" value="{{ $filter->entidade->value }}">
 
     <div class="filter-field">
         <label class="filter-label" for="f-q">Busca</label>
@@ -30,7 +41,7 @@ POST é pra MUDAR dados, GET é pra LER/FILTRAR. Pesquise "HTTP idempotency". --
             id="f-q"
             type="text"
             name="q"
-            placeholder="Nome de viação ou usuário"
+            placeholder="{{ $filter->entidade === EntidadeHistorico::Usuario ? 'Nome de usuário' : 'Nome de viação' }}"
             value="{{ $filter->q }}"
         >
     </div>
@@ -39,12 +50,6 @@ POST é pra MUDAR dados, GET é pra LER/FILTRAR. Pesquise "HTTP idempotency". --
         <label class="filter-label" for="f-acao">Ação</label>
         <select class="filter-input-md" id="f-acao" name="acao">
             <option value="">Todas</option>
-            {{-- AcaoHistorico::cases() devolve todos os cases do enum em ordem de declaração.
-            Se um novo valor for adicionado ao enum, ele aparece aqui automaticamente.
-            Antes: array hardcoded ['Criado', 'Editado', 'Excluido'], fácil de esquecer de atualizar.
-            Agora: enum é a fonte de verdade, a view só itera.
-            $caso->value extrai a string 'Criado'/'Editado'/'Excluido'.
-            $filter->acao === $caso compara enum com enum (não string com string) --}}
             @foreach (\App\Enums\AcaoHistorico::cases() as $caso)
                 <option value="{{ $caso->value }}" @selected($filter->acao === $caso)>
                     {{ $caso->value }}
@@ -77,24 +82,23 @@ POST é pra MUDAR dados, GET é pra LER/FILTRAR. Pesquise "HTTP idempotency". --
         <span class="filter-label">&nbsp;</span>
         <div class="actions">
             <button type="submit">Filtrar</button>
-            <a href="{{ route('historico.index') }}">Limpar</a>
+            <a href="{{ route('historico.index', ['entidade' => $filter->entidade]) }}">Limpar</a>
         </div>
     </div>
-
 </form>
 
 @if ($historico->isEmpty())
     <p class="muted">Nenhum registro encontrado.</p>
 @else
 
-    <p class="small muted">{{ $historico->count() }} registro(s) encontrado(s)</p>
+    <p class="small muted">{{ $historico->total() }} registro(s) encontrado(s)</p>
 
     <table class="admin-table">
         <thead>
             <tr>
                 <th>#</th>
-                <th>Viação</th>
-                <th>Usuário</th>
+                <th>{{ $filter->entidade === EntidadeHistorico::Usuario ? 'Usuário' : 'Viação' }}</th>
+                <th>Ator</th>
                 <th>Ação</th>
                 <th>Alterações</th>
                 <th>Quando</th>
@@ -104,13 +108,16 @@ POST é pra MUDAR dados, GET é pra LER/FILTRAR. Pesquise "HTTP idempotency". --
         @foreach ($historico as $h)
             <tr>
                 <td class="small muted">{{ $h->id }}</td>
-                <td>{{ $h->viacao->nome ?: '---' }}</td>
-                <td>{{ $h->usuario->nome ?: '---' }}</td>
+                <td>{{ $h->entidade->nome ?: '---' }}</td>
+                <td>
+                    {{ $h->ator->nome ?: '---' }}
+                    @if ($h->ator?->trashed())
+                        <div class="small muted">usuário excluído</div>
+                    @endif
+                </td>
                 <td>{{ $h->acao }}</td>
                 <td>
                     @if (is_array($h->alteracoes))
-                        {{-- <details> e <summary>: elementos HTML nativos pra expandir/recolher,
-                        sem JavaScript. Pesquise "HTML details element" no MDN. --}}
                         <details>
                             <summary class="small">Ver alterações</summary>
                             <pre class="diff-pre">Antes:
@@ -123,28 +130,15 @@ Depois:
                         <span class="muted small">---</span>
                     @endif
                 </td>
-                <td class="small muted">
-                    {{-- $h->criado_em é uma instância de Carbon (Laravel Eloquent automático).
-                    Podemos usar métodos Carbon aqui:
-                    - ->format('Y-m-d H:i'): formatação clássica
-                    - ->translatedFormat('d \\d\\e F \\d\\e Y'): respeita locale (pt_BR)
-                    - ->diffForHumans(): "1 hour ago", "5 minutes ago" (locale-aware)
-                    - ->toFormattedDateString(): "Jan 2, 2026"
-
-                    Carbon é perfeito pra exibir datas em views porque oferece coisa pronta e respeita a configuração de locale do Laravel.
-
-                    Comparação:
-                    - DateTime nativo: $d->format('Y-m-d H:i')
-                    - Carbon: $d->format('Y-m-d H:i') (OU $d->translatedFormat('d \\d\\e F'))
-
-                    Pesquise "Carbon formatting", "Carbon localization", "Carbon diffForHumans".
-                    --}}
-                    {{ $h->criado_em->format('d/m/Y H:i') }}
-                </td>
+                <td class="small muted">{{ $h->criado_em->format('d/m/Y H:i') }}</td>
             </tr>
         @endforeach
         </tbody>
     </table>
+
+    <div class="paginacao">
+        {{ $historico->links() }}
+    </div>
 
 @endif
 

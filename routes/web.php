@@ -1,18 +1,15 @@
 <?php
 
-// Rotas web do app (páginas HTML).
-// Compare com src/routes/web.php do PHP puro.
+// Rotas web do app.
+// Diferenças vs PHP puro:
+//   Route::get/post/put/delete + ->name() = URL nomeada usada com route() nas views.
+//   Route::middleware() = middleware declarativo em grupos, sem repetição.
 //
-// Diferenças de implementação:
-//   PHP puro: $router->get('/path', [Controller::class, 'method'])
-//   Laravel:  Route::get('/path', [Controller::class, 'method'])->name('nome')
-//
-// URLs nomeadas (->name()): (não precisa nomear pra funcionar),
-// MAS com nomeação em vez de hardcodar "/admin/viacoes" nas views, usamos route('viacoes.index'). Se a URL mudar, só atualiza aqui.
-// Pesquise "named routes Laravel", "route() helper".
-//
-// No Laravel: Route::middleware('auth') aplica o middleware a um grupo de rotas declarativamente.
-// Pesquise "Laravel middleware groups", "route middleware".
+// SOFT DELETE E ROUTE MODEL BINDING:
+//   Por padrão, o binding NÃO encontra registros com deleted_at preenchido.
+//   ->withTrashedParameters() instrui o binding a incluir soft-deleted.
+//   Usado apenas nas rotas de restore, onde precisamos do registro excluído.
+//   Pesquise "withTrashedParameters Laravel", "route model binding soft delete".
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HistoricoController;
@@ -51,13 +48,26 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/viacoes', [ViacaoController::class, 'index'])->name('viacoes.index');
     Route::get('/viacoes/create', [ViacaoController::class, 'create'])->name('viacoes.create');
     Route::post('/viacoes', [ViacaoController::class, 'store'])->name('viacoes.store');
+    Route::get('/viacoes/{viacao}', [ViacaoController::class, 'show'])->name('viacoes.show');
     Route::get('/viacoes/{viacao}/edit', [ViacaoController::class, 'edit'])->name('viacoes.edit');
     Route::put('/viacoes/{viacao}', [ViacaoController::class, 'update'])->name('viacoes.update');
     Route::delete('/viacoes/{viacao}', [ViacaoController::class, 'destroy'])->name('viacoes.destroy');
+    // restore recebe o ID como int simples: route model binding padrão não encontra soft-deleted.
+    // O controller busca com withTrashed() manualmente.
+    Route::post('/viacoes/{id}/restore', [ViacaoController::class, 'restore'])->name('viacoes.restore')
+        ->where('id', '[0-9]+');
 
     // Histórico de alterações
     Route::get('/historico', [HistoricoController::class, 'index'])->name('historico.index');
 
-    // Usuários (somente leitura)
+    // CRUD de usuários
     Route::get('/usuarios', [UsuariosController::class, 'index'])->name('usuarios.index');
+    Route::get('/usuarios/create', [UsuariosController::class, 'create'])->name('usuarios.create');
+    Route::post('/usuarios', [UsuariosController::class, 'store'])->name('usuarios.store');
+    Route::get('/usuarios/{usuario}', [UsuariosController::class, 'show'])->name('usuarios.show');
+    Route::get('/usuarios/{usuario}/edit', [UsuariosController::class, 'edit'])->name('usuarios.edit');
+    Route::put('/usuarios/{usuario}', [UsuariosController::class, 'update'])->name('usuarios.update');
+    Route::delete('/usuarios/{usuario}', [UsuariosController::class, 'destroy'])->name('usuarios.destroy');
+    Route::post('/usuarios/{id}/restore', [UsuariosController::class, 'restore'])->name('usuarios.restore')
+        ->where('id', '[0-9]+');
 });

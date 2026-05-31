@@ -8,7 +8,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -18,8 +19,11 @@ class Usuario extends Authenticatable
      * HasApiTokens: adiciona createToken(), tokens() e tokenCan() ao model.
      * Sanctum armazena o hash do token na tabela personal_access_tokens.
      * HasFactory: habilita Usuario::factory() nos testes.
+     * SoftDeletes: substitui DELETE físico por deleted_at = NOW().
+     * Todas as queries passam a filtrar WHERE deleted_at IS NULL automaticamente.
+     * Pesquise "Eloquent soft deleting", "withTrashed", "onlyTrashed".
      */
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, SoftDeletes;
 
     protected $table = 'usuarios';
 
@@ -64,10 +68,12 @@ class Usuario extends Authenticatable
     }
 
     /*
-     * Relacionamento: um usuário pode ter muitos registros de histórico.
+     * Relacionamento polimórfico: registros de auditoria deste usuário.
+     * O Laravel filtra automaticamente por entidade_type='usuario' + entidade_id=$this->id.
+     * Pesquise "Eloquent morphMany", "polymorphic relationships".
      */
-    public function historico(): HasMany
+    public function historico(): MorphMany
     {
-        return $this->hasMany(ViacaoHistorico::class, 'usuario_id');
+        return $this->morphMany(Historico::class, 'entidade');
     }
 }

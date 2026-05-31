@@ -1,12 +1,16 @@
 <?php
 
 // DTO de filtros pro histórico de alterações.
-// Mesmo raciocínio do ViacaoFilterDTO: normaliza e tipa parâmetros GET sem redirecionar o usuário em caso de valor inválido.
+// Mesmo padrão dos outros DTOs: normaliza e tipa parâmetros GET.
+//
+// Campo 'entidade' controla qual aba está ativa (viacoes ou usuarios).
+// Isso separa o histórico de cada entidade em abas distintas na view, sem precisar de duas rotas ou dois controllers.
 
 namespace App\DTOs;
 
 use App\DTOs\Contracts\FilterDTO;
 use App\Enums\AcaoHistorico;
+use App\Enums\EntidadeHistorico;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -14,36 +18,30 @@ final readonly class HistoricoFilterDTO implements FilterDTO
 {
     public function __construct(
         /*
-         * Antes: public ?string $acao = null
-         * Agora: public ?AcaoHistorico $acao = null
-         *
-         * O que muda na prática?
-         * Com ?AcaoHistorico, o PHP garante que $acao só pode ser um dos três cases do enum ou null.
-         * É impossível ter um valor inválido aqui, o tipo não deixa.
-         * Pesquise "type safety".
+         * entidade: aba ativa da listagem.
+         * EntidadeHistorico garante que só valores válidos chegam ao service:
+         * tryFrom('foo') -> null -> fallback para Viacao. Sem enum, qualquer string passaria.
          */
+        public EntidadeHistorico $entidade = EntidadeHistorico::Viacao,
         public ?AcaoHistorico $acao = null,
         public ?string $dateFrom = null,
         public ?string $dateTo = null,
         public string $q = '',
-        public ?int $viacaoId = null,
     ) {}
 
     public static function fromRequest(Request $request): static
     {
-        $viacaoIdRaw = $request->input('viacao_id');
-
         return new self(
             /*
-             * tryFrom() recebe uma string e devolve o case correspondente, ou null se não encontrar.
-             * A diferença: in_array() é uma verificação manual que você precisa lembrar de fazer.
-             * tryFrom() é automático porque faz parte do contrato do enum backed.
+             * tryFrom() devolve null para valores inválidos (ex: 'viacoes', 'Viacao').
+             * O ?? garante o fallback para a aba padrão sem exception.
+             * Mesmo padrão do AcaoHistorico no mesmo DTO.
              */
+            entidade: EntidadeHistorico::tryFrom((string) $request->input('entidade', '')) ?? EntidadeHistorico::Viacao,
             acao: AcaoHistorico::tryFrom((string) $request->input('acao', '')),
             dateFrom: self::parseDate($request->input('date_from')),
             dateTo: self::parseDate($request->input('date_to')),
             q: trim((string) $request->input('q', '')),
-            viacaoId: is_numeric($viacaoIdRaw) && (int) $viacaoIdRaw > 0 ? (int) $viacaoIdRaw : null,
         );
     }
 

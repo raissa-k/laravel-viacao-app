@@ -3,6 +3,8 @@
 // Testes do CRUD de viações no painel admin.
 // Cobre: proteção por auth, listagem, criação, edição, exclusão e validação.
 
+use App\Enums\AcaoHistorico;
+use App\Enums\EntidadeHistorico;
 use App\Models\Usuario;
 use App\Models\Viacao;
 
@@ -72,7 +74,7 @@ it('cria viação válida e registra histórico', function () {
         ->assertSessionHas('success');
 
     $this->assertDatabaseHas('viacoes', ['nome' => 'Expresso Teste']);
-    $this->assertDatabaseHas('viacoes_historico', ['acao' => 'Criado', 'usuario_id' => $user->id]);
+    $this->assertDatabaseHas('historico', ['acao' => 'Criado', 'usuario_id' => $user->id, 'entidade_type' => EntidadeHistorico::Viacao->value]);
 });
 
 it('rejeita viação sem nome', function () {
@@ -118,10 +120,10 @@ it('atualiza viação existente e registra histórico', function () {
             'cidade' => $viacao->cidade,
             'ativa' => $viacao->ativa,
         ])
-        ->assertRedirect(route('viacoes.index'));
+        ->assertRedirect(route('viacoes.show', $viacao));
 
     $this->assertDatabaseHas('viacoes', ['id' => $viacao->id, 'nome' => 'Atualizada']);
-    $this->assertDatabaseHas('viacoes_historico', ['acao' => 'Editado', 'viacao_id' => $viacao->id]);
+    $this->assertDatabaseHas('historico', ['acao' => 'Editado', 'entidade_id' => $viacao->id, 'entidade_type' => EntidadeHistorico::Viacao->value]);
 });
 
 it('retorna 404 ao editar viação inexistente', function () {
@@ -141,6 +143,7 @@ it('remove viação e registra histórico', function () {
         ->assertRedirect(route('viacoes.index'))
         ->assertSessionHas('success');
 
-    $this->assertDatabaseMissing('viacoes', ['id' => $viacao->id]);
-    $this->assertDatabaseHas('viacoes_historico', ['acao' => 'Excluido', 'viacao_id' => $viacao->id]);
+    $softDeleted = Viacao::withTrashed()->find($viacao->id);
+    $this->assertNotEquals(null, $softDeleted->deleted_at);
+    $this->assertDatabaseHas('historico', ['acao' => AcaoHistorico::Excluido, 'entidade_id' => $viacao->id]);
 });
