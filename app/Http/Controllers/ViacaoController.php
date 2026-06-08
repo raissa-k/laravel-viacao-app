@@ -61,7 +61,7 @@ class ViacaoController extends Controller
         }
 
         $data = $request->validated();
-        $viacao = $this->viacaoService->create($data['nome'], $data['cidade'], $data['ativa'], $data['site'] ?? null, $logo, auth()->id());
+        $viacao = $this->viacaoService->create($data['nome'], $data['cidade'], $logo, $data['ativa'], auth()->id());
 
         /*
          * redirect()->route() vs View::redirect() do PHP puro:
