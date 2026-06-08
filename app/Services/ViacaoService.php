@@ -72,14 +72,15 @@ class ViacaoService
      *
      * Pesquise: "Laravel DB::transaction", "closure-based transactions", "ACID guarantees".
      */
-    public function create(string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
+    public function create(string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null, ?string $site = null): Viacao
     {
-        return DB::transaction(function () use ($nome, $cidade, $ativa, $logo, $usuarioId) {
+        return DB::transaction(function () use ($nome, $cidade, $ativa, $logo, $usuarioId, $site) {
             $viacao = Viacao::create([
                 'nome' => $nome,
                 'cidade' => $cidade,
                 'ativa' => $ativa,
                 'logo' => $logo,
+                'site' => $site,
             ]);
 
             $viacao->historico()->create([
@@ -87,7 +88,7 @@ class ViacaoService
                 'acao' => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo']), // não precisamos mostrar ID, data de criação, etc
+                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']), // não precisamos mostrar ID, data de criação, etc
                 ],
             ]);
 
@@ -99,24 +100,25 @@ class ViacaoService
      * Edita uma viação e registra o antes/depois no histórico.
      * Só salva no log os campos que efetivamente mudaram (diffRows).
      */
-    public function update(Viacao $viacao, string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
+    public function update(Viacao $viacao, string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null, ?string $site = null): Viacao
     {
         $oldLogo = $viacao->logo;
 
-        DB::transaction(function () use ($viacao, $nome, $cidade, $ativa, $logo, $usuarioId) {
-            // Captura o estado antes da edição, mas só os campos interessantes
-            $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
+        DB::transaction(function () use ($viacao, $nome, $cidade, $ativa, $logo, $usuarioId, $site) {
+            // Captura o estado antes da edição, mas só os campos interessantesupdate
+            $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']);
 
             $viacao->update([
                 'nome' => $nome,
                 'cidade' => $cidade,
                 'ativa' => $ativa,
                 'logo' => $logo,
+                'site' => $site,
             ]);
 
             // Recarrega do banco pra pegar updated_at atualizado
             $viacao->refresh();
-            $after = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
+            $after = $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']);
 
             // Só salva os campos que realmente mudaram
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
@@ -168,9 +170,9 @@ class ViacaoService
      * $viacao deve vir com withTrashed() (já buscado pelo controller).
      * restore() seta deleted_at = null, tornando o registro visível novamente.
      */
-    public function restore(Viacao $viacao, ?int $usuarioId = null): void
+    public function restore(Viacao $viacao, ?int $usuarioId = null, ?string $site = null): void
     {
-        DB::transaction(function () use ($viacao, $usuarioId) {
+        DB::transaction(function () use ($viacao, $usuarioId, $site) {
             $viacao->restore();
 
             $viacao->historico()->create([
@@ -178,7 +180,7 @@ class ViacaoService
                 'acao' => AcaoHistorico::Restaurado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo']),
+                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']),
                 ],
             ]);
         });
