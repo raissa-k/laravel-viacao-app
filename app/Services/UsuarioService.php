@@ -11,6 +11,7 @@ use App\Models\Usuario;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\BemVindoNotification;
 
 class UsuarioService
 {
@@ -30,9 +31,9 @@ class UsuarioService
             ->withQueryString();
     }
 
-    public function create(string $nome, string $email, string $senha, ?int $atorId = null): Usuario
+    public function create(string $nome, string $email, string $senha, string $welcome, ?int $atorId = null): Usuario
     {
-        return DB::transaction(function () use ($nome, $email, $senha, $atorId) {
+        return DB::transaction(function () use ($nome, $email, $senha, $welcome, $atorId) {
             $usuario = Usuario::create([
                 'nome' => $nome,
                 'email' => $email,
@@ -43,6 +44,10 @@ class UsuarioService
                  */
                 'senha' => Hash::make($senha),
             ]);
+
+            $usuario->notify(
+                new BemVindoNotification($welcome)
+            );
 
             $usuario->historico()->create([
                 'usuario_id' => $atorId,

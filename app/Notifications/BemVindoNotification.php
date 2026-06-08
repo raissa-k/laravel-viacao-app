@@ -36,7 +36,7 @@ class BemVindoNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Bem-Vindo ao sistema!')
-            ->line('Olá' .$notifiable->nome . ', Seja bem-vindo ao sistema!');
+            ->line('Olá'.' '.$notifiable->nome . ', Seja bem-vindo ao sistema!');
 
     }
 
