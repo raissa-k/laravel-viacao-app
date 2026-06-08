@@ -121,7 +121,7 @@ it('atualiza viação existente e registra histórico', function () {
     $this->actingAs($user)
         ->put(route('viacoes.update', $viacao), [
             'nome' => 'Atualizada',
-            'cidade' => $viacao->cidade,
+            'cidade' => $viacao->cidade->nome,
             'ativa' => $viacao->ativa,
         ])
         ->assertRedirect(route('viacoes.show', $viacao));

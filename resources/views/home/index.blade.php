@@ -143,7 +143,7 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
                         </div>
                         <div class="flex flex-col gap-sm w-full">
                             <strong class="viacao-nome">{{ $v->nome }}</strong>
-                            <span class="viacao-cidade">📍 {{ $v->cidade }}</span>
+                            <span class="viacao-cidade">📍 {{ $v->cidade->nome }}</span>
                         </div>
                     </div>
                 @endforeach

@@ -41,7 +41,7 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
         </tr>
         <tr>
             <th>Cidade</th>
-            <td>{{ $viacao->cidade }}</td>
+            <td>{{ $viacao->cidade->nome }}</td>
         </tr>
         <tr>
             <th>Ativa</th>

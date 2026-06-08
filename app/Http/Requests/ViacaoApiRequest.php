@@ -24,11 +24,19 @@ class ViacaoApiRequest extends FormRequest
 
     public function rules(): array
     {
-        return static::coreRules();
+        $rules = static::coreRules();
+
+        // PUT (atualização): cidade e nome são opcionais pra permitir atualizações parciais
+        if ($this->isMethod('PUT')) {
+            $rules['cidade'] = ['sometimes', 'string', 'max:255'];
+            $rules['nome'] = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
     /*
-     * Regras separadas em statis pra que o comando Artisan ImportViacoes (que também não processa logo)
+     * Regras separadas em static pra que o comando Artisan ImportViacoes (que também não processa logo)
      * possa reutilizar via Validator::make() sem ter que instanciar um FormRequest (que requer HTTP context).
      * Fonte única de verdade: mudar aqui aplica em HTTP e CLI ao mesmo tempo.
      *
