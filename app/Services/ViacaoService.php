@@ -11,6 +11,7 @@ use App\Enums\AcaoHistorico;
 use App\Models\Viacao;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 
 class ViacaoService
@@ -216,5 +217,10 @@ class ViacaoService
         }
 
         return [$diffBefore ?: null, $diffAfter ?: null];
+    }
+    //----------------função de exportar as viações------------------------------
+    public function exportViacoes(): Collection
+    {
+        return Viacao::query()->get();
     }
 }
