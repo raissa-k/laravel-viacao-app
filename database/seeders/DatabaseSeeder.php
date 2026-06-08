@@ -14,7 +14,6 @@ use App\Models\Viacao;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Cidade;
 
 class DatabaseSeeder extends Seeder
 {
@@ -85,14 +84,10 @@ class DatabaseSeeder extends Seeder
             ['nome' => 'Itapemirim',         'cidade' => 'Vitória',        'ativa' => true],
             ['nome' => 'Real Expresso',      'cidade' => 'Brasília',       'ativa' => true],
             ['nome' => 'Penha',              'cidade' => 'Belo Horizonte', 'ativa' => false],
-        ])->map(function ($data) {
-            $cidade = Cidade::firstOrCreate(['nome' => $data['cidade']]);
-
-            return Viacao::firstOrCreate(
-                ['nome' => $data['nome']],
-                ['cidade_id' => $cidade->id, 'ativa' => $data['ativa'], 'logo' => null]
-            );
-        });
+        ])->map(fn ($data) => Viacao::firstOrCreate(
+            ['nome' => $data['nome']],
+            ['cidade' => $data['cidade'], 'ativa' => $data['ativa'], 'logo' => null]
+        ));
 
         // Viações extras (via factory)
         //

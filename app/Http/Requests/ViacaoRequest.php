@@ -58,5 +58,3 @@ class ViacaoRequest extends FormRequest
         ];
     }
 }
-
-

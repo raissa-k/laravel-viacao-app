@@ -96,5 +96,3 @@ class ImportViacoes extends Command
         return self::SUCCESS;
     }
 }
-
-

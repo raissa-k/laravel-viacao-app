@@ -108,8 +108,8 @@ class ViacaoApiController extends Controller
 
         $viacao = $this->viacaoService->update(
             $viacao,
-            $validated['nome'] ?? $viacao->nome,
-            $validated['cidade'] ?? $viacao->cidade->nome,
+            $validated['nome'],
+            $validated['cidade'],
             (bool) ($validated['ativa'] ?? $viacao->ativa),
             $viacao->logo,
             auth()->id(),

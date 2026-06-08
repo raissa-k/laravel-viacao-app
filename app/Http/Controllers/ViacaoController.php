@@ -78,7 +78,6 @@ class ViacaoController extends Controller
      */
     public function show(Viacao $viacao): View
     {
-        $viacao->load('cidade');
         $historico = $viacao->historico()->with('ator')->orderByDesc('criado_em')->get();
 
         return view('admin.viacoes.show', [
@@ -90,8 +89,6 @@ class ViacaoController extends Controller
 
     public function edit(Viacao $viacao): View
     {
-        $viacao->load('cidade');
-
         return view('admin.viacoes.edit', [
             'title' => 'Editar Viação',
             'viacao' => $viacao,
