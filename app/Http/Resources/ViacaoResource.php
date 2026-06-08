@@ -28,7 +28,7 @@ class ViacaoResource extends JsonResource
         return [
             'id' => $this->id,
             'nome' => $this->nome,
-            'cidade' => $this->cidade,
+            'cidade' => $this->cidade?->nome,
             'ativa' => $this->ativa,
             // Logo será null ou uma string filename, geralmente não incluímos o path em APIs
             // Por enquanto, só retornamos o filename e não o caminho para mostrar o arquivo

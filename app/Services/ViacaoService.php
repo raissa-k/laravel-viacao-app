@@ -41,10 +41,11 @@ class ViacaoService
                 $escaped = addcslashes($filter->q, '%_');
                 $query->where(function ($q2) use ($escaped) {
                     $q2->where('nome', 'like', '%'.$escaped.'%')
-                        ->orWhere('cidade', 'like', '%'.$escaped.'%');
+                        ->orWhereHas('cidade', fn ($q3) => $q3->where('nome', 'like', '%'.$escaped.'%'));
                 });
             })
             ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
+            ->with('cidade') // eager loading pra otimizar queries
             ->orderByDesc('id')
             ->paginate(15)
             ->withQueryString(); // preserva ?q=...&ativa=... nos links de paginação
@@ -53,13 +54,13 @@ class ViacaoService
     /** Retorna só as viações ativas. Usada na home pública. */
     public function active(): Collection
     {
-        return Viacao::query()->where('ativa', true)->orderByDesc('id')->get();
+        return Viacao::query()->where('ativa', true)->with('cidade')->orderByDesc('id')->get();
     }
 
     /** Busca uma viação pelo ID. Retorna null se não encontrar. */
     public function find(int $id): ?Viacao
     {
-        return Viacao::find($id);
+        return Viacao::with('cidade')->find($id);
     }
 
     /**
@@ -75,9 +76,11 @@ class ViacaoService
     public function create(string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
     {
         return DB::transaction(function () use ($nome, $cidade, $ativa, $logo, $usuarioId) {
+            $cidadeModel = \App\Models\Cidade::firstOrCreate(['nome' => $cidade]);
+
             $viacao = Viacao::create([
                 'nome' => $nome,
-                'cidade' => $cidade,
+                'cidade_id' => $cidadeModel->id,
                 'ativa' => $ativa,
                 'logo' => $logo,
             ]);
@@ -87,7 +90,7 @@ class ViacaoService
                 'acao' => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo']), // não precisamos mostrar ID, data de criação, etc
+                    'after' => $viacao->only(['nome', 'ativa', 'logo']) + ['cidade' => $cidade],
                 ],
             ]);
 
@@ -104,19 +107,21 @@ class ViacaoService
         $oldLogo = $viacao->logo;
 
         DB::transaction(function () use ($viacao, $nome, $cidade, $ativa, $logo, $usuarioId) {
+            $cidadeModel = \App\Models\Cidade::firstOrCreate(['nome' => $cidade]);
+
             // Captura o estado antes da edição, mas só os campos interessantes
-            $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
+            $before = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade' => $viacao->cidade?->nome];
 
             $viacao->update([
                 'nome' => $nome,
-                'cidade' => $cidade,
+                'cidade_id' => $cidadeModel->id,
                 'ativa' => $ativa,
                 'logo' => $logo,
             ]);
 
             // Recarrega do banco pra pegar updated_at atualizado
             $viacao->refresh();
-            $after = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
+            $after = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade' => $cidade];
 
             // Só salva os campos que realmente mudaram
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
@@ -143,7 +148,14 @@ class ViacaoService
     /** Soft-deleta uma viação e registra no histórico. */
     public function delete(Viacao $viacao, ?int $usuarioId = null): void
     {
-        $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
+        $viacao->load('cidade');
+
+        $before = [
+            'nome' => $viacao->nome,
+            'cidade' => $viacao->cidade->nome,
+            'ativa' => $viacao->ativa,
+            'logo' => $viacao->logo,
+        ];
 
         DB::transaction(function () use ($viacao, $usuarioId, $before) {
             $viacao->delete(); // Com trait de SoftDeletes: seta deleted_at, não remove o registro. Pra remover MESMO, teria que usar forceDelete()
@@ -170,6 +182,8 @@ class ViacaoService
      */
     public function restore(Viacao $viacao, ?int $usuarioId = null): void
     {
+        $viacao->load('cidade');
+
         DB::transaction(function () use ($viacao, $usuarioId) {
             $viacao->restore();
 
@@ -178,7 +192,12 @@ class ViacaoService
                 'acao' => AcaoHistorico::Restaurado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo']),
+                    'after' => [
+                        'nome' => $viacao->nome,
+                        'cidade' => $viacao->cidade->nome,
+                        'ativa' => $viacao->ativa,
+                        'logo' => $viacao->logo,
+                    ],
                 ],
             ]);
         });

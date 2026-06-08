@@ -7,6 +7,7 @@ use App\Enums\AcaoHistorico;
 use App\Enums\EntidadeHistorico;
 use App\Models\Usuario;
 use App\Models\Viacao;
+use App\Models\Cidade;
 
 // Acesso não autenticado
 
@@ -31,8 +32,11 @@ it('exibe a lista de viações para usuário autenticado', function () {
 });
 
 it('filtra viações por busca textual', function () {
-    Viacao::factory()->create(['nome' => 'Cometa', 'cidade' => 'Campinas']);
-    Viacao::factory()->create(['nome' => 'Penha',  'cidade' => 'BH']);
+    $cidadeCampinas = Cidade::factory()->create(['nome' => 'Campinas']);
+    $cidadeBH = Cidade::factory()->create(['nome' => 'BH']);
+
+    Viacao::factory()->create(['nome' => 'Cometa', 'cidade_id' => $cidadeCampinas->id]);
+    Viacao::factory()->create(['nome' => 'Penha',  'cidade_id' => $cidadeBH->id]);
 
     $response = $this->actingAs(Usuario::factory()->create())
         ->get(route('viacoes.index', ['q' => 'Cometa']));
@@ -117,7 +121,7 @@ it('atualiza viação existente e registra histórico', function () {
     $this->actingAs($user)
         ->put(route('viacoes.update', $viacao), [
             'nome' => 'Atualizada',
-            'cidade' => $viacao->cidade,
+            'cidade' => $viacao->cidade->nome,
             'ativa' => $viacao->ativa,
         ])
         ->assertRedirect(route('viacoes.show', $viacao));

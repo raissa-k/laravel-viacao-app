@@ -92,7 +92,7 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
                         <span class="muted">{{ $v->nome }}</span>
                     @endif
                 </td>
-                <td>{{ $v->cidade }}</td>
+                <td>{{ $v->cidade?->nome }}</td>
                 <td>{{ $v->ativa ? 'Sim' : 'Não' }}</td>
                 <td>
                     @if ($v->logo !== null)
