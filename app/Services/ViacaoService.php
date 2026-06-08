@@ -170,7 +170,7 @@ class ViacaoService
      * $viacao deve vir com withTrashed() (já buscado pelo controller).
      * restore() seta deleted_at = null, tornando o registro visível novamente.
      */
-    public function restore(Viacao $viacao, ?int $usuarioId = null, ?string $site = null): void
+    public function restore(Viacao $viacao, ?int $usuarioId = null): void
     {
         DB::transaction(function () use ($viacao, $usuarioId) {
             $viacao->restore();

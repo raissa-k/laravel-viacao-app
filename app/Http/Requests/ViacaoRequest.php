@@ -39,10 +39,12 @@ class ViacaoRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $siteInput = trim((string) $this->input('site', ''));
         $this->merge([
             'nome' => trim((string) $this->input('nome', '')),
             'cidade' => trim((string) $this->input('cidade', '')),
             'ativa' => $this->boolean('ativa'),
+            'site' => $siteInput !== '' ? $siteInput : null,
         ]);
     }
 
@@ -56,6 +58,7 @@ class ViacaoRequest extends FormRequest
             'logo.image' => 'O logo deve ser uma imagem.',
             'logo.mimes' => 'O logo deve ser JPG, PNG ou WEBP.',
             'logo.max' => 'O logo deve ter no máximo 2 MB.',
+            'site.url' => 'O site deve ser uma URL.',
         ];
     }
 }

@@ -147,8 +147,8 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
 
                             {{-- Renderiza o link apenas se a viação possuir site informado --}}
                             @if (!empty($v->site))
-                                <div class="viacao-site" style="margin-top: 4px;">
-                                    <a href="{{ $v->site }}" target="_blank" rel="noopener" class="text-sm btn-link" style="color: #2563eb; text-decoration: underline;">
+                                <div class="viacao-site">
+                                    <a href="{{ $v->site }}" target="_blank" rel="noopener">
                                         Visitar site oficial
                                     </a>
                                 </div>
