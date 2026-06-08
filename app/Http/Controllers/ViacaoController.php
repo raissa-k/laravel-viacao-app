@@ -61,8 +61,15 @@ class ViacaoController extends Controller
         }
 
         $data = $request->validated();
-        $viacao = $this->viacaoService->create($data['nome'], $data['cidade'], $logo, $data['ativa'], auth()->id());
 
+        $viacao = $this->viacaoService->create(
+            nome: $data['nome'],
+            cidade: $data['cidade'],
+            ativa: $data['ativa'] ?? true,
+            logo: $logo,
+            site: $request->input('site'),
+            usuarioId: auth()->id()
+        );
         /*
          * redirect()->route() vs View::redirect() do PHP puro:
          * No PHP puro: header('Location: /admin/viacoes') + exit.
@@ -109,8 +116,16 @@ class ViacaoController extends Controller
         }
 
         $data = $request->validated();
-        $this->viacaoService->update($viacao, $data['nome'], $data['cidade'], $data['ativa'], $logo, auth()->id(), $data['site'] ?? null);
 
+        $this->viacaoService->update(
+            viacao: $viacao,
+            nome: $data['nome'],
+            cidade: $data['cidade'],
+            ativa: $data['ativa'] ?? true,
+            logo: $logo,
+            site: $request->input('site'),
+            usuarioId: auth()->id()
+        );
         return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação atualizada.');
     }
 
