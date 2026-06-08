@@ -28,6 +28,7 @@ class ViacaoRequest extends FormRequest
             // 'image': valida MIME pelo conteúdo do arquivo, não pela extensão.
             // 'max:2048': tamanho máximo em KB (2048 KB = 2 MB).
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
+            'site' => ['nullable', 'string', 'url', 'max:255'],
         ];
     }
 
