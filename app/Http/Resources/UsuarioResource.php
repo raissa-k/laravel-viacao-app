@@ -14,6 +14,14 @@ class UsuarioResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'nome' => $this->nome,
+            'email' => $this->email,
+            // Nunca expomos a senha, mesmo que tenha hash. Segurança em primeiro lugar.
+            // 'senha' => $this->senha, // NÃO INCLUIR
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
+        ];
     }
 }
