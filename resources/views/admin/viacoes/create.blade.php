@@ -40,14 +40,17 @@ old('campo') repopula o campo após erro de validação, igual ao $old['campo'] 
 
     <div class="form-group">
         <label for="cidade">Cidade</label>
-        <input
-            type="text"
-            id="cidade"
-            name="cidade"
-            value="{{ old('cidade') }}"
-            required
-            maxlength="255"
-        >
+        <select name="cidade" id="cidade" class="field-input" required>
+            <option value="">Selecione uma cidade...</option>
+            @foreach($cidades as $cidade)
+                <option value="{{ $cidade->nome }}" {{ old('cidade') === $cidade->nome ? 'selected' : '' }}>
+                    {{ $cidade->nome }} {{ $cidade->uf ? '- ' . $cidade->uf : '' }}
+                </option>
+            @endforeach
+        </select>
+        @error('cidade')
+        <span class="text-danger">{{ $message }}</span>
+        @enderror
     </div>
 
     <div class="form-group">

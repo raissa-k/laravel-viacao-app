@@ -16,6 +16,7 @@ use App\Services\ViacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\Cidade;
 
 class ViacaoController extends Controller
 {
@@ -41,8 +42,11 @@ class ViacaoController extends Controller
     /** Exibe o formulário de cadastro. */
     public function create(): View
     {
+        $cidades = Cidade::orderBy('nome')->get();
+
         return view('admin.viacoes.create', [
             'title' => 'Cadastrar Viação',
+            'cidades' => $cidades,
         ]);
     }
 
@@ -91,10 +95,12 @@ class ViacaoController extends Controller
     public function edit(Viacao $viacao): View
     {
         $viacao->load('cidade');
+        $cidades = Cidade::orderBy('nome')->get();
 
         return view('admin.viacoes.edit', [
             'title' => 'Editar Viação',
             'viacao' => $viacao,
+            'cidades' => $cidades,
         ]);
     }
 
