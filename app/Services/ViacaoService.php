@@ -172,7 +172,7 @@ class ViacaoService
      */
     public function restore(Viacao $viacao, ?int $usuarioId = null, ?string $site = null): void
     {
-        DB::transaction(function () use ($viacao, $usuarioId, $site) {
+        DB::transaction(function () use ($viacao, $usuarioId) {
             $viacao->restore();
 
             $viacao->historico()->create([

@@ -62,6 +62,7 @@ class ViacaoController extends Controller
 
         $data = $request->validated();
         $viacao = $this->viacaoService->create($data['nome'], $data['cidade'], $data['ativa'], $logo, auth()->id(), $data['site'] ?? null);
+
         /*
          * redirect()->route() vs View::redirect() do PHP puro:
          * No PHP puro: header('Location: /admin/viacoes') + exit.
