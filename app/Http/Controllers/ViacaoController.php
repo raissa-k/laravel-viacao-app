@@ -63,12 +63,12 @@ class ViacaoController extends Controller
         $data = $request->validated();
 
         $viacao = $this->viacaoService->create(
-            nome: $data['nome'],
-            cidade: $data['cidade'],
-            ativa: $data['ativa'] ?? true,
-            logo: $logo,
-            site: $request->input('site'),
-            usuarioId: auth()->id()
+            $data['nome'],
+            $data['cidade'],
+            $data['ativa'] ?? true,
+            $logo,
+            $data['site'] ?? null,
+            auth()->id()
         );
         /*
          * redirect()->route() vs View::redirect() do PHP puro:
@@ -118,17 +118,17 @@ class ViacaoController extends Controller
         $data = $request->validated();
 
         $this->viacaoService->update(
-            viacao: $viacao,
-            nome: $data['nome'],
-            cidade: $data['cidade'],
-            ativa: $data['ativa'] ?? true,
-            logo: $logo,
-            site: $request->input('site'),
-            usuarioId: auth()->id()
+            $viacao,
+            $data['nome'],
+            $data['cidade'],
+            $data['ativa'] ?? true,
+            $logo,
+            $data['site'] ?? null,
+            auth()->id()
         );
-        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação atualizada.');
-    }
 
+        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação actualizada.');
+    }
     /** Marca a viação como excluída. */
     public function destroy(Viacao $viacao): RedirectResponse
     {
