@@ -89,7 +89,7 @@ it('atualiza viação com token Sanctum', function () {
 
     $this->putJson("/api/viacoes/{$viacao->id}", [
         'nome' => 'Atualizada',
-        'cidade' => $viacao->cidade,
+        'cidade' => $viacao->cidade_id,
     ])
         ->assertOk()
         ->assertJsonPath('data.nome', 'Atualizada');
