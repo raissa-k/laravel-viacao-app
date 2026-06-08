@@ -127,9 +127,10 @@ class ViacaoApiController extends Controller
             return response()->json(['ok' => false, 'message' => 'Viação não encontrada.'], 404);
         }
 
+        $this->authorize('delete', $viacao);
+
         $this->viacaoService->delete($viacao, auth()->id());
 
-        // 204 No Content: deletar bem-sucedido sem retornar corpo.
         return response()->noContent();
     }
 }
