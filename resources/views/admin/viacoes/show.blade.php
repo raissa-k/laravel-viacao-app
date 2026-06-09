@@ -23,7 +23,9 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
           >
             @csrf
             @method('DELETE')
+          @can('delete', $viacao)
             <button type="submit">Excluir</button>
+          @endcan
           </form>
     @endif
 </p>
