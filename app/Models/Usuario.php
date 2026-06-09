@@ -24,7 +24,7 @@ class Usuario extends Authenticatable
      * Todas as queries passam a filtrar WHERE deleted_at IS NULL automaticamente.
      * Pesquise "Eloquent soft deleting", "withTrashed", "onlyTrashed".
      */
-    use HasApiTokens, HasFactory, SoftDeletes, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'usuarios';
 

@@ -8,10 +8,10 @@ namespace App\Services;
 use App\DTOs\UsuarioFilterDTO;
 use App\Enums\AcaoHistorico;
 use App\Models\Usuario;
+use App\Notifications\BemVindoNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Notifications\BemVindoNotification;
 
 class UsuarioService
 {
@@ -33,7 +33,7 @@ class UsuarioService
 
     public function create(string $nome, string $email, string $senha, string $welcome, ?int $atorId = null): Usuario
     {
-        return DB::transaction(function () use ($nome, $email, $senha, $welcome, $atorId) {
+        $novoUsuario = DB::transaction(function () use ($nome, $email, $senha, $atorId) {
             $usuario = Usuario::create([
                 'nome' => $nome,
                 'email' => $email,
@@ -44,10 +44,6 @@ class UsuarioService
                  */
                 'senha' => Hash::make($senha),
             ]);
-
-            $usuario->notify(
-                new BemVindoNotification($welcome)
-            );
 
             $usuario->historico()->create([
                 'usuario_id' => $atorId,
@@ -60,6 +56,12 @@ class UsuarioService
 
             return $usuario;
         });
+
+        $novoUsuario->notify(
+            new BemVindoNotification($welcome)
+        );
+
+        return $novoUsuario;
     }
 
     /** Atualiza nome/e-mail; só redefine a senha se $novaSenha for não-null. */

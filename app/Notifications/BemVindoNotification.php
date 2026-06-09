@@ -3,14 +3,15 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class BemVindoNotification extends Notification
 {
     use Queueable;
+
     private string $welcome;
+
     /**
      * Create a new notification instance.
      */
@@ -36,7 +37,8 @@ class BemVindoNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Bem-Vindo ao sistema!')
-            ->line('Olá'.' '.$notifiable->nome . ', Seja bem-vindo ao sistema!');
+            ->greeting('Olá '.$notifiable->nome.'!')
+            ->line('Seja bem-vindo ao sistema!');
 
     }
 
