@@ -45,10 +45,10 @@ old('campo', $viacao->campo): repopula com o valor atual se não houve erro, ou 
 
     <div class="form-group">
         <label for="cidade">Cidade</label>
-        <select name="cidade" id="cidade" class="field-input" required>
+        <select name="cidade_id" id="cidade" class="field-input" required>
             <option value="">Selecione uma cidade...</option>
             @foreach($cidades as $cidade)
-                <option value="{{ $cidade->nome }}" {{ old('cidade', $viacao->cidade?->nome) === $cidade->nome ? 'selected' : '' }}>
+                <option value="{{ $cidade->id }}" @selected(old('cidade_id', $viacao->cidade_id) == $cidade->id)>
                     {{ $cidade->nome }} {{ $cidade->uf ? '- ' . $cidade->uf : '' }}
                 </option>
             @endforeach

@@ -9,7 +9,7 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
 
 @section('content')
 
-<h1>{{ $viacao->nome }}</h1>
+    <h1>{{ $viacao->nome }}</h1>
 
 <p>
     <a href="{{ route('viacoes.index') }}">← Voltar para listagem</a>
@@ -41,7 +41,7 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
         </tr>
         <tr>
             <th>Cidade</th>
-            <td>{{ $viacao->cidade->nome }}</td>
+            <td>{{ $viacao->cidade?->nome ?? '---' }}</td>
         </tr>
         <tr>
             <th>Ativa</th>

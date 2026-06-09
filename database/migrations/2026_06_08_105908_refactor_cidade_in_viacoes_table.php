@@ -14,26 +14,29 @@ return new class extends Migration
             $table->foreignId('cidade_id')->nullable()->constrained('cidades');
         });
 
-        // 2. Backfill
-        $viacoes = DB::table('viacoes')->whereNotNull('cidade')->select('id', 'cidade')->get();
+        // 2. Backfill: pega nomes distintos para evitar duplicar cidades
+        $nomes = DB::table('viacoes')->whereNotNull('cidade')->distinct()->pluck('cidade');
 
-        foreach ($viacoes as $viacao) {
-            // Busca ou insere a cidade
-            $cidade = DB::table('cidades')->where('nome', $viacao->cidade)->first();
+        // Insere cada cidade única na tabela cidades (apenas as que ainda não existem)
+        $cidadeMap = [];
+        foreach ($nomes as $nome) {
+            $cidade = DB::table('cidades')->where('nome', $nome)->first();
 
             if ($cidade) {
-                $cidadeId = $cidade->id;
+                $cidadeMap[$nome] = $cidade->id;
             } else {
-                $cidadeId = DB::table('cidades')->insertGetId([
-                    'nome' => $viacao->cidade,
+                $cidadeMap[$nome] = DB::table('cidades')->insertGetId([
+                    'nome'       => $nome,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             }
+        }
 
-            // Atualiza o registro da viação
+        // Atualiza cada viação com o cidade_id correspondente
+        foreach ($cidadeMap as $nome => $cidadeId) {
             DB::table('viacoes')
-                ->where('id', $viacao->id)
+                ->where('cidade', $nome)
                 ->update(['cidade_id' => $cidadeId]);
         }
 
@@ -50,7 +53,7 @@ return new class extends Migration
             $table->string('cidade')->nullable();
         });
 
-        // Reverte o Backfill
+        // 2. Reverte o backfill
         $viacoes = DB::table('viacoes')->whereNotNull('cidade_id')->select('id', 'cidade_id')->get();
 
         foreach ($viacoes as $viacao) {
@@ -63,7 +66,7 @@ return new class extends Migration
             }
         }
 
-        // Remove a coluna nova
+        // 3. Remove a coluna nova
         Schema::table('viacoes', function (Blueprint $table) {
             $table->dropForeign(['cidade_id']);
             $table->dropColumn('cidade_id');

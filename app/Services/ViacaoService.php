@@ -73,14 +73,12 @@ class ViacaoService
      *
      * Pesquise: "Laravel DB::transaction", "closure-based transactions", "ACID guarantees".
      */
-    public function create(string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
+    public function create(string $nome, ?int $cidadeId, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
     {
-        return DB::transaction(function () use ($nome, $cidade, $ativa, $logo, $usuarioId) {
-            $cidadeModel = \App\Models\Cidade::firstOrCreate(['nome' => $cidade]);
-
+        return DB::transaction(function () use ($nome, $cidadeId, $ativa, $logo, $usuarioId) {
             $viacao = Viacao::create([
                 'nome' => $nome,
-                'cidade_id' => $cidadeModel->id,
+                'cidade_id' => $cidadeId,
                 'ativa' => $ativa,
                 'logo' => $logo,
             ]);
@@ -90,7 +88,7 @@ class ViacaoService
                 'acao' => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'ativa', 'logo']) + ['cidade' => $cidade],
+                    'after' => $viacao->only(['nome', 'ativa', 'logo']) + ['cidade_id' => $cidadeId],
                 ],
             ]);
 
@@ -102,26 +100,24 @@ class ViacaoService
      * Edita uma viação e registra o antes/depois no histórico.
      * Só salva no log os campos que efetivamente mudaram (diffRows).
      */
-    public function update(Viacao $viacao, string $nome, string $cidade, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
+    public function update(Viacao $viacao, string $nome, ?int $cidadeId, bool $ativa, ?string $logo, ?int $usuarioId = null): Viacao
     {
         $oldLogo = $viacao->logo;
 
-        DB::transaction(function () use ($viacao, $nome, $cidade, $ativa, $logo, $usuarioId) {
-            $cidadeModel = \App\Models\Cidade::firstOrCreate(['nome' => $cidade]);
-
+        DB::transaction(function () use ($viacao, $nome, $cidadeId, $ativa, $logo, $usuarioId) {
             // Captura o estado antes da edição, mas só os campos interessantes
-            $before = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade' => $viacao->cidade?->nome];
+            $before = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade_id' => $viacao->cidade_id];
 
             $viacao->update([
                 'nome' => $nome,
-                'cidade_id' => $cidadeModel->id,
+                'cidade_id' => $cidadeId,
                 'ativa' => $ativa,
                 'logo' => $logo,
             ]);
 
             // Recarrega do banco pra pegar updated_at atualizado
             $viacao->refresh();
-            $after = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade' => $cidade];
+            $after = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade_id' => $cidadeId];
 
             // Só salva os campos que realmente mudaram
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
@@ -148,11 +144,9 @@ class ViacaoService
     /** Soft-deleta uma viação e registra no histórico. */
     public function delete(Viacao $viacao, ?int $usuarioId = null): void
     {
-        $viacao->load('cidade');
-
         $before = [
             'nome' => $viacao->nome,
-            'cidade' => $viacao->cidade->nome,
+            'cidade_id' => $viacao->cidade_id,
             'ativa' => $viacao->ativa,
             'logo' => $viacao->logo,
         ];
@@ -182,8 +176,6 @@ class ViacaoService
      */
     public function restore(Viacao $viacao, ?int $usuarioId = null): void
     {
-        $viacao->load('cidade');
-
         DB::transaction(function () use ($viacao, $usuarioId) {
             $viacao->restore();
 
@@ -194,7 +186,7 @@ class ViacaoService
                     'before' => null,
                     'after' => [
                         'nome' => $viacao->nome,
-                        'cidade' => $viacao->cidade->nome,
+                        'cidade_id' => $viacao->cidade_id,
                         'ativa' => $viacao->ativa,
                         'logo' => $viacao->logo,
                     ],

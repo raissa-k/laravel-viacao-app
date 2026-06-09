@@ -85,7 +85,7 @@ class ViacaoApiController extends Controller
 
         $viacao = $this->viacaoService->create(
             $validated['nome'],
-            $validated['cidade'],
+            $validated['cidade_id'],
             (bool) ($validated['ativa'] ?? true),
             null, // uploads via API não são suportados nesse demo
             auth()->id(),
@@ -109,7 +109,7 @@ class ViacaoApiController extends Controller
         $viacao = $this->viacaoService->update(
             $viacao,
             $validated['nome'] ?? $viacao->nome,
-            $validated['cidade'] ?? $viacao->cidade->nome,
+            isset($validated['cidade_id']) ? (int) $validated['cidade_id'] : $viacao->cidade_id,
             (bool) ($validated['ativa'] ?? $viacao->ativa),
             $viacao->logo,
             auth()->id(),
