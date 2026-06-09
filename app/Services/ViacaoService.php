@@ -88,7 +88,7 @@ class ViacaoService
                 'acao' => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'ativa', 'logo']) + ['cidade_id' => $cidadeId],
+                    'after' => $viacao->only(['nome', 'ativa', 'logo', 'cidade_id']),
                 ],
             ]);
 
