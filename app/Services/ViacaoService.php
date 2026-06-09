@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+// Service de viações: regra de negócio de criação, edição, exclusão e registro de histórico.
+// PHP puro: PDO + beginTransaction() + prepare() + execute()
+// Laravel:  Eloquent + DB::transaction() + Model::create() + $model->update()
+
 use App\DTOs\ViacaoFilterDTO;
 use App\Enums\AcaoHistorico;
 use App\Models\Viacao;
@@ -15,11 +19,25 @@ class ViacaoService
         private readonly UploadService $uploadService,
     ) {}
 
+    /**
+     * Retorna viações paginadas com filtros.
+     *
+     * onlyTrashed() vs withTrashed():
+     * - onlyTrashed(): WHERE deleted_at IS NOT NULL  -> só excluídos
+     * - withTrashed(): sem filtro in deleted_at       -> todos (ativos + excluídos)
+     * - padrão (sem nenhum): WHERE deleted_at IS NULL -> só ativos
+     *
+     * Aqui: deletado=true mostra APENAS excluídos (para ação de restaurar).
+     * O usuário filtra entre "ativos" e "excluídos" explicitamente, nunca mistura.
+     */
     public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO): LengthAwarePaginator
     {
         return Viacao::query()
             ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
             ->when($filter->q !== '', function ($query) use ($filter) {
+                // addcslashes escapa % e _ que o MySQL interpreta como wildcards no LIKE.
+                // Sem isso, "100%" no campo de busca viraria "qualquer coisa começando com 100".
+                // Pesquise "SQL LIKE wildcards", "ESCAPE clause".
                 $escaped = addcslashes($filter->q, '%_');
                 $query->where(function ($q2) use ($escaped) {
                     $q2->where('nome', 'like', '%'.$escaped.'%')
@@ -29,19 +47,31 @@ class ViacaoService
             ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
             ->orderByDesc('id')
             ->paginate(15)
-            ->withQueryString();
+            ->withQueryString(); // preserva ?q=...&ativa=... nos links de paginação
     }
 
+    /** Retorna só as viações ativas. Usada na home pública. */
     public function active(): Collection
     {
         return Viacao::query()->where('ativa', true)->orderByDesc('id')->get();
     }
 
+    /** Busca uma viação pelo ID. Retorna null se não encontrar. */
     public function find(int $id): ?Viacao
     {
         return Viacao::find($id);
     }
 
+    /**
+     * Cria uma nova viação e registra no histórico.
+     *
+     * DB::transaction() com closure: padrão moderno do Laravel
+     * - Abre transação, executa a closure, commit automático se tudo der certo
+     * - Se uma exception for lançada dentro, rollback automático
+     * - Não precisa try/catch explícito, o rollback é garantido
+     *
+     * Pesquise: "Laravel DB::transaction", "closure-based transactions", "ACID guarantees".
+     */
     public function create(string $nome, string $cidade, bool $ativa, ?string $logo, ?string $site = null, ?int $usuarioId = null): Viacao
     {
         return DB::transaction(function () use ($nome, $cidade, $ativa, $logo, $usuarioId, $site) {
@@ -58,7 +88,7 @@ class ViacaoService
                 'acao' => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']),
+                    'after' => $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']), // não precisamos mostrar ID, data de criação, etc
                 ],
             ]);
 
@@ -66,11 +96,16 @@ class ViacaoService
         });
     }
 
+    /**
+     * Edita uma viação e registra o antes/depois no histórico.
+     * Só salva no log os campos que efetivamente mudaram (diffRows).
+     */
     public function update(Viacao $viacao, string $nome, string $cidade, bool $ativa, ?string $logo, ?string $site = null, ?int $usuarioId = null): Viacao
     {
         $oldLogo = $viacao->logo;
 
         DB::transaction(function () use ($viacao, $nome, $cidade, $ativa, $logo, $usuarioId, $site) {
+            // Captura o estado antes da edição, mas só os campos interessantes
             $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']);
 
             $viacao->update([
@@ -81,9 +116,11 @@ class ViacaoService
                 'site' => $site,
             ]);
 
+            // Recarrega do banco pra pegar updated_at atualizado
             $viacao->refresh();
             $after = $viacao->only(['nome', 'cidade', 'ativa', 'logo', 'site']);
 
+            // Só salva os campos que realmente mudaram
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
 
             $viacao->historico()->create([
@@ -93,6 +130,11 @@ class ViacaoService
             ]);
         });
 
+        /*
+         * Side effects (arquivo) ficam FORA da transação.
+         * Se o commit falhar, o arquivo não é deletado.
+         * Pesquise "saga pattern", "two-phase commit".
+         */
         if ($oldLogo !== null && $oldLogo !== $logo) {
             $this->uploadService->delete($oldLogo);
         }
@@ -100,12 +142,13 @@ class ViacaoService
         return $viacao;
     }
 
+    /** Soft-deleta uma viação e registra no histórico. */
     public function delete(Viacao $viacao, ?int $usuarioId = null): void
     {
         $before = $viacao->only(['nome', 'cidade', 'ativa', 'logo']);
 
         DB::transaction(function () use ($viacao, $usuarioId, $before) {
-            $viacao->delete();
+            $viacao->delete(); // Com trait de SoftDeletes: seta deleted_at, não remove o registro. Pra remover MESMO, teria que usar forceDelete()
 
             $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
@@ -115,6 +158,12 @@ class ViacaoService
         });
     }
 
+    /**
+     * Restaura uma viação soft-deleted e registra no histórico.
+     *
+     * $viacao deve vir com withTrashed() (já buscado pelo controller).
+     * restore() seta deleted_at = null, tornando o registro visível novamente.
+     */
     public function restore(Viacao $viacao, ?int $usuarioId = null): void
     {
         DB::transaction(function () use ($viacao, $usuarioId) {
@@ -131,9 +180,14 @@ class ViacaoService
         });
     }
 
+    /**
+     * Compara antes e depois e retorna só os campos que mudaram.
+     *
+     * @return array{0: ?array, 1: ?array}
+     */
     private function diffRows(?array $before, ?array $after): array
     {
-        $skip = ['id', 'created_at', 'updated_at'];
+        $skip = ['id', 'created_at', 'updated_at']; // não precisamos mostrar esses
 
         $allKeys = array_unique(array_merge(
             array_keys($before ?? []),

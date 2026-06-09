@@ -65,9 +65,9 @@ class ViacaoController extends Controller
         $viacao = $this->viacaoService->create(
             $data['nome'],
             $data['cidade'],
-            $data['ativa'] ?? true,
+            $data['ativa'],
             $logo,
-            $data['site'] ?? null,
+            $data['site'],
             auth()->id()
         );
         /*
@@ -122,9 +122,9 @@ class ViacaoController extends Controller
             $viacao,
             $data['nome'],
             $data['cidade'],
-            $data['ativa'] ?? true,
+            $data['ativa'],
             $logo,
-            $data['site'] ?? null,
+            $data['site'],
             auth()->id()
         );
 
