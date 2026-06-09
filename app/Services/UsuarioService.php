@@ -31,7 +31,7 @@ class UsuarioService
             ->withQueryString();
     }
 
-    public function create(string $nome, string $email, string $senha, string $welcome, ?int $atorId = null): Usuario
+    public function create(string $nome, string $email, string $senha, ?int $atorId = null): Usuario
     {
         $novoUsuario = DB::transaction(function () use ($nome, $email, $senha, $atorId) {
             $usuario = Usuario::create([
@@ -58,7 +58,7 @@ class UsuarioService
         });
 
         $novoUsuario->notify(
-            new BemVindoNotification($welcome)
+            new BemVindoNotification(route('login'))
         );
 
         return $novoUsuario;

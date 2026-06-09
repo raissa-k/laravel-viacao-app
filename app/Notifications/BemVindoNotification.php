@@ -10,14 +10,11 @@ class BemVindoNotification extends Notification
 {
     use Queueable;
 
-    private string $welcome;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(string $welcome)
-    {
-        $this->welcome = $welcome;
+    public function __construct(private readonly string $urlLogin){
     }
 
     /**
@@ -38,7 +35,8 @@ class BemVindoNotification extends Notification
         return (new MailMessage)
             ->subject('Bem-Vindo ao sistema!')
             ->greeting('Olá '.$notifiable->nome.'!')
-            ->line('Seja bem-vindo ao sistema!');
+            ->line('Seja bem-vindo ao sistema!')
+            ->action('Acesse o sistema', $this->urlLogin);
 
     }
 
