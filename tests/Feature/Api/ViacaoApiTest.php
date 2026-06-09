@@ -80,16 +80,17 @@ it('valida campos obrigatórios na criação', function () {
 
     $this->postJson('/api/viacoes', [])
         ->assertUnprocessable()                    // 422
-        ->assertJsonValidationErrors(['nome', 'cidade']);
+        ->assertJsonValidationErrors(['nome']);
 });
 
 it('atualiza viação com token Sanctum', function () {
     Sanctum::actingAs(Usuario::factory()->create());
     $viacao = Viacao::factory()->create(['nome' => 'Original']);
 
+    // O teste foca na alteração de nome; cidade_id mantém o valor existente.
     $this->putJson("/api/viacoes/{$viacao->id}", [
         'nome' => 'Atualizada',
-        'cidade' => $viacao->cidade,
+        'cidade_id' => $viacao->cidade_id,
     ])
         ->assertOk()
         ->assertJsonPath('data.nome', 'Atualizada');

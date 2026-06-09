@@ -31,8 +31,9 @@ it('exibe a lista de viações para usuário autenticado', function () {
 });
 
 it('filtra viações por busca textual', function () {
-    Viacao::factory()->create(['nome' => 'Cometa', 'cidade' => 'Campinas']);
-    Viacao::factory()->create(['nome' => 'Penha',  'cidade' => 'BH']);
+    // Cidade criada automaticamente pela factory; testamos apenas o nome da viação.
+    Viacao::factory()->create(['nome' => 'Cometa']);
+    Viacao::factory()->create(['nome' => 'Penha']);
 
     $response = $this->actingAs(Usuario::factory()->create())
         ->get(route('viacoes.index', ['q' => 'Cometa']));
@@ -63,11 +64,13 @@ it('exibe o formulário de cadastro', function () {
 
 it('cria viação válida e registra histórico', function () {
     $user = Usuario::factory()->create();
+    // Criamos uma cidade real para obter um ID válido de relacionamento
+    $cidade = \App\Models\Cidade::factory()->create();
 
     $this->actingAs($user)
         ->post(route('viacoes.store'), [
             'nome' => 'Expresso Teste',
-            'cidade' => 'São Paulo',
+            'cidade_id' => $cidade->id,
             'ativa' => true,
         ])
         ->assertRedirect(route('viacoes.index'))
@@ -79,22 +82,34 @@ it('cria viação válida e registra histórico', function () {
 
 it('rejeita viação sem nome', function () {
     $this->actingAs(Usuario::factory()->create())
-        ->post(route('viacoes.store'), ['nome' => '', 'cidade' => 'SP'])
+        ->post(route('viacoes.store'), ['nome' => '', 'cidade_id' => 1])
         ->assertSessionHasErrors('nome');
 
     $this->assertDatabaseCount('viacoes', 0);
 });
 
-it('rejeita viação sem cidade', function () {
-    $this->actingAs(Usuario::factory()->create())
-        ->post(route('viacoes.store'), ['nome' => 'Viação', 'cidade' => ''])
-        ->assertSessionHasErrors('cidade');
+it('permite criar viação sem cidade', function () {
+    $user = Usuario::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('viacoes.store'), [
+            'nome' => 'Viação Sem Cidade',
+            'cidade_id' => '', // Enviando vazio, que o Laravel tratará como null
+            'ativa' => true,
+        ])
+        ->assertRedirect(route('viacoes.index'))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('viacoes', [
+        'nome' => 'Viação Sem Cidade',
+        'cidade_id' => null
+    ]);
 });
 
-it('trim nome e cidade antes de validar', function () {
-    // prepareForValidation() faz trim, então "  " deve falhar como campo vazio.
+it('trim nome antes de validar', function () {
+    // Como cidade_id agora é um ID numérico, testamos o trim apenas no nome
     $this->actingAs(Usuario::factory()->create())
-        ->post(route('viacoes.store'), ['nome' => '   ', 'cidade' => 'SP'])
+        ->post(route('viacoes.store'), ['nome' => '   ', 'cidade_id' => 1])
         ->assertSessionHasErrors('nome');
 });
 
@@ -117,7 +132,7 @@ it('atualiza viação existente e registra histórico', function () {
     $this->actingAs($user)
         ->put(route('viacoes.update', $viacao), [
             'nome' => 'Atualizada',
-            'cidade' => $viacao->cidade,
+            'cidade_id' => $viacao->cidade_id,
             'ativa' => $viacao->ativa,
         ])
         ->assertRedirect(route('viacoes.show', $viacao));
