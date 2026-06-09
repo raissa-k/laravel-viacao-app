@@ -136,7 +136,10 @@ it('retorna 404 ao editar viação inexistente', function () {
 
 it('remove viação e registra histórico', function () {
     $user = Usuario::factory()->create();
-    $viacao = Viacao::factory()->create();
+
+    $viacao = Viacao::factory()->create([
+        'ativa' => false,
+    ]);
 
     $this->actingAs($user)
         ->delete(route('viacoes.destroy', $viacao))
@@ -144,6 +147,11 @@ it('remove viação e registra histórico', function () {
         ->assertSessionHas('success');
 
     $softDeleted = Viacao::withTrashed()->find($viacao->id);
+
     $this->assertNotEquals(null, $softDeleted->deleted_at);
-    $this->assertDatabaseHas('historico', ['acao' => AcaoHistorico::Excluido, 'entidade_id' => $viacao->id]);
+
+    $this->assertDatabaseHas('historico', [
+        'acao' => AcaoHistorico::Excluido,
+        'entidade_id' => $viacao->id,
+    ]);
 });

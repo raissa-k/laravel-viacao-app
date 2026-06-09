@@ -115,8 +115,11 @@ class ViacaoController extends Controller
     }
 
     /** Marca a viação como excluída. */
+    /** Marca a viação como excluída (soft delete). */
     public function destroy(Viacao $viacao): RedirectResponse
     {
+        $this->authorize('delete', $viacao);
+
         $this->viacaoService->delete($viacao, auth()->id());
 
         return redirect()->route('viacoes.index')->with('success', 'Viação excluída (pode ser restaurada).');

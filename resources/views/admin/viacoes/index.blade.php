@@ -113,16 +113,18 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
                         @if (!$v->trashed())
                             <a href="{{ route('viacoes.show', $v) }}">Ver</a>
                             <a href="{{ route('viacoes.edit', $v) }}">Editar</a>
-                            <form
-                                class="inline-form"
-                                method="POST"
-                                action="{{ route('viacoes.destroy', $v) }}"
-                                onsubmit="return confirm('Confirmar exclusão de ' + {{ Js::from($v->nome) }} + '?')"
-                            >
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit">Excluir</button>
-                            </form>
+                            @can('delete', $v)
+                                <form
+                                    class="inline-form"
+                                    method="POST"
+                                    action="{{ route('viacoes.destroy', $v) }}"
+                                    onsubmit="return confirm('Confirmar exclusão de ' + {{ Js::from($v->nome) }} + '?')"
+                                >
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit">Excluir</button>
+                                </form>
+                            @endcan
                         @else
                             {{-- Restaurar só aparece pra registros excluídos. --}}
                             <form
