@@ -129,6 +129,7 @@ class ViacaoApiController extends Controller
 
         $this->authorize('delete', $viacao);
 
+        // 204 No Content: deletar bem-sucedido sem retornar corpo.
         $this->viacaoService->delete($viacao, auth()->id());
 
         return response()->noContent();
