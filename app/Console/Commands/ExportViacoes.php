@@ -25,6 +25,14 @@ class ExportViacoes extends Command
         if (! str_ends_with($filename, '.json')) {
             $filename .= '.json';
         }
+// bloco de validação ----------------------------------------------------------------------------
+        $dir = dirname($filename);
+
+           if ($dir !== '.' && ! is_dir(storage_path("app/{$dir}"))) {
+            $this->error('Diretório não encontrado');
+            return self::FAILURE;
+        }
+//--------------------------------------------------------------------------------------------------
         try {
             // busca as viacoes com o metodo que criei la no service,no outro era para importar
             $viacoes = $this->viacaoService->exportViacoes();
