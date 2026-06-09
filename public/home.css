@@ -127,7 +127,7 @@ Composição no HTML: <button class="btn btn-primary">Entrar</button>
   background: rgba(255,255,255,.1);
 }
 
-.btn-blue {
+.btn.btn-blue {
   background: var(--primary);
   color: #ffffff;
   font-size: 16px;
@@ -139,7 +139,7 @@ Composição no HTML: <button class="btn btn-primary">Entrar</button>
   margin-top: 4px;
 }
 
-.btn-blue:hover {
+.btn.btn-blue:hover {
   background: var(--primary-dark);
 }
 
@@ -251,6 +251,12 @@ Composição no HTML: <button class="btn btn-primary">Entrar</button>
 /* FORM DE BUSCA */
 
 .search-form { display: flex; flex-direction: column; gap: 12px; }
+
+.search-form-horizontal { flex-direction: row; align-items: flex-end; }
+.search-form-horizontal .field-row { display: flex; flex: 2; }
+.search-form-horizontal .btn.btn-blue { width: auto; padding-left: 24px; padding-right: 24px; margin-top: 0; }
+
+.search-card-horizontal { padding: 20px; margin-bottom: 24px; }
 
 .field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -435,6 +441,10 @@ Sem isso, o card ficaria colado no topo da página.
   .hero-title { font-size: 36px; }
 
   .field-row { grid-template-columns: 1fr; }
+
+  .search-form-horizontal { flex-direction: column; align-items: stretch; }
+  .search-form-horizontal .field-row { flex-direction: column; }
+  .search-form-horizontal .btn.btn-blue { width: 100%; margin-top: 4px; }
 
   .diferenciais > .container {
     flex-direction: column;
