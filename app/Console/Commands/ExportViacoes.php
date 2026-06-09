@@ -27,7 +27,6 @@ class ExportViacoes extends Command
         }
 // bloco de validação ----------------------------------------------------------------------------
         $dir = dirname($filename);
-
            if ($dir !== '.' && ! is_dir(storage_path("app/{$dir}"))) {
             $this->error('Diretório não encontrado');
             return self::FAILURE;
@@ -46,21 +45,25 @@ class ExportViacoes extends Command
             // manipula o json armazenado em $viacoes(doService),usando as flags/constantes JSON_PRETTY_PINT e JSON_UNESCAPEWD_UNICODE
             $jsonText = json_encode($viacoes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-            //bloco if que se o json der falha(false) ele ja manda pro demonio
+            //bloco if que se o json der falha(false) ele ja manda erro
             if ($jsonText === false) {
                 $this->error('Algo deu zika');
                 $this->error(json_last_error_msg());
                 return self::FAILURE;
             }
-
             $rightPath = storage_path("app/{$filename}");
 
             // cria o arquivo na máquina e injeta o json
             file_put_contents($rightPath, $jsonText);
-
-            $this->info('deu boa!');
-
+//----------------------bloco de alteração para retorno de numero de bytes---------------------------
+            $bytes = file_put_contents($rightPath, $jsonText);
+            if ($bytes === false) {
+                $this->error('Não deu pra escrever no arquivo,verifique');
+                return self::FAILURE;
+            }
+            $this->info("deu boa!o tamanho do arquivo é ({$bytes} bytes)");
             return self::SUCCESS;
+//------------------------------------------------------------------------------------------------------
         } catch (\Exception $exception) {
 
             $this->error('Algo deu errado'); // normalmente se dar certo ele retorna 0,se errado 1
