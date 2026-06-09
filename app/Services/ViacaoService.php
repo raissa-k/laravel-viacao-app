@@ -106,7 +106,7 @@ class ViacaoService
 
         DB::transaction(function () use ($viacao, $nome, $cidadeId, $ativa, $logo, $usuarioId) {
             // Captura o estado antes da edição, mas só os campos interessantes
-            $before = $viacao->only(['nome', 'ativa', 'logo']) + ['cidade_id' => $viacao->cidade_id];
+            $before = $viacao->only(['nome', 'ativa', 'logo', 'cidade_id']);
 
             $viacao->update([
                 'nome' => $nome,
