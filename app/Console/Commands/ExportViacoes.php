@@ -53,8 +53,6 @@ class ExportViacoes extends Command
             }
             $rightPath = storage_path("app/{$filename}");
 
-            // cria o arquivo na máquina e injeta o json
-            file_put_contents($rightPath, $jsonText);
 //----------------------bloco de alteração para retorno de numero de bytes---------------------------
             $bytes = file_put_contents($rightPath, $jsonText);
             if ($bytes === false) {
