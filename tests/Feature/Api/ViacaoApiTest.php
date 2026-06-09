@@ -106,7 +106,7 @@ it('retorna 404 ao atualizar viação inexistente', function () {
 
 it('remove viação com token Sanctum e retorna 204', function () {
     Sanctum::actingAs(Usuario::factory()->create());
-    $viacao = Viacao::factory()->create();
+    $viacao = Viacao::factory()->create(['ativa' => false]);
 
     $this->deleteJson("/api/viacoes/{$viacao->id}")
         ->assertNoContent();                       // 204
