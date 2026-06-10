@@ -40,12 +40,26 @@ old('campo') repopula o campo após erro de validação, igual ao $old['campo'] 
 
     <div class="form-group">
         <label for="cidade">Cidade</label>
+        <select name="cidade_id" id="cidade" class="field-input" required>
+            <option value="">Selecione uma cidade...</option>
+            @foreach($cidades as $cidade)
+                <option value="{{ $cidade->id }}" @selected(old('cidade_id') == $cidade->id)>
+                    {{ $cidade->nome }} {{ $cidade->uf ? '- ' . $cidade->uf : '' }}
+                </option>
+            @endforeach
+        </select>
+        @error('cidade')
+        <span class="text-danger">{{ $message }}</span>
+        @enderror
+    </div>
+
+    <div class="form-group">
+        <label for="site">Site</label>
         <input
             type="text"
-            id="cidade"
-            name="cidade"
-            value="{{ old('cidade') }}"
-            required
+            id="site"
+            name="site"
+            value="{{ old('site') }}"
             maxlength="255"
         >
     </div>
@@ -70,7 +84,7 @@ old('campo') repopula o campo após erro de validação, igual ao $old['campo'] 
         {{-- A validação de MIME e tamanho fica no ViacaoRequest. No PHP puro, era feita no UploadService. --}}
         <input type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/webp">
         @error('logo')
-            <span class="error-list" style="padding-left: 0">{{ $message }}</span>
+        <span class="error-list" style="padding-left: 0">{{ $message }}</span>
         @enderror
     </div>
 

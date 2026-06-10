@@ -22,12 +22,13 @@ class ViacaoRequest extends FormRequest
     {
         return [
             'nome' => ['required', 'string', 'max:255'],
-            'cidade' => ['required', 'string', 'max:255'],
+            'cidade_id' => ['nullable', 'integer', 'exists:cidades,id'],
             // 'sometimes': só valida se o campo estiver presente (no edit, o checkbox pode estar ausente).
             'ativa' => ['sometimes', 'boolean'],
             // 'image': valida MIME pelo conteúdo do arquivo, não pela extensão.
             // 'max:2048': tamanho máximo em KB (2048 KB = 2 MB).
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
+            'site' => ['nullable', 'string', 'url', 'max:255'],
         ];
     }
 
@@ -38,10 +39,11 @@ class ViacaoRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $siteInput = trim((string) $this->input('site', ''));
         $this->merge([
             'nome' => trim((string) $this->input('nome', '')),
-            'cidade' => trim((string) $this->input('cidade', '')),
             'ativa' => $this->boolean('ativa'),
+            'site' => $siteInput !== '' ? $siteInput : null,
         ]);
     }
 
@@ -50,11 +52,14 @@ class ViacaoRequest extends FormRequest
         return [
             'nome.required' => 'O nome é obrigatório.',
             'nome.max' => 'O nome deve ter no máximo 255 caracteres.',
-            'cidade.required' => 'A cidade é obrigatória.',
-            'cidade.max' => 'A cidade deve ter no máximo 255 caracteres.',
+            'cidade_id.integer' => 'A cidade é inválida.',
+            'cidade_id.exists' => 'A cidade selecionada não existe.',
             'logo.image' => 'O logo deve ser uma imagem.',
             'logo.mimes' => 'O logo deve ser JPG, PNG ou WEBP.',
             'logo.max' => 'O logo deve ter no máximo 2 MB.',
+            'site.url' => 'O site deve ser uma URL.',
         ];
     }
 }
+
+

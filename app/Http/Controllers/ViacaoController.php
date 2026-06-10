@@ -16,6 +16,7 @@ use App\Services\ViacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\Cidade;
 
 class ViacaoController extends Controller
 {
@@ -41,8 +42,11 @@ class ViacaoController extends Controller
     /** Exibe o formulário de cadastro. */
     public function create(): View
     {
+        $cidades = Cidade::orderBy('nome')->get();
+
         return view('admin.viacoes.create', [
             'title' => 'Cadastrar Viação',
+            'cidades' => $cidades,
         ]);
     }
 
@@ -61,8 +65,15 @@ class ViacaoController extends Controller
         }
 
         $data = $request->validated();
-        $viacao = $this->viacaoService->create($data['nome'], $data['cidade'], $data['ativa'], $logo, auth()->id());
 
+        $viacao = $this->viacaoService->create(
+            $data['nome'],
+            $data['cidade_id'],
+            $data['ativa'],
+            $logo,
+            $data['site'],
+            auth()->id()
+        );
         /*
          * redirect()->route() vs View::redirect() do PHP puro:
          * No PHP puro: header('Location: /admin/viacoes') + exit.
@@ -74,24 +85,41 @@ class ViacaoController extends Controller
 
     /**
      * Exibe uma única viação com seu histórico de alterações.
-     * Route model binding busca só registros não excluídos.
+     *
+     * Recebe o ID como int para evitar o custo extra do route model binding padrão.
+     * Eager-load de cidade, historico e ator do histórico em uma única query,
+     * com histórico ordenado por criado_em decrescente.
      */
-    public function show(Viacao $viacao): View
+    public function show(int $id): View
     {
-        $historico = $viacao->historico()->with('ator')->orderByDesc('criado_em')->get();
+        $viacao = Viacao::with([
+            'cidade',
+            'historico' => fn ($q) => $q->orderByDesc('criado_em'),
+            'historico.ator',
+        ])->findOrFail($id);
 
         return view('admin.viacoes.show', [
             'title' => 'Viação: '.$viacao->nome,
             'viacao' => $viacao,
-            'historico' => $historico,
+            'historico' => $viacao->historico,
         ]);
     }
 
-    public function edit(Viacao $viacao): View
+    /**
+     * Exibe o formulário de edição.
+     *
+     * Recebe o ID como int para evitar o custo extra do route model binding padrão.
+     * Eager-load de cidade já incluído na busca.
+     */
+    public function edit(int $id): View
     {
+        $viacao = Viacao::with('cidade')->findOrFail($id);
+        $cidades = Cidade::orderBy('nome')->get();
+
         return view('admin.viacoes.edit', [
             'title' => 'Editar Viação',
             'viacao' => $viacao,
+            'cidades' => $cidades,
         ]);
     }
 
@@ -109,14 +137,26 @@ class ViacaoController extends Controller
         }
 
         $data = $request->validated();
-        $this->viacaoService->update($viacao, $data['nome'], $data['cidade'], $data['ativa'], $logo, auth()->id());
 
-        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação atualizada.');
+        //
+        $this->viacaoService->update(
+            $viacao,
+            $data['nome'],
+            $data['cidade_id'],
+            $data['ativa'],
+            $logo,
+            $data['site'],
+            auth()->id()
+        );
+
+        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação actualizada.');
     }
-
     /** Marca a viação como excluída. */
+    /** Marca a viação como excluída (soft delete). */
     public function destroy(Viacao $viacao): RedirectResponse
     {
+        $this->authorize('delete', $viacao);
+
         $this->viacaoService->delete($viacao, auth()->id());
 
         return redirect()->route('viacoes.index')->with('success', 'Viação excluída (pode ser restaurada).');

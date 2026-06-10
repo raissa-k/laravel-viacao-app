@@ -85,7 +85,7 @@ class ViacaoApiController extends Controller
 
         $viacao = $this->viacaoService->create(
             $validated['nome'],
-            $validated['cidade'],
+            $validated['cidade_id'],
             (bool) ($validated['ativa'] ?? true),
             null, // uploads via API não são suportados nesse demo
             auth()->id(),
@@ -108,8 +108,8 @@ class ViacaoApiController extends Controller
 
         $viacao = $this->viacaoService->update(
             $viacao,
-            $validated['nome'],
-            $validated['cidade'],
+            $validated['nome'] ?? $viacao->nome,
+            isset($validated['cidade_id']) ? (int) $validated['cidade_id'] : $viacao->cidade_id,
             (bool) ($validated['ativa'] ?? $viacao->ativa),
             $viacao->logo,
             auth()->id(),
@@ -127,9 +127,11 @@ class ViacaoApiController extends Controller
             return response()->json(['ok' => false, 'message' => 'Viação não encontrada.'], 404);
         }
 
-        $this->viacaoService->delete($viacao, auth()->id());
+        $this->authorize('delete', $viacao);
 
         // 204 No Content: deletar bem-sucedido sem retornar corpo.
+        $this->viacaoService->delete($viacao, auth()->id());
+
         return response()->noContent();
     }
 }

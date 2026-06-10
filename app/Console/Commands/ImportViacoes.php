@@ -78,16 +78,26 @@ class ImportViacoes extends Command
 
             $d = $validator->validated();
 
+            // Resolve cidade (string do JSON) para cidade_id, se existir na tabela.
+            // Não cria cidade nova: se não existir, importa com cidade_id = null.
+            $cidadeId = null;
+            if (!empty($d['cidade'])) {
+                $cidade = \App\Models\Cidade::where('nome', trim($d['cidade']))->first();
+                $cidadeId = $cidade?->id;
+            }
+
             $this->viacaoService->create(
                 nome: $d['nome'],
-                cidade: $d['cidade'],
+                cidadeId: $cidadeId,
                 ativa: isset($d['ativa']) ? (bool) $d['ativa'] : true,
                 logo: null,
                 usuarioId: null, // CLI: sem usuário logado, registra ação sem autoria
             );
 
+
             $created++;
-            $this->line("Criada: <info>{$d['nome']}</info> ({$d['cidade']})");
+            $cidade = $d['cidade'] ?? '-';
+            $this->line("Criada: <info>{$d['nome']}</info> ({$cidade})");
         }
 
         $this->newLine();
@@ -96,3 +106,6 @@ class ImportViacoes extends Command
         return self::SUCCESS;
     }
 }
+
+
+
