@@ -30,14 +30,11 @@ class ViacaoService
      * Aqui: deletado=true mostra APENAS excluídos (para ação de restaurar).
      * O usuário filtra entre "ativos" e "excluídos" explicitamente, nunca mistura.
      */
-    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO): LengthAwarePaginator
+    public function query(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Builder
     {
         return Viacao::query()
             ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
             ->when($filter->q !== '', function ($query) use ($filter) {
-                // addcslashes escapa % e _ que o MySQL interpreta como wildcards no LIKE.
-                // Sem isso, "100%" no campo de busca viraria "qualquer coisa começando com 100".
-                // Pesquise "SQL LIKE wildcards", "ESCAPE clause".
                 $escaped = addcslashes($filter->q, '%_');
                 $query->where(function ($q2) use ($escaped) {
                     $q2->where('nome', 'like', '%'.$escaped.'%')
@@ -45,17 +42,25 @@ class ViacaoService
                 });
             })
             ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
-            ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString(); // preserva ?q=...&ativa=... nos links de paginação
+            ->orderByDesc('id');
+    }
+    //separei a paginação junta
+    public function paginate(ViacaoFilterDTO $filter = new ViacaoFilterDTO(), int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->query($filter)
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /** Retorna só as viações ativas. Usada na home pública. */
+    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Collection
+    {
+        return $this->query($filter)->get();
+    }
     public function active(): Collection
     {
         return Viacao::query()->where('ativa', true)->orderByDesc('id')->get();
     }
-
     /** Busca uma viação pelo ID. Retorna null se não encontrar. */
     public function find(int $id): ?Viacao
     {
@@ -218,8 +223,9 @@ class ViacaoService
         return [$diffBefore ?: null, $diffAfter ?: null];
     }
     //----------------função de exportar as viações------------------------------
-    public function exportViacoes(): Collection
+    public function exportViacoes(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Collection
     {
-        return Viacao::query()->get();
+        //reutiliza o this e monta com get
+        return $this->query($filter)->get();
     }
-}
+    }
