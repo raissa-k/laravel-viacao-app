@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Controller;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldQueue;

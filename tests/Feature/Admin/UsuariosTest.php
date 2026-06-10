@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Testes da listagem de usuários (somente leitura).
 
 use App\Models\Usuario;

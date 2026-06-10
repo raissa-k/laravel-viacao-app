@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // LoginRequest intercepta o request ANTES de chegar ao controller.
 // Se a validação falhar o framework redireciona de volta com erros automaticamente.
 // Se passar o controller recebe um $request já validado, sem try/catch.
@@ -47,7 +49,7 @@ class LoginRequest extends FormRequest
              * A regra 'email' do Laravel é mais rigorosa que filter_var() do PHP puro.
              * O email já chegou trimmado de prepareForValidation().
              */
-            'email' => ['required', 'string', 'email'],
+            'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
@@ -55,8 +57,8 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'O e-mail é obrigatório.',
-            'email.email' => 'Informe um e-mail válido.',
+            'email.required'    => 'O e-mail é obrigatório.',
+            'email.email'       => 'Informe um e-mail válido.',
             'password.required' => 'A senha é obrigatória.',
         ];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // - response()->json() substitui header() + json_encode() + echo
 // - Autenticação delegada ao middleware auth:sanctum
 // (rotas protegidas não precisam mais verificar token manualmente porque o framework já rejeitou a request antes de chegar aqui)
@@ -21,7 +23,8 @@ class ViacaoApiController extends Controller
 {
     public function __construct(
         private readonly ViacaoService $viacaoService,
-    ) {}
+    ) {
+    }
 
     // Rotas públicas (sem autenticação)
 
@@ -52,9 +55,9 @@ class ViacaoApiController extends Controller
          * - Evolução: se o schema mudar, o JSON fica igual
          */
         return response()->json([
-            'ok' => true,
+            'ok'    => true,
             'count' => $viacoes->count(),
-            'data' => ViacaoResource::collection($viacoes),
+            'data'  => ViacaoResource::collection($viacoes),
         ]);
     }
 
@@ -83,7 +86,7 @@ class ViacaoApiController extends Controller
     {
         $validated = $request->validated();
 
-        $viacao = $this->viacaoService->create(
+        $viacao    = $this->viacaoService->create(
             $validated['nome'],
             $validated['cidade_id'],
             (bool) ($validated['ativa'] ?? true),
@@ -98,7 +101,7 @@ class ViacaoApiController extends Controller
     /** Atualiza uma viação. */
     public function update(ViacaoApiRequest $request, int $id): JsonResponse
     {
-        $viacao = $this->viacaoService->find($id);
+        $viacao    = $this->viacaoService->find($id);
 
         if ($viacao === null) {
             return response()->json(['ok' => false, 'message' => 'Viação não encontrada.'], 404);
@@ -106,7 +109,7 @@ class ViacaoApiController extends Controller
 
         $validated = $request->validated();
 
-        $viacao = $this->viacaoService->update(
+        $viacao    = $this->viacaoService->update(
             $viacao,
             $validated['nome'] ?? $viacao->nome,
             isset($validated['cidade_id']) ? (int) $validated['cidade_id'] : $viacao->cidade_id,

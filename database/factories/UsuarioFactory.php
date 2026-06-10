@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Usuario;
@@ -16,7 +18,7 @@ class UsuarioFactory extends Factory
     public function definition(): array
     {
         return [
-            'nome' => fake()->name(),
+            'nome'  => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             // Custo reduzido via BCRYPT_ROUNDS=4 no phpunit.xml pra testes rodarem mais rápido.
             'senha' => Hash::make('senha123'),

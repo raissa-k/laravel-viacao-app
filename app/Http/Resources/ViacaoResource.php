@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // API Resource: define o shape exato do JSON retornado pela API.
 // No PHP puro, o shape era determinado pelo que cada um fazia com json_encode($model->toArray()).
 // No Laravel: Resource oferece uma camada de controle e você decide exatamente quais campos incluir.
@@ -26,13 +28,13 @@ class ViacaoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'nome' => $this->nome,
-            'cidade' => $this->cidade?->nome,
-            'ativa' => $this->ativa,
+            'id'         => $this->id,
+            'nome'       => $this->nome,
+            'cidade'     => $this->cidade?->nome,
+            'ativa'      => $this->ativa,
             // Logo será null ou uma string filename, geralmente não incluímos o path em APIs
             // Por enquanto, só retornamos o filename e não o caminho para mostrar o arquivo
-            'logo' => $this->logo,
+            'logo'       => $this->logo,
             // CARBON NO LARAVEL:
             // $this->created_at e $this->updated_at são instâncias de Carbon (extends DateTime).
             // Laravel converte automaticamente campos de data do banco para Carbon.

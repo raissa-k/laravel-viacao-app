@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Rotas web do app.
 // Diferenças vs PHP puro:
 //   Route::get/post/put/delete + ->name() = URL nomeada usada com route() nas views.

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Enum das ações possíveis no histórico de viações.
 
 namespace App\Enums;
@@ -30,9 +32,9 @@ namespace App\Enums;
 
 enum AcaoHistorico: string
 {
-    case Criado = 'Criado';
-    case Editado = 'Editado';
-    case Excluido = 'Excluido';
+    case Criado     = 'Criado';
+    case Editado    = 'Editado';
+    case Excluido   = 'Excluido';
     case Restaurado = 'Restaurado';
 
     /*

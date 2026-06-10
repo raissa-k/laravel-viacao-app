@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Migration da tabela de sessões usada quando SESSION_DRIVER=database.
 // No PHP puro: sessões eram arquivos gerenciados pelo runtime nativo (session_start(), $_SESSION).
 // No Laravel: com driver "database", cada sessão é uma linha nesta tabela.

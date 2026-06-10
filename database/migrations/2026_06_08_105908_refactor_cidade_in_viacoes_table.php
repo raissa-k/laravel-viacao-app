@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +17,7 @@ return new class extends Migration
         });
 
         // 2. Backfill: pega nomes distintos para evitar duplicar cidades
-        $nomes = DB::table('viacoes')->whereNotNull('cidade')->distinct()->pluck('cidade');
+        $nomes     = DB::table('viacoes')->whereNotNull('cidade')->distinct()->pluck('cidade');
 
         // Insere cada cidade única na tabela cidades (apenas as que ainda não existem)
         $cidadeMap = [];

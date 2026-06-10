@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // DTO de filtros para listagem de usuários.
 
 namespace App\DTOs;
@@ -18,7 +20,8 @@ final readonly class UsuarioFilterDTO implements FilterDTO
     public function __construct(
         public string $q = '',
         public bool $deletado = false,
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(Request $request): static
     {

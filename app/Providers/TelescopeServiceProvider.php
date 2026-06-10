@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Configuração do Laravel Telescope.
 //
 // O QUE É O TELESCOPE?
@@ -29,10 +31,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         // Em produção, poderia registrar apenas exceptions, requests/jobs que falharam e tasks agendadas.
         Telescope::filter(function (IncomingEntry $entry): bool {
             return $this->app->environment('local') ||
-                   $entry->isReportableException() ||
-                   $entry->isFailedRequest() ||
-                   $entry->isFailedJob() ||
-                   $entry->isScheduledTask() ||
+                   $entry->isReportableException()  ||
+                   $entry->isFailedRequest()        ||
+                   $entry->isFailedJob()            ||
+                   $entry->isScheduledTask()        ||
                    $entry->hasMonitoredTag();
         });
     }

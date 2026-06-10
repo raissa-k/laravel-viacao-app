@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Enums\EntidadeHistorico;
@@ -47,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
          * Pesquise "Eloquent morph map", "polymorphic relationship custom type".
          */
         Relation::morphMap([
-            EntidadeHistorico::Viacao->value => Viacao::class,
+            EntidadeHistorico::Viacao->value  => Viacao::class,
             EntidadeHistorico::Usuario->value => Usuario::class,
         ]);
 
@@ -85,7 +87,7 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->ip())
                 ->response(function (Request $request, array $headers) {
                     return response()->json([
-                        'ok' => false,
+                        'ok'      => false,
                         'message' => 'Muitas requisições. Tente novamente em instantes.',
                     ], 429, $headers);
                 });
@@ -93,13 +95,13 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api-write', function (Request $request): Limit {
             $perMinute = max(1, (int) config('api.rate_limit_write', 20));
-            $identity = $request->user()?->getAuthIdentifier() ?? 'guest';
+            $identity  = $request->user()?->getAuthIdentifier() ?? 'guest';
 
             return Limit::perMinute($perMinute)
                 ->by($identity.'|'.$request->ip())
                 ->response(function (Request $request, array $headers) {
                     return response()->json([
-                        'ok' => false,
+                        'ok'      => false,
                         'message' => 'Limite de escrita excedido. Aguarde 1 minuto.',
                     ], 429, $headers);
                 });

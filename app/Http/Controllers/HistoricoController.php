@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Controller do histórico
 // No Laravel, o service usa Eloquent com when()
 // Passa $filter->entidade pra view controlar qual aba está ativa.
@@ -15,17 +17,18 @@ class HistoricoController extends Controller
 {
     public function __construct(
         private readonly HistoricoService $historicoService,
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): View
     {
-        $filter = HistoricoFilterDTO::fromRequest($request);
+        $filter    = HistoricoFilterDTO::fromRequest($request);
         $historico = $this->historicoService->getHistory($filter);
 
         return view('admin.historico.index', [
-            'title' => 'Histórico de alterações',
+            'title'     => 'Histórico de alterações',
             'historico' => $historico,
-            'filter' => $filter,
+            'filter'    => $filter,
         ]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\DTOs\ViacaoFilterDTO;
@@ -24,12 +26,12 @@ class ExportViacoes extends Command
         $filename = $this->argument('filename');
 
         // caso o usuário não digite .json, é adicionado
-        if (! str_ends_with($filename, '.json')) {
+        if (!str_ends_with($filename, '.json')) {
             $filename .= '.json';
         }
         // bloco de validação ----------------------------------------------------------------------------
-        $dir = dirname($filename);
-        if ($dir !== '.' && ! is_dir(storage_path("app/{$dir}"))) {
+        $dir      = dirname($filename);
+        if ($dir !== '.' && !is_dir(storage_path("app/{$dir}"))) {
             $this->error('Diretório não encontrado');
 
             return self::FAILURE;
@@ -37,7 +39,7 @@ class ExportViacoes extends Command
         // --------------------------------------------------------------------------------------------------
         try {
             // busca as viacoes com o metodo que criei la no service,no outro era para importar
-            $viacoes = $this->viacaoService->all(new ViacaoFilterDTO(perPage: null));
+            $viacoes   = $this->viacaoService->all(new ViacaoFilterDTO(perPage: null));
 
             if ($viacoes->isEmpty()) {
                 $this->warn('Não achei nada para exportar'); // warn é apenas um tipo de string exclusivo pra avisos ou warnings
@@ -46,7 +48,7 @@ class ExportViacoes extends Command
             }
 
             // manipula o json armazenado em $viacoes(doService),usando as flags/constantes JSON_PRETTY_PINT e JSON_UNESCAPEWD_UNICODE
-            $jsonText = json_encode(ViacaoResource::collection($viacoes), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            $jsonText  = json_encode(ViacaoResource::collection($viacoes), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
             // bloco if que se o json der falha(false) ele ja manda erro
             if ($jsonText === false) {
@@ -58,7 +60,7 @@ class ExportViacoes extends Command
             $rightPath = storage_path("app/{$filename}");
 
             // ----------------------bloco de alteração para retorno de numero de bytes---------------------------
-            $bytes = file_put_contents($rightPath, $jsonText);
+            $bytes     = file_put_contents($rightPath, $jsonText);
             if ($bytes === false) {
                 $this->error('Não deu pra escrever no arquivo,verifique');
 

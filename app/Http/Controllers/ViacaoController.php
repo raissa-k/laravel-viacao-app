@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Controller de viações.
 // show(): exibe uma viação com seu histórico.
 // restore(): restaura soft-deleted via ViacaoService.
@@ -10,32 +12,33 @@ namespace App\Http\Controllers;
 
 use App\DTOs\ViacaoFilterDTO;
 use App\Http\Requests\ViacaoRequest;
+use App\Models\Cidade;
 use App\Models\Viacao;
 use App\Services\UploadService;
 use App\Services\ViacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use App\Models\Cidade;
 
 class ViacaoController extends Controller
 {
     public function __construct(
         private readonly ViacaoService $viacaoService,
         private readonly UploadService $uploadService,
-    ) {}
+    ) {
+    }
 
     /** Lista viações no painel admin, com filtros opcionais de busca e status. */
     public function index(Request $request): View
     {
         // DTO normaliza e tipa os GET params antes de passar pro service.
-        $filter = ViacaoFilterDTO::fromRequest($request);
+        $filter  = ViacaoFilterDTO::fromRequest($request);
         $viacoes = $this->viacaoService->all($filter);
 
         return view('admin.viacoes.index', [
-            'title' => 'Viações',
+            'title'   => 'Viações',
             'viacoes' => $viacoes,
-            'filter' => $filter,
+            'filter'  => $filter,
         ]);
     }
 
@@ -45,7 +48,7 @@ class ViacaoController extends Controller
         $cidades = Cidade::orderBy('nome')->get();
 
         return view('admin.viacoes.create', [
-            'title' => 'Cadastrar Viação',
+            'title'   => 'Cadastrar Viação',
             'cidades' => $cidades,
         ]);
     }
@@ -53,7 +56,7 @@ class ViacaoController extends Controller
     /** Processa o form de cadastro: valida (via ViacaoRequest), faz upload e salva. */
     public function store(ViacaoRequest $request): RedirectResponse
     {
-        $logo = null;
+        $logo   = null;
 
         if ($request->hasFile('logo')) {
             try {
@@ -64,7 +67,7 @@ class ViacaoController extends Controller
             }
         }
 
-        $data = $request->validated();
+        $data   = $request->validated();
 
         $viacao = $this->viacaoService->create(
             $data['nome'],
@@ -99,8 +102,8 @@ class ViacaoController extends Controller
         ])->findOrFail($id);
 
         return view('admin.viacoes.show', [
-            'title' => 'Viação: '.$viacao->nome,
-            'viacao' => $viacao,
+            'title'     => 'Viação: '.$viacao->nome,
+            'viacao'    => $viacao,
             'historico' => $viacao->historico,
         ]);
     }
@@ -113,12 +116,12 @@ class ViacaoController extends Controller
      */
     public function edit(int $id): View
     {
-        $viacao = Viacao::with('cidade')->findOrFail($id);
+        $viacao  = Viacao::with('cidade')->findOrFail($id);
         $cidades = Cidade::orderBy('nome')->get();
 
         return view('admin.viacoes.edit', [
-            'title' => 'Editar Viação',
-            'viacao' => $viacao,
+            'title'   => 'Editar Viação',
+            'viacao'  => $viacao,
             'cidades' => $cidades,
         ]);
     }

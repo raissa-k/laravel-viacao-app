@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Testes do CRUD de viações no painel admin.
 // Cobre: proteção por auth, listagem, criação, edição, exclusão e validação.
 
@@ -63,15 +65,15 @@ it('exibe o formulário de cadastro', function () {
 });
 
 it('cria viação válida e registra histórico', function () {
-    $user = Usuario::factory()->create();
+    $user   = Usuario::factory()->create();
     // Criamos uma cidade real para obter um ID válido de relacionamento
     $cidade = \App\Models\Cidade::factory()->create();
 
     $this->actingAs($user)
         ->post(route('viacoes.store'), [
-            'nome' => 'Expresso Teste',
+            'nome'      => 'Expresso Teste',
             'cidade_id' => $cidade->id,
-            'ativa' => true,
+            'ativa'     => true,
         ])
         ->assertRedirect(route('viacoes.index'))
         ->assertSessionHas('success');
@@ -93,15 +95,15 @@ it('permite criar viação sem cidade', function () {
 
     $this->actingAs($user)
         ->post(route('viacoes.store'), [
-            'nome' => 'Viação Sem Cidade',
+            'nome'      => 'Viação Sem Cidade',
             'cidade_id' => '', // Enviando vazio, que o Laravel tratará como null
-            'ativa' => true,
+            'ativa'     => true,
         ])
         ->assertRedirect(route('viacoes.index'))
         ->assertSessionHas('success');
 
     $this->assertDatabaseHas('viacoes', [
-        'nome' => 'Viação Sem Cidade',
+        'nome'      => 'Viação Sem Cidade',
         'cidade_id' => null
     ]);
 });
@@ -126,14 +128,14 @@ it('exibe o formulário de edição com dados atuais', function () {
 });
 
 it('atualiza viação existente e registra histórico', function () {
-    $user = Usuario::factory()->create();
+    $user   = Usuario::factory()->create();
     $viacao = Viacao::factory()->create(['nome' => 'Original']);
 
     $this->actingAs($user)
         ->put(route('viacoes.update', $viacao), [
-            'nome' => 'Atualizada',
+            'nome'      => 'Atualizada',
             'cidade_id' => $viacao->cidade_id,
-            'ativa' => $viacao->ativa,
+            'ativa'     => $viacao->ativa,
         ])
         ->assertRedirect(route('viacoes.show', $viacao));
 
@@ -150,9 +152,9 @@ it('retorna 404 ao editar viação inexistente', function () {
 // Exclusão
 
 it('remove viação e registra histórico', function () {
-    $user = Usuario::factory()->create();
+    $user        = Usuario::factory()->create();
 
-    $viacao = Viacao::factory()->create([
+    $viacao      = Viacao::factory()->create([
         'ativa' => false,
     ]);
 
@@ -166,7 +168,7 @@ it('remove viação e registra histórico', function () {
     $this->assertNotEquals(null, $softDeleted->deleted_at);
 
     $this->assertDatabaseHas('historico', [
-        'acao' => AcaoHistorico::Excluido,
+        'acao'        => AcaoHistorico::Excluido,
         'entidade_id' => $viacao->id,
     ]);
 });

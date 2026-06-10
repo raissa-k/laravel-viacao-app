@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 // Service de viações: regra de negócio de criação, edição, exclusão e registro de histórico.
@@ -19,7 +21,8 @@ class ViacaoService
 {
     public function __construct(
         private readonly UploadService $uploadService,
-    ) {}
+    ) {
+    }
 
     /**
      * Retorna viações paginadas com filtros.
@@ -32,7 +35,7 @@ class ViacaoService
      * Aqui: deletado=true mostra APENAS excluídos (para ação de restaurar).
      * O usuário filtra entre "ativos" e "excluídos" explicitamente, nunca mistura.
      */
-    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO): Collection|LengthAwarePaginator
+    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Collection|LengthAwarePaginator
     {
         $builder = $this->builder($filter);
 
@@ -72,19 +75,19 @@ class ViacaoService
     {
         return DB::transaction(function () use ($nome, $cidadeId, $ativa, $logo, $site, $usuarioId) {
             $viacao = Viacao::create([
-                'nome' => $nome,
+                'nome'      => $nome,
                 'cidade_id' => $cidadeId,
-                'ativa' => $ativa,
-                'logo' => $logo,
-                'site' => $site,
+                'ativa'     => $ativa,
+                'logo'      => $logo,
+                'site'      => $site,
             ]);
 
             $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
-                'acao' => AcaoHistorico::Criado->value,
+                'acao'       => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']), // não precisamos mostrar ID, data de criação, etc
+                    'after'  => $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']), // não precisamos mostrar ID, data de criação, etc
                 ],
             ]);
 
@@ -102,26 +105,26 @@ class ViacaoService
 
         DB::transaction(function () use ($viacao, $nome, $cidadeId, $ativa, $logo, $usuarioId, $site) {
             // Captura o estado antes da edição, mas só os campos interessantes
-            $before = $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']);
+            $before                   = $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']);
 
             $viacao->update([
-                'nome' => $nome,
+                'nome'      => $nome,
                 'cidade_id' => $cidadeId,
-                'ativa' => $ativa,
-                'logo' => $logo,
-                'site' => $site,
+                'ativa'     => $ativa,
+                'logo'      => $logo,
+                'site'      => $site,
             ]);
 
             // Recarrega do banco pra pegar updated_at atualizado
             $viacao->refresh();
-            $after = $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']);
+            $after                    = $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']);
 
             // Só salva os campos que realmente mudaram
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
 
             $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
-                'acao' => AcaoHistorico::Editado->value,
+                'acao'       => AcaoHistorico::Editado->value,
                 'alteracoes' => ['before' => $diffBefore, 'after' => $diffAfter],
             ]);
         });
@@ -142,10 +145,10 @@ class ViacaoService
     public function delete(Viacao $viacao, ?int $usuarioId = null): void
     {
         $before = [
-            'nome' => $viacao->nome,
+            'nome'      => $viacao->nome,
             'cidade_id' => $viacao->cidade_id,
-            'ativa' => $viacao->ativa,
-            'logo' => $viacao->logo,
+            'ativa'     => $viacao->ativa,
+            'logo'      => $viacao->logo,
         ];
 
         DB::transaction(function () use ($viacao, $usuarioId, $before) {
@@ -153,7 +156,7 @@ class ViacaoService
 
             $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
-                'acao' => AcaoHistorico::Excluido->value,
+                'acao'       => AcaoHistorico::Excluido->value,
                 'alteracoes' => ['before' => $before, 'after' => null],
             ]);
         });
@@ -178,10 +181,10 @@ class ViacaoService
 
             $viacao->historico()->create([
                 'usuario_id' => $usuarioId,
-                'acao' => AcaoHistorico::Restaurado->value,
+                'acao'       => AcaoHistorico::Restaurado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']),
+                    'after'  => $viacao->only(['nome', 'cidade_id', 'ativa', 'logo', 'site']),
                 ],
             ]);
         });
@@ -194,15 +197,15 @@ class ViacaoService
      */
     private function diffRows(?array $before, ?array $after): array
     {
-        $skip = ['id', 'created_at', 'updated_at']; // não precisamos mostrar esses
+        $skip       = ['id', 'created_at', 'updated_at']; // não precisamos mostrar esses
 
-        $allKeys = array_unique(array_merge(
+        $allKeys    = array_unique(array_merge(
             array_keys($before ?? []),
             array_keys($after ?? [])
         ));
 
         $diffBefore = [];
-        $diffAfter = [];
+        $diffAfter  = [];
 
         foreach ($allKeys as $key) {
             if (in_array($key, $skip, true)) {
@@ -210,11 +213,11 @@ class ViacaoService
             }
 
             $valBefore = $before[$key] ?? null;
-            $valAfter = $after[$key] ?? null;
+            $valAfter  = $after[$key]  ?? null;
 
             if ($valBefore !== $valAfter) {
                 $diffBefore[$key] = $valBefore;
-                $diffAfter[$key] = $valAfter;
+                $diffAfter[$key]  = $valAfter;
             }
         }
 

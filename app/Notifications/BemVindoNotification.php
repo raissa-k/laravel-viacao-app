@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -14,7 +16,8 @@ class BemVindoNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private readonly string $urlLogin){
+    public function __construct(private readonly string $urlLogin)
+    {
     }
 
     /**
@@ -32,7 +35,7 @@ class BemVindoNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return new MailMessage()
             ->subject('Bem-Vindo ao sistema!')
             ->greeting('Olá '.$notifiable->nome.'!')
             ->line('Seja bem-vindo ao sistema!')

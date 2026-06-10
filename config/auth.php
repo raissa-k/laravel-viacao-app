@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Usuario;
 
 // Configuração de autenticação do Laravel.
@@ -8,32 +10,32 @@ use App\Models\Usuario;
 
 return [
 
-    'defaults' => [
-        'guard' => 'web',
+    'defaults'         => [
+        'guard'     => 'web',
         'passwords' => 'usuarios',
     ],
 
-    'guards' => [
+    'guards'           => [
         'web' => [
             // driver session: autentica via cookie de sessão (igual ao PHP puro)
-            'driver' => 'session',
+            'driver'   => 'session',
             'provider' => 'usuarios',
         ],
     ],
 
-    'providers' => [
+    'providers'        => [
         'usuarios' => [
             // driver eloquent: usa o Model abaixo pra buscar o usuário por email
             'driver' => 'eloquent',
-            'model' => Usuario::class,
+            'model'  => Usuario::class,
         ],
     ],
 
-    'passwords' => [
+    'passwords'        => [
         'usuarios' => [
             'provider' => 'usuarios',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
+            'table'    => 'password_reset_tokens',
+            'expire'   => 60,
             'throttle' => 60,
         ],
     ],

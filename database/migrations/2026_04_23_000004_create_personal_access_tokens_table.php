@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Migration da tabela de tokens do Sanctum.
 // Sanctum armazena tokens hasheados, o plain text só existe no momento da criação.
 // Pesquise "Laravel Sanctum", "API token hashing".

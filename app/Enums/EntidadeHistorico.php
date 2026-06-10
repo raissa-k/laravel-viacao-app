@@ -21,6 +21,6 @@ namespace App\Enums;
 
 enum EntidadeHistorico: string
 {
-    case Viacao = 'viacao';
+    case Viacao  = 'viacao';
     case Usuario = 'usuario';
 }

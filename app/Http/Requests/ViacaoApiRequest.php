@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 // FormRequest para criação e edição de viações via API REST.
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Cidade;
+use Illuminate\Foundation\Http\FormRequest;
 
 /*
  * Por que um FormRequest separado para a API, se ViacaoRequest já existe?
@@ -30,7 +32,7 @@ class ViacaoApiRequest extends FormRequest
         // PUT (atualização): cidade e nome são opcionais pra permitir atualizações parciais
         if ($this->isMethod('PUT')) {
             $rules['cidade_id'] = ['sometimes', 'nullable', 'integer', 'exists:cidades,id'];
-            $rules['nome'] = ['sometimes', 'string', 'max:255'];
+            $rules['nome']      = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
@@ -48,10 +50,10 @@ class ViacaoApiRequest extends FormRequest
     public static function coreRules(): array
     {
         return [
-            'nome' => ['required', 'string', 'max:255'],
+            'nome'      => ['required', 'string', 'max:255'],
             'cidade_id' => ['sometimes', 'nullable', 'integer', 'exists:cidades,id'],            // 'sometimes': só valida se o campo estiver presente.
             // Útil pra clientes que omitem 'ativa' na requisição por qualquer motivo que seja.
-            'ativa' => ['sometimes', 'boolean'],
+            'ativa'     => ['sometimes', 'boolean'],
         ];
     }
 
@@ -81,8 +83,8 @@ class ViacaoApiRequest extends FormRequest
         if ($this->has('cidade_id')) {
             $merge['cidade_id'] = $this->input('cidade_id');
         } elseif ($this->has('cidade')) {
-            $nomeCidade = trim((string) $this->input('cidade', ''));
-            $cidade = Cidade::where('nome', $nomeCidade)->first();
+            $nomeCidade         = trim((string) $this->input('cidade', ''));
+            $cidade             = Cidade::where('nome', $nomeCidade)->first();
             $merge['cidade_id'] = $cidade?->id; // null se não encontrar
         }
 
@@ -95,10 +97,10 @@ class ViacaoApiRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.required' => 'O nome é obrigatório.',
-            'nome.max' => 'O nome deve ter no máximo 255 caracteres.',
+            'nome.required'     => 'O nome é obrigatório.',
+            'nome.max'          => 'O nome deve ter no máximo 255 caracteres.',
             'cidade_id.integer' => 'A cidade é inválida.',
-            'cidade_id.exists' => 'A cidade selecionada não existe.',
+            'cidade_id.exists'  => 'A cidade selecionada não existe.',
         ];
     }
 }

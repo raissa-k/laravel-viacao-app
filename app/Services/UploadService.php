@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Service de upload: valida e salva arquivos com segurança.
 // A lógica de segurança é a mesma (validar MIME, tamanho, nome aleatório).
 // A diferença é a API: aqui usamos UploadedFile (do Laravel/Symfony) e Storage facade.
@@ -37,7 +39,7 @@ class UploadService
          */
         $mime = $file->getMimeType();
 
-        if (! in_array($mime, $this->allowedMime, true)) {
+        if (!in_array($mime, $this->allowedMime, true)) {
             throw new \RuntimeException('Tipo de arquivo não permitido.');
         }
 
@@ -45,11 +47,11 @@ class UploadService
             throw new \RuntimeException('Arquivo maior que o permitido.');
         }
 
-        $ext = match ($mime) {
+        $ext  = match ($mime) {
             'image/jpeg' => 'jpg',
-            'image/png' => 'png',
+            'image/png'  => 'png',
             'image/webp' => 'webp',
-            default => 'bin',
+            default      => 'bin',
         };
 
         // Nome aleatório: bin2hex de 8 bytes aleatórios
@@ -88,10 +90,10 @@ class UploadService
         if (Storage::disk('local')->exists($path)) {
             $deleted = Storage::disk('local')->delete($path);
 
-            if (! $deleted) {
+            if (!$deleted) {
                 Log::warning('Falha ao remover arquivo de upload.', [
                     'filename' => $safe,
-                    'path' => $path,
+                    'path'     => $path,
                 ]);
             }
         }

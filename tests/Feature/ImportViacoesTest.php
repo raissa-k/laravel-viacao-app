@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Testes do comando Artisan viacoes:import.
 // Artisan::call() executa o comando inline e retorna o exit code.
 // É mais direto que $this->artisan() (PendingCommand) e não tem problemas de interação com buffers de saída em alguns ambientes de teste.
@@ -10,7 +12,7 @@ use App\Models\Viacao;
 use Illuminate\Support\Facades\Artisan;
 
 it('importa viações válidas de um arquivo JSON', function () {
-    $file = tempnam(sys_get_temp_dir(), 'viacoes_').'.json';
+    $file     = tempnam(sys_get_temp_dir(), 'viacoes_').'.json';
     file_put_contents($file, json_encode([
         ['nome' => 'Cometa',  'cidade' => 'Campinas', 'ativa' => true],
         ['nome' => 'Eucatur', 'cidade' => 'Curitiba'],
@@ -26,10 +28,10 @@ it('importa viações válidas de um arquivo JSON', function () {
 });
 
 it('pula linhas inválidas e continua', function () {
-    $file = tempnam(sys_get_temp_dir(), 'viacoes_').'.json';
+    $file     = tempnam(sys_get_temp_dir(), 'viacoes_').'.json';
     file_put_contents($file, json_encode([
         ['nome' => 'Válida', 'cidade' => 'SP'],
-        ['nome' => '',       'cidade' => 'SP'],  // inválida: nome vazio
+        ['nome'   => '',       'cidade' => 'SP'],  // inválida: nome vazio
         ['cidade' => 'RJ'],                       // inválida: sem nome
     ]));
 
@@ -48,7 +50,7 @@ it('retorna falha para arquivo inexistente', function () {
 });
 
 it('retorna falha para JSON inválido', function () {
-    $file = tempnam(sys_get_temp_dir(), 'viacoes_').'.json';
+    $file     = tempnam(sys_get_temp_dir(), 'viacoes_').'.json';
     file_put_contents($file, 'isso nao e json');
 
     $exitCode = Artisan::call('viacoes:import', ['file' => $file]);

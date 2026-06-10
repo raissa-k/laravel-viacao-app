@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // FormRequest de usuário: valida criação e edição.
 // A distinção create vs update é feita por $this->route('usuario'):
 //   null   = rota de criação -> senha obrigatória, e-mail único globalmente
@@ -24,7 +26,7 @@ class UsuarioRequest extends FormRequest
         $usuario = $this->route('usuario'); // null no create, model no update
 
         return [
-            'nome' => ['required', 'string', 'max:255'],
+            'nome'  => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
@@ -50,7 +52,7 @@ class UsuarioRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'nome' => trim((string) $this->input('nome', '')),
+            'nome'  => trim((string) $this->input('nome', '')),
             'email' => trim((string) $this->input('email', '')),
         ]);
     }
@@ -58,12 +60,12 @@ class UsuarioRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.required' => 'O nome é obrigatório.',
-            'email.required' => 'O e-mail é obrigatório.',
-            'email.email' => 'Informe um e-mail válido.',
-            'email.unique' => 'Este e-mail já está em uso.',
-            'senha.required' => 'A senha é obrigatória.',
-            'senha.min' => 'A senha deve ter no mínimo 8 caracteres.',
+            'nome.required'   => 'O nome é obrigatório.',
+            'email.required'  => 'O e-mail é obrigatório.',
+            'email.email'     => 'Informe um e-mail válido.',
+            'email.unique'    => 'Este e-mail já está em uso.',
+            'senha.required'  => 'A senha é obrigatória.',
+            'senha.min'       => 'A senha deve ter no mínimo 8 caracteres.',
             'senha.confirmed' => 'A confirmação de senha não confere.',
         ];
     }

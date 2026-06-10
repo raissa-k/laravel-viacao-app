@@ -29,7 +29,7 @@ class HistoricoService
      * Filtramos por campos estruturados (nome, acao, datas) e deixamos o JSON como exibição apenas.
      * Pesquise "audit tables performance", "JSON anti-patterns".
      */
-    public function getHistory(HistoricoFilterDTO $filter = new HistoricoFilterDTO): LengthAwarePaginator
+    public function getHistory(HistoricoFilterDTO $filter = new HistoricoFilterDTO()): LengthAwarePaginator
     {
         return Historico::with(['entidade', 'ator'])
             ->where('entidade_type', $filter->entidade->value)

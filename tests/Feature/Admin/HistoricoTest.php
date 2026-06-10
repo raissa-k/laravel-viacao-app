@@ -26,8 +26,8 @@ it('exibe o histórico para usuário autenticado', function () {
 });
 
 it('filtra histórico por ação', function () {
-    $viacao = Viacao::factory()->create();
-    $usuario = Usuario::factory()->create();
+    $viacao   = Viacao::factory()->create();
+    $usuario  = Usuario::factory()->create();
 
     Historico::factory()->criado()->for($viacao, 'entidade')->create();
     Historico::factory()->editado()->for($usuario, 'entidade')->create();
@@ -41,8 +41,8 @@ it('filtra histórico por ação', function () {
 });
 
 it('filtra histórico por entidade', function () {
-    $v1 = Viacao::factory()->create();
-    $u1 = Usuario::factory()->create();
+    $v1       = Viacao::factory()->create();
+    $u1       = Usuario::factory()->create();
 
     Historico::factory()->criado()->for($v1, 'entidade')->create();
     Historico::factory()->criado()->for($u1, 'entidade')->create();
@@ -67,10 +67,10 @@ it('ignora acao inválida no filtro', function () {
 });
 
 it('mostra o ator mesmo quando o usuário está excluído', function () {
-    $actor = Usuario::factory()->create();
+    $actor    = Usuario::factory()->create();
     $actor->delete();
 
-    $viacao = Viacao::factory()->create();
+    $viacao   = Viacao::factory()->create();
     Historico::factory()->criado()->for($viacao, 'entidade')->create([
         'usuario_id' => $actor->id,
     ]);

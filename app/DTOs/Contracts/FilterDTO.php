@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Interface comum pra todos os DTOs de filtro GET.
 
 namespace App\DTOs\Contracts;

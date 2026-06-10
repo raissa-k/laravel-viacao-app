@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Controller de upload: serve arquivos salvos fora do docroot com segurança.
 // Compare com src/Controllers/UploadController.php do PHP puro.
 // A lógica de segurança é idêntica (path traversal, MIME detection).
@@ -14,7 +16,8 @@ class UploadController extends Controller
 {
     public function __construct(
         private readonly UploadService $uploadService,
-    ) {}
+    ) {
+    }
 
     public function serve(string $filename): BinaryFileResponse
     {
@@ -27,7 +30,7 @@ class UploadController extends Controller
             abort(400, 'Nome de arquivo inválido.');
         }
 
-        if (! $this->uploadService->exists($filename)) {
+        if (!$this->uploadService->exists($filename)) {
             abort(404, 'Arquivo não encontrado.');
         }
 

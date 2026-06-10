@@ -1,0 +1,39 @@
+{
+    "preset": "psr12",
+    "rules": {
+        "declare_strict_types": true,
+        "blank_line_before_statement": false,
+        "not_operator_with_successor_space": false,
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        },
+        "no_superfluous_phpdoc_tags": false,
+        "binary_operator_spaces": {
+            "default": "align_by_scope"
+        },
+        "braces_position": {
+            "control_structures_opening_brace": "same_line",
+            "functions_opening_brace": "next_line_unless_newline_at_signature_end",
+            "anonymous_functions_opening_brace": "same_line",
+            "classes_opening_brace": "next_line_unless_newline_at_signature_end",
+            "anonymous_classes_opening_brace": "next_line_unless_newline_at_signature_end",
+            "allow_single_line_empty_anonymous_classes": true,
+            "allow_single_line_anonymous_functions": true
+        },
+        "new_with_parentheses": {
+            "named_class": true,
+            "anonymous_class": false
+        },
+        "new_expression_parentheses": {
+            "use_parentheses": false
+        },
+        "heredoc_to_nowdoc": false,
+        "trailing_comma_in_multiline": false,
+        "phpdoc_align": {
+            "align": "vertical"
+        },
+        "phpdoc_order": true,
+        "single_line_empty_body": false,
+        "unary_operator_spaces": true
+    }
+}

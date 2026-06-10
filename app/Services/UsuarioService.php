@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Service de usuários: CRUD + registro no histórico unificado.
 // Padrão idêntico ao ViacaoService: DB::transaction, before/after, diffRows.
 
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioService
 {
-    public function all(UsuarioFilterDTO $filter = new UsuarioFilterDTO): LengthAwarePaginator
+    public function all(UsuarioFilterDTO $filter = new UsuarioFilterDTO()): LengthAwarePaginator
     {
         return Usuario::query()
             ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
@@ -35,7 +37,7 @@ class UsuarioService
     {
         $novoUsuario = DB::transaction(function () use ($nome, $email, $senha, $atorId) {
             $usuario = Usuario::create([
-                'nome' => $nome,
+                'nome'  => $nome,
                 'email' => $email,
                 /*
                  * Hash::make() aplica bcrypt (ou o driver configurado em config/hashing.php).
@@ -47,10 +49,10 @@ class UsuarioService
 
             $usuario->historico()->create([
                 'usuario_id' => $atorId,
-                'acao' => AcaoHistorico::Criado->value,
+                'acao'       => AcaoHistorico::Criado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $usuario->only(['nome', 'email']),
+                    'after'  => $usuario->only(['nome', 'email']),
                 ],
             ]);
 
@@ -68,9 +70,9 @@ class UsuarioService
     public function update(Usuario $usuario, string $nome, string $email, ?string $novaSenha, ?int $atorId = null): Usuario
     {
         DB::transaction(function () use ($usuario, $nome, $email, $novaSenha, $atorId) {
-            $before = $usuario->only(['nome', 'email']);
+            $before                   = $usuario->only(['nome', 'email']);
 
-            $dados = ['nome' => $nome, 'email' => $email];
+            $dados                    = ['nome' => $nome, 'email' => $email];
             if ($novaSenha !== null) {
                 $dados['senha'] = Hash::make($novaSenha);
             }
@@ -79,13 +81,13 @@ class UsuarioService
             $usuario->refresh();
 
             // Não inclui senha no histórico: dado sensível não deve aparecer no log.
-            $after = $usuario->only(['nome', 'email']);
+            $after                    = $usuario->only(['nome', 'email']);
 
             [$diffBefore, $diffAfter] = $this->diffRows($before, $after);
 
             $usuario->historico()->create([
                 'usuario_id' => $atorId,
-                'acao' => AcaoHistorico::Editado->value,
+                'acao'       => AcaoHistorico::Editado->value,
                 'alteracoes' => ['before' => $diffBefore, 'after' => $diffAfter],
             ]);
         });
@@ -103,7 +105,7 @@ class UsuarioService
 
             $usuario->historico()->create([
                 'usuario_id' => $atorId,
-                'acao' => AcaoHistorico::Excluido->value,
+                'acao'       => AcaoHistorico::Excluido->value,
                 'alteracoes' => ['before' => $before, 'after' => null],
             ]);
         });
@@ -117,10 +119,10 @@ class UsuarioService
 
             $usuario->historico()->create([
                 'usuario_id' => $atorId,
-                'acao' => AcaoHistorico::Restaurado->value,
+                'acao'       => AcaoHistorico::Restaurado->value,
                 'alteracoes' => [
                     'before' => null,
-                    'after' => $usuario->only(['nome', 'email']),
+                    'after'  => $usuario->only(['nome', 'email']),
                 ],
             ]);
         });
@@ -129,17 +131,17 @@ class UsuarioService
     /** @return array{0: ?array, 1: ?array} */
     private function diffRows(?array $before, ?array $after): array
     {
-        $allKeys = array_unique(array_merge(array_keys($before ?? []), array_keys($after ?? [])));
+        $allKeys    = array_unique(array_merge(array_keys($before ?? []), array_keys($after ?? [])));
         $diffBefore = [];
-        $diffAfter = [];
+        $diffAfter  = [];
 
         foreach ($allKeys as $key) {
             $valBefore = $before[$key] ?? null;
-            $valAfter = $after[$key] ?? null;
+            $valAfter  = $after[$key]  ?? null;
 
             if ($valBefore !== $valAfter) {
                 $diffBefore[$key] = $valBefore;
-                $diffAfter[$key] = $valAfter;
+                $diffAfter[$key]  = $valAfter;
             }
         }
 

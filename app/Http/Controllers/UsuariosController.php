@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Controller de usuários: CRUD completo + show (com histórico) + restore (soft delete).
 // Padrão idêntico ao ViacaoController: DTO de filtro, service layer, redirect com flash.
 
@@ -17,18 +19,19 @@ class UsuariosController extends Controller
 {
     public function __construct(
         private readonly UsuarioService $usuarioService,
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): View
     {
         // UsuarioFilterDTO mantém o mesmo padrão dos outros controllers de listagem: nenhum controller lê $request->get() diretamente, sempre via DTO.
-        $filter = UsuarioFilterDTO::fromRequest($request);
+        $filter   = UsuarioFilterDTO::fromRequest($request);
         $usuarios = $this->usuarioService->all($filter);
 
         return view('admin.usuarios.index', [
-            'title' => 'Usuários',
+            'title'    => 'Usuários',
             'usuarios' => $usuarios,
-            'filter' => $filter,
+            'filter'   => $filter,
         ]);
     }
 
@@ -41,7 +44,7 @@ class UsuariosController extends Controller
 
     public function store(UsuarioRequest $request): RedirectResponse
     {
-        $data = $request->validated();
+        $data    = $request->validated();
         $usuario = $this->usuarioService->create($data['nome'], $data['email'], $data['senha'], auth()->id());
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário criado (#'.$usuario->id.').');
@@ -53,8 +56,8 @@ class UsuariosController extends Controller
         $historico = $usuario->historico()->with('ator')->orderByDesc('criado_em')->get();
 
         return view('admin.usuarios.show', [
-            'title' => 'Usuário: '.$usuario->nome,
-            'usuario' => $usuario,
+            'title'     => 'Usuário: '.$usuario->nome,
+            'usuario'   => $usuario,
             'historico' => $historico,
         ]);
     }
@@ -62,14 +65,14 @@ class UsuariosController extends Controller
     public function edit(Usuario $usuario): View
     {
         return view('admin.usuarios.edit', [
-            'title' => 'Editar Usuário',
+            'title'   => 'Editar Usuário',
             'usuario' => $usuario,
         ]);
     }
 
     public function update(UsuarioRequest $request, Usuario $usuario): RedirectResponse
     {
-        $data = $request->validated();
+        $data      = $request->validated();
         // senha null quando o campo foi deixado em branco na edição, pra manter a senha anterior
         $novaSenha = filled($data['senha'] ?? null) ? $data['senha'] : null;
 

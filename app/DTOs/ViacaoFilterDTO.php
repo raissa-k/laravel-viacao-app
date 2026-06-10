@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // DTO de filtros para listagem de viações.
 // No PHP puro, os filtros eram lidos diretamente de $_GET no controller.
 // Aqui, o DTO encapsula a leitura, normalização e tipagem dos parâmetros de filtro.
@@ -27,17 +29,18 @@ final readonly class ViacaoFilterDTO implements FilterDTO
          */
         public bool $deletado = false,
         public ?int $perPage = 15,
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(Request $request): static
     {
-        $q = trim((string) $request->input('q', ''));
+        $q        = trim((string) $request->input('q', ''));
 
         $ativaRaw = $request->input('ativa');
-        $ativa = match (true) {
+        $ativa    = match (true) {
             $ativaRaw === '1' || $ativaRaw === 1 => true,
             $ativaRaw === '0' || $ativaRaw === 0 => false,
-            default => null,
+            default                              => null,
         };
 
         return new self(

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Controller de autenticação: compare com src/Controllers/AuthController.php do PHP puro.
 // A lógica é a mesma, mas o Laravel abstrai toda a mecânica de sessão:
 //   PHP puro: session_start(), session_regenerate_id(), $_SESSION, session_destroy()

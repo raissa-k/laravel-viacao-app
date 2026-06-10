@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Testes da API REST de viações.
 // No Laravel + Sanctum: Sanctum::actingAs() faz o middleware auth:sanctum reconhecer o usuário sem emitir um token real.
 // Pesquise "Sanctum::actingAs", "Laravel HTTP tests", "assertJson".
@@ -64,9 +66,9 @@ it('cria viação com token Sanctum e retorna 201 com recurso completo', functio
     Sanctum::actingAs(Usuario::factory()->create());
 
     $this->postJson('/api/viacoes', [
-        'nome' => 'Nova Viação',
+        'nome'   => 'Nova Viação',
         'cidade' => 'Curitiba',
-        'ativa' => true,
+        'ativa'  => true,
     ])
         ->assertCreated()                          // 201
         ->assertJsonPath('ok', true)
@@ -89,7 +91,7 @@ it('atualiza viação com token Sanctum', function () {
 
     // O teste foca na alteração de nome; cidade_id mantém o valor existente.
     $this->putJson("/api/viacoes/{$viacao->id}", [
-        'nome' => 'Atualizada',
+        'nome'      => 'Atualizada',
         'cidade_id' => $viacao->cidade_id,
     ])
         ->assertOk()
@@ -107,7 +109,7 @@ it('retorna 404 ao atualizar viação inexistente', function () {
 
 it('remove viação com token Sanctum e retorna 204', function () {
     Sanctum::actingAs(Usuario::factory()->create());
-    $viacao = Viacao::factory()->create(['ativa' => false]);
+    $viacao      = Viacao::factory()->create(['ativa' => false]);
 
     $this->deleteJson("/api/viacoes/{$viacao->id}")
         ->assertNoContent();                       // 204

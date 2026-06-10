@@ -13,9 +13,9 @@ class Historico extends Model
 {
     use HasFactory;
 
-    protected $table = 'historico';
+    protected $table        = 'historico';
 
-    protected $fillable = ['entidade_type', 'entidade_id', 'usuario_id', 'acao', 'alteracoes'];
+    protected $fillable     = ['entidade_type', 'entidade_id', 'usuario_id', 'acao', 'alteracoes'];
 
     /*
      * CREATED_AT = 'criado_em': Eloquent escreve now() nessa coluna ao criar.
@@ -25,7 +25,7 @@ class Historico extends Model
 
     public const UPDATED_AT = null;
 
-    protected $casts = [
+    protected $casts        = [
         /*
          * decodifica o JSON ao ler e codifica com JSON_UNESCAPED_UNICODE ao salvar (mantém acentos legíveis no banco).
          * Pesquise "Laravel json:unicode cast".

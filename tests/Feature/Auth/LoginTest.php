@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Testes de autenticação: login e logout.
 // No Laravel: actingAs(), post(), assertAuthenticatedAs() abstraem a mecânica de sessão.
 

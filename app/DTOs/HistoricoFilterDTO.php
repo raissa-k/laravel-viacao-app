@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // DTO de filtros pro histórico de alterações.
 // Mesmo padrão dos outros DTOs: normaliza e tipa parâmetros GET.
 //
@@ -27,7 +29,8 @@ final readonly class HistoricoFilterDTO implements FilterDTO
         public ?string $dateFrom = null,
         public ?string $dateTo = null,
         public string $q = '',
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(Request $request): static
     {
@@ -51,7 +54,7 @@ final readonly class HistoricoFilterDTO implements FilterDTO
      */
     private static function parseDate(mixed $value): ?string
     {
-        if (! is_string($value) || trim($value) === '') {
+        if (!is_string($value) || trim($value) === '') {
             return null;
         }
 

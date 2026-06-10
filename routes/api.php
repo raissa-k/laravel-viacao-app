@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // No PHP puro: rotas de API eram registradas no mesmo router com prefixo /api.
 // No Laravel: routes/api.php é carregado com prefixo /api automaticamente (bootstrap/app.php).
 // Então Route::get('/viacoes') aqui fica disponível como GET /api/viacoes.

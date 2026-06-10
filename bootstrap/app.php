@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -23,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $isApi = fn (Request $request): bool => $request->is('api', 'api/*') || $request->expectsJson();
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) use ($isApi) {
-            if (! $isApi($request)) {
+            if (!$isApi($request)) {
                 return null;
             }
 
@@ -37,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $isModelMiss = $e->getPrevious() instanceof ModelNotFoundException;
 
             return response()->json([
-                'ok' => false,
+                'ok'      => false,
                 'message' => $isModelMiss ? 'Recurso não encontrado.' : 'Rota não encontrada.',
             ], 404);
         });
@@ -45,7 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) use ($isApi) {
             if ($isApi($request)) {
                 return response()->json([
-                    'ok' => false,
+                    'ok'      => false,
                     'message' => 'Método não permitido.',
                 ], 405);
             }

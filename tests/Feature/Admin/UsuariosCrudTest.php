@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Exemplos: CRUD de usuários, soft delete, restore e registro no histórico.
 // Estes testes são pra servir como exemplo de como usar factories, rotas nomeadas e assertions.
 
@@ -8,27 +10,27 @@ use App\Models\Historico;
 use App\Models\Usuario;
 
 it('cria, exclui (soft delete) e restaura um usuário, registrando o histórico', function () {
-    $actor = Usuario::factory()->create();
+    $actor    = Usuario::factory()->create();
 
-    $email = 'intern-test+user@example.test';
-    $nome = 'Interno Teste';
-    $senha = 'password123';
+    $email    = 'intern-test+user@example.test';
+    $nome     = 'Interno Teste';
+    $senha    = 'password123';
 
     $response = $this->actingAs($actor)
         ->post(route('usuarios.store'), [
-            'nome' => $nome,
-            'email' => $email,
-            'senha' => $senha,
+            'nome'               => $nome,
+            'email'              => $email,
+            'senha'              => $senha,
             'senha_confirmation' => $senha,
         ]);
 
     $response->assertRedirect(route('usuarios.index'));
 
-    $created = Usuario::where('email', $email)->first();
+    $created  = Usuario::where('email', $email)->first();
     expect($created)->not->toBeNull();
 
     // Histórico de criação deve existir e apontar para o ator que criou
-    $hc = Historico::where('entidade_id', $created->id)
+    $hc       = Historico::where('entidade_id', $created->id)
         ->where('acao', AcaoHistorico::Criado->value)
         ->first();
     expect($hc)->not->toBeNull()
@@ -42,7 +44,7 @@ it('cria, exclui (soft delete) e restaura um usuário, registrando o histórico'
 
     $this->assertSoftDeleted('usuarios', ['id' => $created->id]);
 
-    $he = Historico::where('entidade_id', $created->id)
+    $he       = Historico::where('entidade_id', $created->id)
         ->where('acao', AcaoHistorico::Excluido->value)
         ->first();
     expect($he)->not->toBeNull();
@@ -59,7 +61,7 @@ it('cria, exclui (soft delete) e restaura um usuário, registrando o histórico'
     expect($restored)->not->toBeNull()
         ->and($restored->trashed())->toBeFalse();
 
-    $hr = Historico::where('entidade_id', $created->id)
+    $hr       = Historico::where('entidade_id', $created->id)
         ->where('acao', AcaoHistorico::Restaurado->value)
         ->first();
     expect($hr)->not->toBeNull();

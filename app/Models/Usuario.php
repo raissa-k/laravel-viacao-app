@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Model de usuário: estende Authenticatable pra integrar com o sistema de auth do Laravel.
 // No PHP puro, o "model" Usuario era um DTO simples (só propriedades e fromRow/toArray).
 // Aqui o model tem responsabilidades extras: diz ao Laravel como autenticar esse usuário.
@@ -24,14 +26,17 @@ class Usuario extends Authenticatable
      * Todas as queries passam a filtrar WHERE deleted_at IS NULL automaticamente.
      * Pesquise "Eloquent soft deleting", "withTrashed", "onlyTrashed".
      */
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use SoftDeletes;
 
-    protected $table = 'usuarios';
+    protected $table    = 'usuarios';
 
     protected $fillable = ['nome', 'email', 'senha'];
 
     // Esconde "senha" do toArray() e toJson() por padrão.
-    protected $hidden = ['senha'];
+    protected $hidden   = ['senha'];
 
     /*
      * CARBON TIMESTAMPS AUTOMÁTICOS:

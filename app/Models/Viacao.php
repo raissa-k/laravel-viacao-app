@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Model de viação: representa a entidade principal do demo.
 // No PHP puro, o model Viacao era um DTO imutável (final class, readonly-like).
 // Aqui o Eloquent model é mutável e faz ORM completo: queries, insert, update, delete.
@@ -16,12 +18,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Viacao extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     // O Eloquent é bem espertinho com pluralização em inglês.
     // Se o seu model fosse "User", ele automaticamente buscaria na tabela 'users' exceto se você declarasse outra coisa aqui.
     // Seguindo o padrão do inglês ele poderia esperar a tabela 'viacaos', então colocamos o nome exato pra evitar problemas.
-    protected $table = 'viacoes';
+    protected $table    = 'viacoes';
 
     protected $fillable = ['nome', 'cidade_id', 'ativa', 'logo', 'site'];
 
@@ -54,7 +57,7 @@ class Viacao extends Model
      *
      * Pesquise: "Eloquent accessors & mutators", "Carbon date casting", "mutating attributes".
      */
-    protected $casts = [
+    protected $casts    = [
         'ativa' => 'boolean',
     ];
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Laravel\Sanctum\Http\Middleware\AuthenticateSession;
@@ -23,7 +25,7 @@ return [
      * Define quais hosts podem autenticar por cookie/sessão (fluxo SPA first-party).
      * Mesmo usando Bearer token neste projeto, manter isso explícito evita surpresa quando alguém testar Sanctum com frontend local (localhost, 127.0.0.1, etc).
      */
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+    'stateful'     => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
@@ -50,7 +52,7 @@ return [
      * Isso mantém o comportamento padrão do Laravel e facilita comparar com o projeto PHP puro.
      * Antes era um fluxo manual, agora é pipeline de guards.
      */
-    'guard' => ['web'],
+    'guard'        => ['web'],
 
     /*
     |--------------------------------------------------------------------------
@@ -69,7 +71,7 @@ return [
      *
      * Se quiser "sem expiração" em teste local, setar: SANCTUM_TOKEN_EXPIRATION=null
      */
-    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 120),
+    'expiration'   => env('SANCTUM_TOKEN_EXPIRATION', 120),
 
     /*
     |--------------------------------------------------------------------------
@@ -110,10 +112,10 @@ return [
      * No fluxo Bearer token (nosso caso principal), o middleware relevante é auth:sanctum nas rotas,
      * mas manter este bloco explicado ajuda interns a entender o "modo SPA" do Sanctum.
      */
-    'middleware' => [
+    'middleware'   => [
         'authenticate_session' => AuthenticateSession::class,
-        'encrypt_cookies' => EncryptCookies::class,
-        'validate_csrf_token' => PreventRequestForgery::class,
+        'encrypt_cookies'      => EncryptCookies::class,
+        'validate_csrf_token'  => PreventRequestForgery::class,
     ],
 
 ];

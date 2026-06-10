@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Configurações da API REST.
 //
 // Por que um arquivo de config separado?
@@ -16,7 +18,7 @@ return [
 
     // Máximo de requisições de leitura por minuto, por IP.
     // Aplicado ao grupo de rotas públicas da API (GET /api/viacoes etc).
-    'rate_limit_read' => (int) env('API_RATE_LIMIT_READ', 60),
+    'rate_limit_read'  => (int) env('API_RATE_LIMIT_READ', 60),
 
     // Máximo de requisições de escrita por minuto, por usuário+IP.
     // Aplicado às rotas protegidas da API (POST, PUT, DELETE).

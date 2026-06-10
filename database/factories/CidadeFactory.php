@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Cidade;
@@ -16,8 +18,8 @@ class CidadeFactory extends Factory
     {
         return [
             'api_id' => fake()->unique()->randomNumber(5, true),
-            'nome' => fake()->city(),
-            'uf' => fake()->stateAbbr(),
+            'nome'   => fake()->city(),
+            'uf'     => fake()->stateAbbr(),
         ];
     }
 }

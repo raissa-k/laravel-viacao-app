@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Comando Artisan equivalente ao cli/import_viacoes.php do PHP puro.
 // PHP puro:  php src/cli/import_viacoes.php viacao_data.json
 // Laravel:   php artisan viacoes:import viacao_data.json
@@ -21,7 +23,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ImportViacoes extends Command
 {
-    protected $signature = 'viacoes:import {file : Caminho para o arquivo JSON com as viações}';
+    protected $signature   = 'viacoes:import {file : Caminho para o arquivo JSON com as viações}';
 
     protected $description = 'Importa viações de um arquivo JSON (equivalente ao cli/import_viacoes.php do PHP puro)';
 
@@ -32,18 +34,18 @@ class ImportViacoes extends Command
 
     public function handle(): int
     {
-        $file = $this->argument('file'); // lê o arquivo que ja existe
+        $file    = $this->argument('file'); // lê o arquivo que ja existe
 
-        if (! is_file($file)) {
+        if (!is_file($file)) {
             $this->error("Arquivo não encontrado: {$file}");
 
             return self::FAILURE;
         }
 
-        $raw = file_get_contents($file); // abre e lê o conteúdo do arquivo
-        $data = json_decode($raw, true); // transforma o texto JSON em um array PHP,ao contrario do meu
+        $raw     = file_get_contents($file); // abre e lê o conteúdo do arquivo
+        $data    = json_decode($raw, true); // transforma o texto JSON em um array PHP,ao contrario do meu
 
-        if (! is_array($data)) {
+        if (!is_array($data)) {
             $this->error('JSON inválido.');
 
             return self::FAILURE;
@@ -62,10 +64,10 @@ class ImportViacoes extends Command
                 is_array($item) ? $item : [],
                 ViacaoApiRequest::coreRules(),
                 [
-                    'nome.required' => 'O nome é obrigatório.',
-                    'nome.max' => 'O nome deve ter no máximo 255 caracteres.',
+                    'nome.required'   => 'O nome é obrigatório.',
+                    'nome.max'        => 'O nome deve ter no máximo 255 caracteres.',
                     'cidade.required' => 'A cidade é obrigatória.',
-                    'cidade.max' => 'A cidade deve ter no máximo 255 caracteres.',
+                    'cidade.max'      => 'A cidade deve ter no máximo 255 caracteres.',
                 ]
             );
 
@@ -76,13 +78,13 @@ class ImportViacoes extends Command
                 continue;
             }
 
-            $d = $validator->validated();
+            $d         = $validator->validated();
 
             // Resolve cidade (string do JSON) para cidade_id, se existir na tabela.
             // Não cria cidade nova: se não existir, importa com cidade_id = null.
-            $cidadeId = null;
+            $cidadeId  = null;
             if (!empty($d['cidade'])) {
-                $cidade = \App\Models\Cidade::where('nome', trim($d['cidade']))->first();
+                $cidade   = \App\Models\Cidade::where('nome', trim($d['cidade']))->first();
                 $cidadeId = $cidade?->id;
             }
 
@@ -96,7 +98,7 @@ class ImportViacoes extends Command
 
 
             $created++;
-            $cidade = $d['cidade'] ?? '-';
+            $cidade    = $d['cidade'] ?? '-';
             $this->line("Criada: <info>{$d['nome']}</info> ({$cidade})");
         }
 
@@ -106,6 +108,3 @@ class ImportViacoes extends Command
         return self::SUCCESS;
     }
 }
-
-
-

@@ -32,12 +32,12 @@ class HistoricoFactory extends Factory
         return [
             // Usamos ->value para que o alias gravado no banco venha sempre do enum, não de uma string avulsa.
             'entidade_type' => EntidadeHistorico::Viacao->value,
-            'entidade_id' => Viacao::factory(),
-            'usuario_id' => Usuario::factory(),
-            'acao' => AcaoHistorico::Criado->value,
-            'alteracoes' => [
+            'entidade_id'   => Viacao::factory(),
+            'usuario_id'    => Usuario::factory(),
+            'acao'          => AcaoHistorico::Criado->value,
+            'alteracoes'    => [
                 'before' => null,
-                'after' => $this->fakeViacaoSnapshot(),
+                'after'  => $this->fakeViacaoSnapshot(),
             ],
         ];
     }
@@ -45,7 +45,7 @@ class HistoricoFactory extends Factory
     public function criado(): static
     {
         return $this->state([
-            'acao' => AcaoHistorico::Criado->value,
+            'acao'       => AcaoHistorico::Criado->value,
             'alteracoes' => ['before' => null, 'after' => $this->fakeViacaoSnapshot()],
         ]);
     }
@@ -53,16 +53,16 @@ class HistoricoFactory extends Factory
     public function editado(): static
     {
         return $this->state(function () {
-            $campo = fake()->randomElement(['nome', 'cidade', 'ativa']);
+            $campo            = fake()->randomElement(['nome', 'cidade', 'ativa']);
 
             [$before, $after] = match ($campo) {
-                'nome' => [['nome' => fake()->company()], ['nome' => fake()->company()]],
+                'nome'   => [['nome' => fake()->company()], ['nome' => fake()->company()]],
                 'cidade' => [['cidade' => fake()->city()],  ['cidade' => fake()->city()]],
-                'ativa' => [['ativa' => false],            ['ativa' => true]],
+                'ativa'  => [['ativa' => false],            ['ativa' => true]],
             };
 
             return [
-                'acao' => AcaoHistorico::Editado->value,
+                'acao'       => AcaoHistorico::Editado->value,
                 'alteracoes' => ['before' => $before, 'after' => $after],
             ];
         });
@@ -71,7 +71,7 @@ class HistoricoFactory extends Factory
     public function excluido(): static
     {
         return $this->state([
-            'acao' => AcaoHistorico::Excluido->value,
+            'acao'       => AcaoHistorico::Excluido->value,
             'alteracoes' => ['before' => $this->fakeViacaoSnapshot(), 'after' => null],
         ]);
     }
@@ -79,10 +79,10 @@ class HistoricoFactory extends Factory
     private function fakeViacaoSnapshot(): array
     {
         return [
-            'nome' => fake()->company(),
+            'nome'   => fake()->company(),
             'cidade' => fake()->city(),
-            'ativa' => fake()->boolean(80),
-            'logo' => null,
+            'ativa'  => fake()->boolean(80),
+            'logo'   => null,
         ];
     }
 }
