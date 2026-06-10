@@ -10,8 +10,10 @@ use App\DTOs\ViacaoFilterDTO;
 use App\Enums\AcaoHistorico;
 use App\Models\Viacao;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HigherOrderWhenProxy;
 
 class ViacaoService
 {
@@ -30,37 +32,26 @@ class ViacaoService
      * Aqui: deletado=true mostra APENAS excluídos (para ação de restaurar).
      * O usuário filtra entre "ativos" e "excluídos" explicitamente, nunca mistura.
      */
-    public function query(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Builder
+    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO): Collection|LengthAwarePaginator
     {
-        return Viacao::query()
-            ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
-            ->when($filter->q !== '', function ($query) use ($filter) {
-                $escaped = addcslashes($filter->q, '%_');
-                $query->where(function ($q2) use ($escaped) {
-                    $q2->where('nome', 'like', '%'.$escaped.'%')
-                        ->orWhere('cidade', 'like', '%'.$escaped.'%');
-                });
-            })
-            ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
-            ->orderByDesc('id');
-    }
-    //separei a paginação junta
-    public function paginate(ViacaoFilterDTO $filter = new ViacaoFilterDTO(), int $perPage = 15): LengthAwarePaginator
-    {
-        return $this->query($filter)
-            ->paginate($perPage)
+        $builder = $this->builder($filter);
+
+        if ($filter->perPage === null) {
+            return $builder->orderBy('nome')->get();
+        }
+
+        return $builder
+            ->orderBy('id')
+            ->paginate($filter->perPage)
             ->withQueryString();
     }
 
     /** Retorna só as viações ativas. Usada na home pública. */
-    public function all(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Collection
-    {
-        return $this->query($filter)->get();
-    }
     public function active(): Collection
     {
         return Viacao::query()->where('ativa', true)->orderByDesc('id')->get();
     }
+
     /** Busca uma viação pelo ID. Retorna null se não encontrar. */
     public function find(int $id): ?Viacao
     {
@@ -222,10 +213,24 @@ class ViacaoService
 
         return [$diffBefore ?: null, $diffAfter ?: null];
     }
-    //----------------função de exportar as viações------------------------------
-    public function exportViacoes(ViacaoFilterDTO $filter = new ViacaoFilterDTO()): Collection
+
+    // ----------------função de exportar as viações------------------------------
+    public function exportViacoes(ViacaoFilterDTO $filter = new ViacaoFilterDTO): Collection
     {
-        //reutiliza o this e monta com get
-        return $this->query($filter)->get();
+        return $this->all($filter);
     }
+
+    private function builder(ViacaoFilterDTO $filter): Builder|HigherOrderWhenProxy
+    {
+        return Viacao::query()
+            ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
+            ->when($filter->q !== '', function ($query) use ($filter) {
+                $escaped = addcslashes($filter->q, '%_');
+                $query->where(function ($q2) use ($escaped) {
+                    $q2->where('nome', 'like', '%'.$escaped.'%')
+                        ->orWhere('cidade', 'like', '%'.$escaped.'%');
+                });
+            })
+            ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa));
     }
+}

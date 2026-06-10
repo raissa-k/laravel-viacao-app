@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\DTOs\ViacaoFilterDTO;
+use App\Http\Resources\ViacaoResource;
 use App\Services\ViacaoService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -25,16 +27,17 @@ class ExportViacoes extends Command
         if (! str_ends_with($filename, '.json')) {
             $filename .= '.json';
         }
-// bloco de validação ----------------------------------------------------------------------------
+        // bloco de validação ----------------------------------------------------------------------------
         $dir = dirname($filename);
-           if ($dir !== '.' && ! is_dir(storage_path("app/{$dir}"))) {
+        if ($dir !== '.' && ! is_dir(storage_path("app/{$dir}"))) {
             $this->error('Diretório não encontrado');
+
             return self::FAILURE;
         }
-//--------------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
         try {
             // busca as viacoes com o metodo que criei la no service,no outro era para importar
-            $viacoes = $this->viacaoService->exportViacoes();
+            $viacoes = $this->viacaoService->all(new ViacaoFilterDTO(perPage: null));
 
             if ($viacoes->isEmpty()) {
                 $this->warn('Não achei nada para exportar'); // warn é apenas um tipo de string exclusivo pra avisos ou warnings
@@ -43,25 +46,28 @@ class ExportViacoes extends Command
             }
 
             // manipula o json armazenado em $viacoes(doService),usando as flags/constantes JSON_PRETTY_PINT e JSON_UNESCAPEWD_UNICODE
-            $jsonText = json_encode($viacoes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            $jsonText = json_encode(ViacaoResource::collection($viacoes), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-            //bloco if que se o json der falha(false) ele ja manda erro
+            // bloco if que se o json der falha(false) ele ja manda erro
             if ($jsonText === false) {
                 $this->error('Algo deu zika');
                 $this->error(json_last_error_msg());
+
                 return self::FAILURE;
             }
             $rightPath = storage_path("app/{$filename}");
 
-//----------------------bloco de alteração para retorno de numero de bytes---------------------------
+            // ----------------------bloco de alteração para retorno de numero de bytes---------------------------
             $bytes = file_put_contents($rightPath, $jsonText);
             if ($bytes === false) {
                 $this->error('Não deu pra escrever no arquivo,verifique');
+
                 return self::FAILURE;
             }
             $this->info("deu boa!o tamanho do arquivo é ({$bytes} bytes)");
+
             return self::SUCCESS;
-//------------------------------------------------------------------------------------------------------
+            // ------------------------------------------------------------------------------------------------------
         } catch (\Exception $exception) {
 
             $this->error('Algo deu errado'); // normalmente se dar certo ele retorna 0,se errado 1
