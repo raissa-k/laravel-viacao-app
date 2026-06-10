@@ -25,7 +25,7 @@ it('filtra usuários por busca textual', function () {
     Usuario::factory()->create(['nome' => 'Ana Lima']);
 
     $response = $this->actingAs(Usuario::factory()->create())
-        ->get(route('usuarios.index', ['q' => 'Carlos']));
+        ->get(route('usuarios.index', ['q' => 'Carlos Silva']));
 
     $response->assertOk();
     expect($response->viewData('usuarios'))->toHaveCount(1);
