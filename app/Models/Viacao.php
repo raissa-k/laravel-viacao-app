@@ -23,7 +23,7 @@ class Viacao extends Model
     // Seguindo o padrão do inglês ele poderia esperar a tabela 'viacaos', então colocamos o nome exato pra evitar problemas.
     protected $table = 'viacoes';
 
-    protected $fillable = ['nome', 'cidade', 'ativa', 'logo', 'site'];
+    protected $fillable = ['nome', 'cidade_id', 'ativa', 'logo', 'site'];
 
     /*
      * Cast automático: o Eloquent converte ativa de TINYINT(1) (0/1) pra bool PHP automaticamente.
@@ -66,6 +66,11 @@ class Viacao extends Model
     public function historico(): MorphMany
     {
         return $this->morphMany(Historico::class, 'entidade');
+    }
+
+    public function cidade(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Cidade::class);
     }
 
     protected static function booted(): void

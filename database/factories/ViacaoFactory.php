@@ -19,7 +19,7 @@ class ViacaoFactory extends Factory
     {
         return [
             'nome' => fake()->company(),
-            'cidade' => fake()->city(),
+            'cidade_id' => \App\Models\Cidade::factory(),
             'ativa' => fake()->boolean(80), // 80% de chance de estar ativa
             'logo' => null,
         ];
