@@ -46,6 +46,7 @@ class ViacaoRequest extends FormRequest
             'nome'  => trim((string) $this->input('nome', '')),
             'ativa' => $this->boolean('ativa'),
             'site'  => $siteInput !== '' ? $siteInput : null,
+            'cidade_id' => $this->integer('cidade_id'),
         ]);
     }
 
