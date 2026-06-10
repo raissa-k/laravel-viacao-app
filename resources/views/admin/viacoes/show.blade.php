@@ -46,6 +46,10 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
             <td>{{ $viacao->cidade?->nome ?? '---' }}</td>
         </tr>
         <tr>
+            <th>Site</th>
+            <td>{{ $viacao->site }}</td>
+        </tr>
+        <tr>
             <th>Ativa</th>
             <td>{{ $viacao->ativa ? 'Sim' : 'Não' }}</td>
         </tr>

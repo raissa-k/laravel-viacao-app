@@ -59,6 +59,16 @@ old('campo', $viacao->campo): repopula com o valor atual se não houve erro, ou 
     </div>
 
     <div class="form-group">
+        <label for="site">Site</label>
+        <input
+            type="text"
+            id="site"
+            name="site"
+            value="{{ old('site', $viacao->site) }}"
+            maxlength="255"
+        >
+    </div>
+    <div class="form-group">
         <label>
             <input
                 type="checkbox"

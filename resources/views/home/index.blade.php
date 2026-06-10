@@ -64,6 +64,15 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
                         <div class="flex flex-col gap-sm w-full">
                             <strong class="viacao-nome">{{ $v->nome }}</strong>
                             <span class="viacao-cidade">📍 {{ $v->cidade?->nome ?? '---' }}</span>
+
+                            {{-- Renderiza o link apenas se a viação possuir site informado --}}
+                            @if (!empty($v->site))
+                                <div class="viacao-site">
+                                    <a href="{{ $v->site }}" target="_blank" rel="noopener">
+                                        Visitar site oficial
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach

@@ -54,6 +54,17 @@ old('campo') repopula o campo após erro de validação, igual ao $old['campo'] 
     </div>
 
     <div class="form-group">
+        <label for="site">Site</label>
+        <input
+            type="text"
+            id="site"
+            name="site"
+            value="{{ old('site') }}"
+            maxlength="255"
+        >
+    </div>
+
+    <div class="form-group">
         {{-- Checkbox: quando desmarcado não aparece no POST.
         O ViacaoRequest usa $this->boolean('ativa') que retorna false quando ausente.
         Mesmo comportamento do PHP puro (isset($input['ativa'])). --}}

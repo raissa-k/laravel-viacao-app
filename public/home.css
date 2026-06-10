@@ -348,6 +348,21 @@ Composição no HTML: <button class="btn btn-primary">Entrar</button>
   object-fit: contain;
 }
 
+.viacao-site {
+    margin-top: 4px;
+}
+
+.viacao-site a {
+    font-size: 13px;
+    color: var(--primary);
+    text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+}
+
+.viacao-site a:hover {
+    color: #1d4ed8; /* Azul ligeiramente mais escuro para o efeito de passar o mouse */
+}
+
 /*
 Placeholder de iniciais: quando não tem logo, mostra as primeiras letras com fundo colorido.
 Evita "broken image" e ainda fica bonito :D

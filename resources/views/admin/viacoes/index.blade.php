@@ -76,6 +76,7 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
                 <th>ID</th>
                 <th>Nome</th>
                 <th>Cidade</th>
+                <th>Site</th>
                 <th>Ativa</th>
                 <th>Logo</th>
                 <th>Ações</th>
@@ -93,6 +94,7 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
                     @endif
                 </td>
                 <td>{{ $v->cidade?->nome ?? '---' }}</td>
+                <td>{{ $v->site }}</td>
                 <td>{{ $v->ativa ? 'Sim' : 'Não' }}</td>
                 <td>
                     @if ($v->logo !== null)
