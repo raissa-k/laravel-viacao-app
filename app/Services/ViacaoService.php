@@ -214,12 +214,6 @@ class ViacaoService
         return [$diffBefore ?: null, $diffAfter ?: null];
     }
 
-    // ----------------função de exportar as viações------------------------------
-    public function exportViacoes(ViacaoFilterDTO $filter = new ViacaoFilterDTO): Collection
-    {
-        return $this->all($filter);
-    }
-
     private function builder(ViacaoFilterDTO $filter): Builder|HigherOrderWhenProxy
     {
         return Viacao::query()
