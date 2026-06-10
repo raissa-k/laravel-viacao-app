@@ -32,7 +32,7 @@ class ImportViacoes extends Command
 
     public function handle(): int
     {
-        $file = $this->argument('file');
+        $file = $this->argument('file'); // lê o arquivo que ja existe
 
         if (! is_file($file)) {
             $this->error("Arquivo não encontrado: {$file}");
@@ -40,8 +40,8 @@ class ImportViacoes extends Command
             return self::FAILURE;
         }
 
-        $raw = file_get_contents($file);
-        $data = json_decode($raw, true);
+        $raw = file_get_contents($file); // abre e lê o conteúdo do arquivo
+        $data = json_decode($raw, true); // transforma o texto JSON em um array PHP,ao contrario do meu
 
         if (! is_array($data)) {
             $this->error('JSON inválido.');

@@ -26,6 +26,7 @@ final readonly class ViacaoFilterDTO implements FilterDTO
          * true           = apenas excluídos (permite restaurar).
          */
         public bool $deletado = false,
+        public ?int $perPage = 15,
     ) {}
 
     public static function fromRequest(Request $request): static
@@ -43,6 +44,7 @@ final readonly class ViacaoFilterDTO implements FilterDTO
             q: $q,
             ativa: $ativa,
             deletado: $request->boolean('deletado'),
+            perPage: $request->has('perPage') ? $request->input('perPage') : 15,
         );
     }
 }
