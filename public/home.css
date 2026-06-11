@@ -469,6 +469,132 @@ Sem isso, o card ficaria colado no topo da página.
 
   .grid-auto { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 }
+/* Estilização do linha-card */
+.linha-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg, #ffffff);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: 10px;
+    padding: 18px 20px;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    margin-bottom: 16px;
+}
+
+.linha-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.linha-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.linha-card-numero {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.linha-card-operadora {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.linha-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.linha-card-categoria {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.linha-card-duracao {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.linha-card-preco {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.linha-card-preco-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.linha-card-preco-label {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.linha-card-preco-min {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.linha-card-preco-max {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+/* Sobrescreve .btn.btn-blue dentro do card */
+.linha-card .linha-card-btn {
+    display: inline-block;
+    width: auto;
+    background-color: var(--primary);
+    color: #ffffff;
+    padding: 9px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 0;
+    transition: background-color 0.15s ease;
+}
+
+.linha-card .linha-card-btn:hover {
+    background-color: var(--primary-dark, #1e40af);
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .linha-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 16px;
+    }
+
+    .linha-card-preco {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .linha-card-preco-text {
+        align-items: flex-start;
+    }
+}
 
 /* Filtros de Categoria da Busca */
 .filtros-categoria {
