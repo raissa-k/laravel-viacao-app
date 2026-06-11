@@ -279,3 +279,33 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
 .w-full {
   width: 100%;
 }
+
+/* Filtros de Categoria da Busca */
+.filtros-categoria {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 15px;
+}
+
+.filtro-pill {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    background-color: transparent;
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+
+.filtro-pill:hover {
+    background-color: #f0f0f0;
+}
+
+.filtro-pill[aria-pressed="true"] {
+    background-color: #2b05cc;
+    color: #ffffff;
+    border-color: #2b05cc;
+}
+

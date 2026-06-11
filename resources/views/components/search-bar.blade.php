@@ -5,41 +5,21 @@
         <h2 class="card-title">Buscar passagem</h2>
     @endif
 
-    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('home') }}" method="GET">
+    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('busca') }}" method="GET">
         <div class="field">
             <label class="field-label" for="origem">Origem</label>
-            <input
-                class="field-input"
-                type="text"
-                id="origem"
-                name="origem"
-                placeholder="De onde você vai sair?"
-                value="{{ request('origem') }}"
-            >
+            <input class="field-input" type="text" id="origem" name="origem" placeholder="De onde você vai sair?" value="{{ request('origem') }}">
         </div>
 
         <div class="field">
             <label class="field-label" for="destino">Destino</label>
-            <input
-                class="field-input"
-                type="text"
-                id="destino"
-                name="destino"
-                placeholder="Para onde você vai?"
-                value="{{ request('destino') }}"
-            >
+            <input class="field-input" type="text" id="destino" name="destino" placeholder="Para onde você vai?" value="{{ request('destino') }}">
         </div>
 
         <div class="field-row">
             <div class="field">
                 <label class="field-label" for="data">Data</label>
-                <input
-                    class="field-input"
-                    type="date"
-                    id="data"
-                    name="data"
-                    value="{{ request('data') }}"
-                >
+                <input class="field-input" type="date" id="data" name="data" value="{{ request('data') }}">
             </div>
             <div class="field">
                 <label class="field-label" for="passageiros">Passageiros</label>
