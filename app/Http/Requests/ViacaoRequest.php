@@ -42,10 +42,13 @@ class ViacaoRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $siteInput = trim((string) $this->input('site', ''));
+
+        $cidadeId = $this->input('cidade_id');
         $this->merge([
-            'nome'  => trim((string) $this->input('nome', '')),
-            'ativa' => $this->boolean('ativa'),
-            'site'  => $siteInput !== '' ? $siteInput : null,
+            'nome'      => trim((string) $this->input('nome', '')),
+            'ativa'     => $this->boolean('ativa'),
+            'site'      => $siteInput !== '' ? $siteInput : null,
+            'cidade_id' => ($cidadeId !== '' && $cidadeId !== null) ? (int) $cidadeId : null,
         ]);
     }
 

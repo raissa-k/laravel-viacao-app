@@ -72,4 +72,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::delete('/usuarios/{usuario}', [UsuariosController::class, 'destroy'])->name('usuarios.destroy');
     Route::post('/usuarios/{id}/restore', [UsuariosController::class, 'restore'])->name('usuarios.restore')
         ->where('id', '[0-9]+');
+
+
+    if (app()->isLocal()) {
+        Route::get('/dev/linha-card', function () {
+            return view('dev.linha-card');
+        });
+    }
 });
