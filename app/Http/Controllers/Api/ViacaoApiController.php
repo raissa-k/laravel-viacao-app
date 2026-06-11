@@ -91,6 +91,7 @@ class ViacaoApiController extends Controller
             $validated['cidade_id'],
             (bool) ($validated['ativa'] ?? true),
             null, // uploads via API não são suportados nesse demo
+            null,
             auth()->id(),
         );
 
@@ -115,6 +116,7 @@ class ViacaoApiController extends Controller
             isset($validated['cidade_id']) ? (int) $validated['cidade_id'] : $viacao->cidade_id,
             (bool) ($validated['ativa'] ?? $viacao->ativa),
             $viacao->logo,
+            null,
             auth()->id(),
         );
 

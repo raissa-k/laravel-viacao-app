@@ -37,6 +37,16 @@ enum AcaoHistorico: string
     case Excluido   = 'Excluido';
     case Restaurado = 'Restaurado';
 
+    public function tipoBadge():string
+    {
+        return match ($this) {
+            self::Criado => 'success',
+            self::Editado    => 'warning',
+            self::Excluido   => 'error',
+            self::Restaurado => 'info',
+        };
+    }
+
     /*
      * tryFrom() vs from():
      * from('Criado')    -> AcaoHistorico::Criado  (ou erro se não existir)
