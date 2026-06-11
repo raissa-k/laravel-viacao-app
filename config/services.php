@@ -37,4 +37,9 @@ return [
         ],
     ],
 
+    'transporte_api' => [
+        'url' => env('TRANSPORTE_API_URL'),
+        'token' => env('TRANSPORTE_API_TOKEN'),
+    ]
+
 ];
