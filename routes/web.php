@@ -14,6 +14,7 @@ declare(strict_types=1);
 //   Pesquise "withTrashedParameters Laravel", "route model binding soft delete".
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BuscaController;
 use App\Http\Controllers\HistoricoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UploadController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 // Home pública: qualquer visitante pode acessar
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/busca', [BuscaController::class, 'index'])->name('busca');
 
 // Serve arquivos de upload (logos) armazenados fora do docroot.
 // where(): restringe {filename} ao padrão gerado pelo UploadService (bin2hex(8 bytes) + extensão).
