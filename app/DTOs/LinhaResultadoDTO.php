@@ -102,7 +102,7 @@ final readonly class LinhaResultadoDTO
     /** Dados para teste. */
     public static function fake(): Collection
     {
-        return collect([
+        return Collection::make([
             new self(
                 id: 1,
                 numero: '0101',
