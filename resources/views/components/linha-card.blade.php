@@ -23,7 +23,7 @@
         <div class="linha-card-meta">
             <span class="linha-card-categoria">{{ ucfirst($categoriaInput) }}</span>
             <span class="linha-card-duracao">{{ $duracao }}</span>
-        </div>
+    </div>
     </div>
 
     <div class="linha-card-preco">
