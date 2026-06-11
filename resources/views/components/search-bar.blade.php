@@ -1,8 +1,9 @@
 @props(['layout' => 'vertical'])
 
 <div class="card search-card-{{ $layout }}">
-    <h2 class="card-title" style="margin-bottom: 15px; font-size: 1.1rem;">Buscar passagem</h2>
-
+    @if($layout === 'vertical')
+        <h2 class="card-title">Buscar passagem</h2>
+    @endif
     <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('busca') }}" method="GET">
 
         <div class="field">
