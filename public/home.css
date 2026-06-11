@@ -469,3 +469,33 @@ Sem isso, o card ficaria colado no topo da página.
 
   .grid-auto { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 }
+
+/* Filtros de Categoria da Busca */
+.filtros-categoria {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 15px;
+}
+
+.filtro-pill {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    background-color: transparent;
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+
+.filtro-pill:hover {
+    background-color: #f0f0f0;
+}
+
+/* Aplicando o Token de cor padronizado conforme o Review */
+.filtro-pill[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}

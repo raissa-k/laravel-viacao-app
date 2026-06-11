@@ -27,7 +27,7 @@
 
     <div class="flex justify-between items-center mt-md pt-sm" style="border-top: 1px solid #eee;">
         <span class="text-xl font-bold" style="color: var(--color-primary)">
-            R$ {{ number_format($linha->preco, 2, ',', '.') }}
+    R$ {{ number_format((float) ($linha->preco ?? 0), 2, ',', '.') }}
         </span>
         <button class="btn btn-primary btn-sm">Selecionar</button>
     </div>
