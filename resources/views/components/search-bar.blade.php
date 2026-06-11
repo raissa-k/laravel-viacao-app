@@ -21,7 +21,7 @@
                         selecione uma cidade
                     </option>
                     @foreach($cidades as $cidade)
-                        <option value="{{ $cidade->id }}">
+                        <option value="{{ $cidade->id }}" @selected(request('origem') == $cidade->id)>
                             {{ $cidade->nome }}
                         </option>
                     @endforeach
@@ -40,7 +40,7 @@
                         Selecione uma cidade
                     </option>
                     @foreach($cidades as $cidade)
-                       <option value="{{ $cidade->id }}">
+                       <option value="{{ $cidade->id }}" @selected(request('destino') == $cidade->id)>
                             {{ $cidade->nome }}
                        </option>
                     @endforeach
@@ -54,7 +54,7 @@
                     type="date"
                     id="data"
                     name="data"
-                    value="{{ request('data') }}"
+                    value="{{ old('data', request('data')) }}"
                 >
             </div>
             <div class="field">
