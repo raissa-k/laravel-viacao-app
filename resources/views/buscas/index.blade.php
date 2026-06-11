@@ -11,7 +11,10 @@
                 <x-search-bar layout="horizontal" />
             </div>
 
-            <div class="flex items-center justify-between mb-md">
+            {{-- Seção de diferenciais adicionada conforme o code review --}}
+            <x-diferenciais />
+
+            <div class="flex items-center justify-between mb-md mt-lg">
                 <div>
                     <h1 class="text-xl font-bold">Resultados da Busca</h1>
                     <p class="text-muted">Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}</p>
@@ -19,6 +22,7 @@
             </div>
 
             {{-- Filtros de Categoria (Client-Side) --}}
+            {{-- Quando o enum categoria estiver disponível, esses filtros deverão ser criados a partir dos cases do Enum. --}}
             <div class="filtros-categoria flex gap-sm mb-lg">
                 <button class="filtro-pill" aria-pressed="false" data-filter="todas">Todas</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
@@ -29,7 +33,11 @@
             {{-- Lista de Cards --}}
             <div class="grid-auto lista-resultados">
                 @forelse ($linhas as $linha)
-                    <x-linha-card :linha="$linha" />
+                    {{-- Componente x-linha-card removido por não ter sido entregue ainda. --}}
+                    {{-- Mantida a estrutura HTML pura com o atributo data-categoria necessário para o script funcionar --}}
+                    <div class="card viacao-card" data-categoria="{{ strtolower($linha->categoria) }}">
+                        <strong>{{ $linha->viacao }}</strong>
+                    </div>
                 @empty
                     <div class="empty-state">
                         <p>Nenhuma viagem encontrada para esta data.</p>
