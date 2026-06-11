@@ -1,4 +1,8 @@
-@props(['layout' => 'vertical'])
+@props([
+    'layout' => 'vertical',
+    'cidades' => collect(),
+    'action' => route('home'),
+    ])
 
 <div class="card search-card-{{ $layout }}">
     @if($layout === 'vertical')
@@ -8,28 +12,40 @@
     <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('home') }}" method="GET">
         <div class="field">
             <label class="field-label" for="origem">Origem</label>
-            <input
-                class="field-input"
-                type="text"
-                id="origem"
-                name="origem"
-                placeholder="De onde você vai sair?"
-                value="{{ request('origem') }}"
-            >
+                <select
+                    class="field-input"
+                    id="origem"
+                    name="origem"
+                >
+                    <option value="">
+                        selecione uma cidade
+                    </option>
+                    @foreach($cidades as $cidade)
+                        <option value="{{ $cidade->id }}">
+                            {{ $cidade->nome }}
+                        </option>
+                    @endforeach
+                </select>
         </div>
 
         <div class="field">
             <label class="field-label" for="destino">Destino</label>
-            <input
-                class="field-input"
-                type="text"
-                id="destino"
-                name="destino"
-                placeholder="Para onde você vai?"
-                value="{{ request('destino') }}"
-            >
-        </div>
 
+                <select
+                    class="field-input"
+                    id="destino"
+                    name="destino"
+                >
+                    <option value="" >
+                        Selecione uma cidade
+                    </option>
+                    @foreach($cidades as $cidade)
+                       <option value="{{ $cidade->id }}">
+                            {{ $cidade->nome }}
+                       </option>
+                    @endforeach
+                </select>
+        </div>
         <div class="field-row">
             <div class="field">
                 <label class="field-label" for="data">Data</label>

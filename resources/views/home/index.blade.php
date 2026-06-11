@@ -8,13 +8,20 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
 
 @section('content')
 
+@props([
+    '$cidades' => collect()
+])
+
 {{-- HERO SECTION --}}
 <section class="hero">
     <div class="container hero-inner">
 
         {{-- Lado esquerdo: cartão de busca --}}
-        <x-search-bar layout="vertical" />
-
+        <x-search-bar
+            layout="vertical"
+            :cidades="$cidades"
+            :action="route('home')"
+        />
         {{-- Lado direito: texto de chamada --}}
         <div class="flex flex-col gap-sm">
             <p class="hero-eyebrow">🚌 Encontre sua viagem</p>
