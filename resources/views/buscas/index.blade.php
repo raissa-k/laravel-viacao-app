@@ -23,7 +23,7 @@
 
             {{-- Filtros de Categoria (Client-Side) --}}
             {{-- Quando o enum categoria estiver disponível, esses filtros deverão ser criados a partir dos cases do Enum. --}}
-            <div class="filtros-categoria flex gap-sm mb-lg">
+            <div class="filtros-categoria">
                 <button class="filtro-pill" aria-pressed="false" data-filter="todas">Todas</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="executivo">Executivo</button>
