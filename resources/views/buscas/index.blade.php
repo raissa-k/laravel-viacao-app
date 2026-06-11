@@ -11,14 +11,11 @@
                 <x-search-bar layout="horizontal" />
             </div>
 
-            {{-- Seção de diferenciais adicionada conforme o code review --}}
-            <x-diferenciais />
-
-            <div class="flex items-center justify-between mb-md mt-lg">
-                <div>
-                    <h1 class="text-xl font-bold">Resultados da Busca</h1>
-                    <p class="text-muted">Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}</p>
-                </div>
+            {{-- Cabeçalho promovido a H1, mantendo o estilo discreto e sem o título genérico antigo --}}
+            <div class="mb-md mt-lg">
+                <h1 class="text-muted" style="font-size: 1rem; font-weight: normal;">
+                    Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
+                </h1>
             </div>
 
             {{-- Filtros de Categoria (Client-Side) --}}
@@ -28,6 +25,11 @@
                 <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="executivo">Executivo</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="leito">Leito</button>
+            </div>
+
+            {{-- Contador de resultados idêntico ao protótipo ("X resultados encontrados") --}}
+            <div class="mb-md mt-md text-muted" style="font-size: 0.9rem;">
+                <strong>{{ count($linhas) }}</strong> {{ count($linhas) == 1 ? 'resultado encontrado' : 'resultados encontrados' }}
             </div>
 
             {{-- Lista de Cards --}}
@@ -45,6 +47,9 @@
             </div>
         </div>
     </section>
+
+    {{-- Seção de diferenciais movida para o final da página para espelhar o protótipo fielmente --}}
+    <x-diferenciais />
 
     {{-- Script de filtro do layout public --}}
     @push('scripts')
