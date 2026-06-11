@@ -21,7 +21,8 @@ final readonly class LinhaResultadoDTO
         public float    $precoMaximo,
         public ?Categoria $categoria,
         public array    $diasDaSemana,
-    ) {}
+    ) {
+    }
 
     /** constrói o DTO a partir do array bruto devolvido pela API. */
     public static function fromArray(array $data): self
@@ -72,7 +73,7 @@ final readonly class LinhaResultadoDTO
         return array_values(
             array_filter(
                 $valor,
-                fn($dia) => is_string($dia) && in_array($dia, $diasValidos, strict: true)
+                fn ($dia) => is_string($dia) && in_array($dia, $diasValidos, strict: true)
             )
         );
     }
