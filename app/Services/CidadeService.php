@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use App\Models\Cidade;
-use Ramsey\Collection\Collection;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class CidadeService
 {

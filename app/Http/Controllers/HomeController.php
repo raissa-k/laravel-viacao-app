@@ -6,8 +6,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Cidade;
 use App\Services\ViacaoService;
 use Illuminate\View\View;
+use App\Services\CidadeService;
 
 class HomeController extends Controller
 {
@@ -16,13 +18,15 @@ class HomeController extends Controller
     ) {
     }
 
-    public function index(): View
+    public function index( CidadeService $cidadeService): View
     {
         $viacoes = $this->viacaoService->active();
+        $cidades = $cidadeService->all();
 
         return view('home.index', [
             'title'   => 'Quero Passagem',
             'viacoes' => $viacoes,
+            'cidades' => $cidades,
         ]);
     }
 }
