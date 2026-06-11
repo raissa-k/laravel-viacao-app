@@ -1,42 +1,31 @@
-@php
-    // Captura de dados com fallback seguro
-    $numero    = data_get($linha, 'numero', 'Linha 0000');
-    $operadora = data_get($linha, 'operadoraNome', data_get($linha, 'operadora', 'Viação Exemplo'));
-    $duracao   = data_get($linha, 'duracao', '6h 30min');
+@props(['linha' => []])
 
-    // Normalização de preços para Float
-    $precoMin = data_get($linha, 'precoMin', data_get($linha, 'preco_min', 59.90));
-    $precoMax = data_get($linha, 'precoMax', data_get($linha, 'preco_max', null));
-
-    // Resolução da categoria
-    $categoriaInput = data_get($linha, 'categoria', 'convencional');
-
-    $dataCategoria = strtolower(trim($categoriaInput));
-@endphp
-
-<article {{ $attributes->merge(['class' => 'linha-card', 'data-categoria' => $dataCategoria]) }}>
+<article class="linha-card">
 
     <div class="linha-card-info">
-        <span class="linha-card-numero">{{ $numero }}</span>
-        <span class="linha-card-operadora">{{ $operadora }}</span>
+        <?php // Captura de dados com fallback seguro ?>
+        <span class="linha-card-numero">{{ data_get($linha, 'numero', 'Linha 0000') }}</span>
+        <span class="linha-card-operadora">{{ data_get($linha, 'operadora', 'Viação Exemplo') }}</span>
 
         <div class="linha-card-meta">
-            <span class="linha-card-categoria">{{ ucfirst($categoriaInput) }}</span>
-            <span class="linha-card-duracao">{{ $duracao }}</span>
-    </div>
+            <?php // Resolução da categoria ?>
+            <span class="linha-card-categoria">{{ data_get($linha, 'categoria', 'Convencional') }}</span>
+            <span class="linha-card-duracao">{{ data_get($linha, 'duracao', '6h 30min') }}</span>
+        </div>
     </div>
 
     <div class="linha-card-preco">
         <div class="linha-card-preco-text">
             <span class="linha-card-preco-label">a partir de</span>
-            <span class="linha-card-preco-min">R$ {{ number_format($precoMin, 2, ',', '.') }}</span>
 
-            @if($precoMax)
-                <span class="linha-card-preco-max">até R$ {{ number_format($precoMax, 2, ',', '.') }}</span>
+            <?php // Normalização de preços para Float ?>
+            <span class="linha-card-preco-min">R$ {{ number_format(data_get($linha, 'precoMin', 59.90), 2, ',', '.') }}</span>
+            @if(data_get($linha, 'precoMax'))
+                <span class="linha-card-preco-max">até R$ {{ number_format(data_get($linha, 'precoMax'), 2, ',', '.') }}</span>
             @endif
         </div>
 
-        <a href="#" class="btn btn-blue linha-card-btn">Selecionar</a>
+        <a class="linha-card-btn" href="#">Selecionar</a>
     </div>
 
 </article>
