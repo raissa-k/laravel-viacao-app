@@ -527,8 +527,15 @@ Sem isso, o card ficaria colado no topo da página.
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 2px;
+    gap: 8px;
     flex-shrink: 0;
+}
+
+.linha-card-preco-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
 }
 
 .linha-card-preco-label {
@@ -548,8 +555,10 @@ Sem isso, o card ficaria colado no topo da página.
     color: var(--muted);
 }
 
-.linha-card-btn {
+/* Sobrescreve .btn.btn-blue dentro do card */
+.linha-card .linha-card-btn {
     display: inline-block;
+    width: auto;
     background-color: var(--primary);
     color: #ffffff;
     padding: 9px 20px;
@@ -558,16 +567,14 @@ Sem isso, o card ficaria colado no topo da página.
     text-decoration: none;
     border-radius: 6px;
     text-align: center;
-    margin-top: 6px;
+    margin-top: 0;
     transition: background-color 0.15s ease;
-    width: auto;
 }
 
-.linha-card-btn:hover {
+.linha-card .linha-card-btn:hover {
     background-color: var(--primary-dark, #1e40af);
     color: #ffffff;
 }
-
 
 @media (max-width: 768px) {
     .linha-card {
@@ -578,37 +585,13 @@ Sem isso, o card ficaria colado no topo da página.
     }
 
     .linha-card-preco {
-        display: flex;
         flex-direction: row;
-        flex-wrap: wrap;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         width: 100%;
     }
 
-    .linha-card-preco-label {
-        width: 100%;
-        margin-bottom: -6px;
-    }
-
-    .linha-card-preco-max {
-        width: 100%;
-        order: 3;
-    }
-
-    .linha-card-preco-min {
-        order: 1;
-    }
-
-    .linha-card-btn {
-        order: 2;
-        display: inline-block !important;
-        width: auto !important;
-        margin-top: 0;
-        padding: 9px 18px;
-        font-size: 14px;
-        white-space: nowrap;
+    .linha-card-preco-text {
+        align-items: flex-start;
     }
 }
-
-

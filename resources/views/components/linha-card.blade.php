@@ -27,12 +27,14 @@
     </div>
 
     <div class="linha-card-preco">
-        <span class="linha-card-preco-label">a partir de</span>
-        <span class="linha-card-preco-min">R$ {{ number_format($precoMin, 2, ',', '.') }}</span>
+        <div class="linha-card-preco-text">
+            <span class="linha-card-preco-label">a partir de</span>
+            <span class="linha-card-preco-min">R$ {{ number_format($precoMin, 2, ',', '.') }}</span>
 
-        @if($precoMax)
-            <span class="linha-card-preco-max">até R$ {{ number_format($precoMax, 2, ',', '.') }}</span>
-        @endif
+            @if($precoMax)
+                <span class="linha-card-preco-max">até R$ {{ number_format($precoMax, 2, ',', '.') }}</span>
+            @endif
+        </div>
 
         <a href="#" class="btn btn-blue linha-card-btn">Selecionar</a>
     </div>
