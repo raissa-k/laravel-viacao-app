@@ -3,13 +3,15 @@
 @section('title', 'Passagens de ' . request('origem') . ' para ' . request('destino'))
 
 @section('content')
+    {{-- Faixa azul com a search bar, espelhando o protótipo da imagem 1 --}}
+    <div style="background-color: #2563eb; padding: 2rem 0;">
+        <div class="container">
+            <x-search-bar layout="horizontal" />
+        </div>
+    </div>
+
     <section class="section section-alt">
         <div class="container">
-
-            {{-- Formulário repopulado nativamente devido ao request() no componente --}}
-            <div class="mb-lg">
-                <x-search-bar layout="horizontal" />
-            </div>
 
             {{-- Cabeçalho promovido a H1, mantendo o estilo discreto e sem o título genérico antigo --}}
             <div class="mb-md mt-lg">
@@ -27,9 +29,20 @@
                 <button class="filtro-pill" aria-pressed="false" data-filter="leito">Leito</button>
             </div>
 
-            {{-- Contador de resultados idêntico ao protótipo ("X resultados encontrados") --}}
-            <div class="mb-md mt-md text-muted" style="font-size: 0.9rem;">
-                <strong>{{ count($linhas) }}</strong> {{ count($linhas) == 1 ? 'resultado encontrado' : 'resultados encontrados' }}
+            {{-- Container Flex para alinhar Contador à esquerda e Ordenação à direita --}}
+            <div class="flex items-center justify-between mb-md mt-md text-muted" style="font-size: 0.9rem;">
+                {{-- Contador (Lado esquerdo) --}}
+                <div>
+                    <strong>{{ count($linhas) }}</strong> {{ count($linhas) == 1 ? 'resultado encontrado' : 'resultados encontrados' }}
+                </div>
+
+                {{-- Filtro de Ordenação (Lado direito - Adicionado conforme image_2.png) --}}
+                <div>
+                    <select class="field-input-sm" style="background-color: #f5f5f5; border: 1px solid #e0e0e0; padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; color: #333;">
+                        <option value="menor-preco" selected>Menor preço</option>
+                        <option value="maior-preco">Maior preço</option>
+                    </select>
+                </div>
             </div>
 
             {{-- Lista de Cards --}}
@@ -71,6 +84,8 @@
                 todosFiltros.forEach(btn => btn.setAttribute('aria-pressed', 'false'));
 
                 // 2. Marca o botão atual como true (inclusive o "Todas")
+                botaoClicado.setAttribute('aria-pressed', 'true');
+
                 botaoClicado.setAttribute('aria-pressed', 'true');
 
                 // 3. Aplica o filtro nos cards
