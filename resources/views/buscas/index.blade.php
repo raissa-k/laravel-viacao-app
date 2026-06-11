@@ -14,7 +14,7 @@
         <div class="container">
 
             {{-- Cabeçalho promovido a H1, mantendo o estilo discreto e sem o título genérico antigo --}}
-            <div class="mb-md mt-lg">
+            <div class="mb-md mt-xs">
                 <h1 class="text-muted" style="font-size: 1rem; font-weight: normal;">
                     Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
                 </h1>
