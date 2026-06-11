@@ -215,16 +215,14 @@ A aba ativa tem borda inferior destacada (border-bottom: none + background branc
   border-bottom-color: #fff; /* "quebra" a borda inferior do container, efeito de aba aberta */
 }
 
-/* ==========================================================================
-   LINHA CARD (Resultados de Busca)
-   ========================================================================== */
+/* Estilização do linha-card */
 .linha-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--bg, #ffffff);
     border: 1px solid var(--border);
-    border-left: 4px solid var(--primary); /* Assinatura visual do protótipo */
+    border-left: 4px solid var(--primary);
     border-radius: 10px;
     padding: 18px 20px;
     gap: 16px;
@@ -296,7 +294,6 @@ A aba ativa tem borda inferior destacada (border-bottom: none + background branc
     color: var(--muted);
 }
 
-/* Componentização do botão: garante o funcionamento mesmo sem dependências globais */
 .linha-card-btn {
     display: inline-block;
     background-color: var(--primary);
@@ -317,9 +314,7 @@ A aba ativa tem borda inferior destacada (border-bottom: none + background branc
     color: #ffffff;
 }
 
-/* ==========================================================================
-   RESPONSIVIDADE (screenshot_linha_result_mobile.png)
-   ========================================================================== */
+/* Responsividade */
 @media (max-width: 768px) {
     .linha-card {
         flex-direction: column;
@@ -335,7 +330,6 @@ A aba ativa tem borda inferior destacada (border-bottom: none + background branc
         padding-top: 12px;
     }
 
-    /* No mobile o botão vira bloco completo conforme o design */
     .linha-card-btn {
         display: block;
         width: 100%;
