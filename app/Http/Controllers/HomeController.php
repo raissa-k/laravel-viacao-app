@@ -15,13 +15,15 @@ class HomeController extends Controller
 {
     public function __construct(
         private readonly ViacaoService $viacaoService,
+        private readonly CidadeService $cidadeService,
     ) {
     }
 
-    public function index( CidadeService $cidadeService): View
+    public function index(): View
     {
         $viacoes = $this->viacaoService->active();
         $cidades = $cidadeService->all();
+
 
         return view('home.index', [
             'title'   => 'Quero Passagem',

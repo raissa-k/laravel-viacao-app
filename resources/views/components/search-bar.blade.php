@@ -1,50 +1,54 @@
 @props([
     'layout' => 'vertical',
-    'cidades' => collect(),
-    'action' => route('home'),
+    'cidades' => null,
+    'action' => null,
     ])
+
+@php $cidadeSelecionada = request('cidade', 'Sua_cidade') @endphp
 
 <div class="card search-card-{{ $layout }}">
     @if($layout === 'vertical')
         <h2 class="card-title">Buscar passagem</h2>
     @endif
 
-    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('home') }}" method="GET">
+    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}"
+          action="{{ route('home') }}" method="GET">
         <div class="field">
             <label class="field-label" for="origem">Origem</label>
-                <select
-                    class="field-input"
-                    id="origem"
-                    name="origem"
-                >
-                    <option value="">
-                        selecione uma cidade
+            <select
+                class="field-input"
+                id="origem"
+                name="origem"
+            >
+                <option value="">
+                    selecione uma cidade
+                </option>
+                @foreach($cidades as $cidadeSelecionada)
+                    <option value="{{ $cidadeSelecionada->id }}" @selected(request('origem') == $cidadeSelecionada->id)>
+                        {{ $cidadeSelecionada->nome }}
                     </option>
-                    @foreach($cidades as $cidade)
-                        <option value="{{ $cidade->id }}" @selected(request('origem') == $cidade->id)>
-                            {{ $cidade->nome }}
-                        </option>
-                    @endforeach
-                </select>
+                @endforeach
+            </select>
         </div>
 
         <div class="field">
             <label class="field-label" for="destino">Destino</label>
 
-                <select
-                    class="field-input"
-                    id="destino"
-                    name="destino"
-                >
-                    <option value="" >
-                        Selecione uma cidade
+            <select
+                class="field-input"
+                id="destino"
+                name="destino"
+            >
+                <option value="">
+                    Selecione uma cidade
+                </option>
+                @foreach($cidades as $cidadeSelecionada)
+                    <option
+                        value="{{ $cidadeSelecionada->id }}" @selected(request('destino') == $cidadeSelecionada->id)>
+                        {{ $cidadeSelecionada->nome }}
                     </option>
-                    @foreach($cidades as $cidade)
-                       <option value="{{ $cidade->id }}" @selected(request('destino') == $cidade->id)>
-                            {{ $cidade->nome }}
-                       </option>
-                    @endforeach
-                </select>
+                @endforeach
+            </select>
         </div>
         <div class="field-row">
             <div class="field">
