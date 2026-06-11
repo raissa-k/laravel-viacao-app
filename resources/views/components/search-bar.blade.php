@@ -4,8 +4,8 @@
     @if($layout === 'vertical')
         <h2 class="card-title">Buscar passagem</h2>
     @endif
+    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('busca') }}" method="GET">
 
-    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('home') }}" method="GET">
         <div class="field">
             <label class="field-label" for="origem">Origem</label>
             <input
@@ -43,7 +43,11 @@
             </div>
             <div class="field">
                 <label class="field-label" for="passageiros">Passageiros</label>
-                <select class="field-input" id="passageiros" name="passageiros">
+                <select
+                    class="field-input"
+                    id="passageiros"
+                    name="passageiros"
+                >
                     @for ($i = 1; $i <= 6; $i++)
                         <option value="{{ $i }}" @selected(request('passageiros', '1') == $i)>
                             {{ $i }} {{ $i === 1 ? 'passageiro' : 'passageiros' }}
