@@ -3,7 +3,6 @@ Compare com src/views/home/index.php do PHP puro.
 $viacoes aqui é uma Collection Eloquent, não um array, mas @foreach funciona igual.
 $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast automático. --}}
 @extends('layouts.public')
-
 @section('title', $title)
 
 @section('content')
@@ -13,8 +12,10 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
     <div class="container hero-inner">
 
         {{-- Lado esquerdo: cartão de busca --}}
-        <x-search-bar layout="vertical" />
-
+        <x-search-bar
+            layout="vertical"
+            :cidades="$cidades"
+        />
         {{-- Lado direito: texto de chamada --}}
         <div class="flex flex-col gap-sm">
             <p class="hero-eyebrow">🚌 Encontre sua viagem</p>
@@ -23,7 +24,6 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
                 As melhores viações do Brasil em um só lugar.
             </p>
         </div>
-
     </div>
 </section>
 

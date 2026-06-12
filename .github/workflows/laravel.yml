@@ -24,6 +24,13 @@ jobs:
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
 
@@ -32,6 +39,9 @@ jobs:
 
       - name: Set directory permissions
         run: chmod -R 777 storage bootstrap/cache
+
+      - name: Pint
+        run: vendor/bin/pint --test
 
       - name: Create SQLite database
         run: |

@@ -115,7 +115,12 @@ O href usa ->value pra gerar a string do parâmetro de URL. --}}
                         <div class="small muted">usuário excluído</div>
                     @endif
                 </td>
-                <td>{{ $h->acao }}</td>
+                <td>
+                    <x-badge
+                        rotulo="{{ $h->acao->value }}"
+                        tipo="{{ $h->acao->tipoBadge() }}"
+                    />
+                </td>
                 <td>
                     @if (is_array($h->alteracoes))
                         <details>
@@ -143,3 +148,4 @@ Depois:
 @endif
 
 @endsection
+
