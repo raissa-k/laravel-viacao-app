@@ -49,12 +49,12 @@ class TransporteService
 
     public function listarTodasCidades(): array
     {
-        $resultado = $this->listarCidades(1, 100);
+        $resultado = $this->listarCidades(1, 50);
         $todos     = $resultado['data'];
         $lastPage  = $resultado['meta']['last_page'] ?? 1;
 
         for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
-            $resultado = $this->listarCidades($pagina, 100);
+            $resultado = $this->listarCidades($pagina, 50);
             $todos     = array_merge($todos, $resultado['data']);
         }
 
