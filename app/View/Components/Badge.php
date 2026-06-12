@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Components;
 
 use Closure;
@@ -11,7 +13,8 @@ class Badge extends Component
     public function __construct(
         public string $rotulo,//dado obrigatorio se nao chmar quebra a pagina
         public string $tipo = 'convencional' //ele recebe convencional por padrao caso nada seja informado,se for blz,se nao usa esse
-    ) {}
+    ) {
+    }
 
     public function render(): View|Closure|string
     {

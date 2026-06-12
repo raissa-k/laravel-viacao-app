@@ -43,7 +43,7 @@ class ViacaoRequest extends FormRequest
     {
         $siteInput = trim((string) $this->input('site', ''));
 
-        $cidadeId = $this->input('cidade_id');
+        $cidadeId  = $this->input('cidade_id');
         $this->merge([
             'nome'      => trim((string) $this->input('nome', '')),
             'ativa'     => $this->boolean('ativa'),
