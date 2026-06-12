@@ -240,5 +240,5 @@ class ViacaoService
             })
             ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
             ->with('cidade'); // eager loading pra otimizar queries
-        }
     }
+}
