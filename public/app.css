@@ -43,9 +43,10 @@
 
     --badge-info-bg: #e0f2fe;
     --badge-info-fg: var(--primary);
+
+    --badge-padrao-bg:#f3f4f6;
+    --badge-padrao-fg:#374151;
 }
-
-
 * {
   box-sizing: border-box;
 }
@@ -227,6 +228,47 @@ button[type="submit"]:hover {
     border-radius: 10px;
     line-height: 1;
 }
+/* Badges relacionados a viações */
+.badge-convencional {
+    background: var(--badge-convencional-bg);
+    color: var(--badge-convencional-fg);
+}
+
+.badge-executivo {
+    background: var(--badge-executivo-bg);
+    color: var(--badge-executivo-fg);
+}
+
+.badge-semi-leito {
+    background: var(--badge-semileito-bg);
+    color: var(--badge-semileito-fg);
+}
+
+.badge-leito {
+    background: var(--badge-leito-bg);
+    color: var(--badge-leito-fg);
+}
+
+.badge-success {
+    background: var(--badge-sucesso-bg);
+    color: var(--badge-sucesso-fg);
+}
+
+.badge-error {
+    background: var(--badge-error-bg);
+    color: var(--badge-error-fg);
+}
+
+.badge-warning {
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-fg);
+}
+
+.badge-info {
+    background: var(--badge-info-bg);
+    color: var(--badge-info-fg);
+}
+
 /* Badges padrão do sistema */
 .badge-success {
     background: var(--badge-sucesso-bg);
@@ -246,6 +288,10 @@ button[type="submit"]:hover {
 .badge-info {
     background: var(--badge-info-bg);
     color: var(--badge-info-fg);
+}
+.badge-padrao{
+    background:var(--badge-padrao-bg);
+    color: var(--badge-padrao-fg);
 }
 
 .flash {
