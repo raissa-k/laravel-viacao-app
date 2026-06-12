@@ -99,7 +99,12 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
         @foreach ($historico as $h)
             <tr>
                 <td class="small muted">{{ $h->id }}</td>
-                <td>{{ $h->acao }}</td>
+                <td>
+                    <x-badge
+                        rotulo="{{ $h->acao->value }}"
+                        tipo="{{ $h->acao->tipoBadge() }}"
+                    />
+                </td>
                 <td>{{ $h->ator->nome ?: '---' }}</td>
                 <td>
                     @if (is_array($h->alteracoes))

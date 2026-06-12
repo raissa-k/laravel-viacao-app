@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AcaoHistorico;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,7 @@ class Historico extends Model
          * Pesquise "Laravel json:unicode cast".
          */
         'alteracoes' => 'json:unicode',
+        'acao'       => AcaoHistorico::class,
     ];
 
     /*
