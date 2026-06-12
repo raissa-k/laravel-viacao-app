@@ -42,5 +42,6 @@
     <p>© {{ date('Y') }} Viações Demo</p>
 </footer>
 
+@stack('scripts')
 </body>
 </html>
