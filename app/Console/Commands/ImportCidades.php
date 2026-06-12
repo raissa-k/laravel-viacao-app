@@ -21,7 +21,7 @@ class ImportCidades extends Command
 
     public function handle(): int
     {
-        $cidades = $this->transporteService->listarTodasCidades();
+        $cidades     = $this->transporteService->listarTodasCidades();
 
         if (empty($cidades)) {
             $this->error('Nenhuma cidade retornada pela API. Verifique as credenciais e a conectividade.');
