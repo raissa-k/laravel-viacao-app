@@ -22,7 +22,7 @@ class HomeController extends Controller
     public function index(): View
     {
         $viacoes = $this->viacaoService->active();
-        $cidades = $cidadeService->all();
+        $cidades = $this->cidadeService->all();
 
 
         return view('home.index', [

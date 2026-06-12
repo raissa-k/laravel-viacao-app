@@ -10,7 +10,7 @@ class CidadeService
 {
     public function all(bool $ordenarPorNome = true): Collection
     {
-        $query = cidade::query();
+        $query = Cidade::query();
         if ($ordenarPorNome) {
             $query->orderBy('nome');
         }

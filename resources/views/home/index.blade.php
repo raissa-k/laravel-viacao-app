@@ -8,10 +8,6 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
 
 @section('content')
 
-@props([
-    '$cidades' => collect()
-])
-
 {{-- HERO SECTION --}}
 <section class="hero">
     <div class="container hero-inner">

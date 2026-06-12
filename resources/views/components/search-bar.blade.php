@@ -4,7 +4,11 @@
     'action' => null,
     ])
 
-@php $cidadeSelecionada = request('cidade', 'Sua_cidade') @endphp
+@php
+    $cidades = collect($cidades ?? []);
+    $action =  $action ?? route('home');
+@endphp
+
 
 <div class="card search-card-{{ $layout }}">
     @if($layout === 'vertical')
@@ -12,7 +16,8 @@
     @endif
 
     <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}"
-          action="{{ route('home') }}" method="GET">
+          action="{{ $action }}" method="GET">
+
         <div class="field">
             <label class="field-label" for="origem">Origem</label>
             <select
@@ -20,11 +25,13 @@
                 id="origem"
                 name="origem"
             >
-                <option value="">
+                <option>
                     selecione uma cidade
                 </option>
+
                 @foreach($cidades as $cidadeSelecionada)
-                    <option value="{{ $cidadeSelecionada->id }}" @selected(request('origem') == $cidadeSelecionada->id)>
+                    <option value="{{ $cidadeSelecionada->id }}"
+                    @selected(old('origem', request('origem')) == $cidadeSelecionada->id)>
                         {{ $cidadeSelecionada->nome }}
                     </option>
                 @endforeach
@@ -38,14 +45,12 @@
                 class="field-input"
                 id="destino"
                 name="destino"
-            >
-                <option value="">
-                    Selecione uma cidade
-                </option>
-                @foreach($cidades as $cidadeSelecionada)
+            >@foreach($cidades as $cidade)
                     <option
-                        value="{{ $cidadeSelecionada->id }}" @selected(request('destino') == $cidadeSelecionada->id)>
-                        {{ $cidadeSelecionada->nome }}
+                        value="{{ $cidade->id }}"
+                        @selected(old('destino', request('destino')) == $cidade->id)
+                    >
+                        {{ $cidade->nome }}{{ $cidade->uf ? ' - ' . $cidade->uf : '' }}
                     </option>
                 @endforeach
             </select>
