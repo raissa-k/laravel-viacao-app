@@ -16,7 +16,6 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
         <x-search-bar
             layout="vertical"
             :cidades="$cidades"
-            :action="route('home')"
         />
         {{-- Lado direito: texto de chamada --}}
         <div class="flex flex-col gap-sm">
