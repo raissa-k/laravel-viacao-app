@@ -37,7 +37,7 @@ it('filtra histórico por ação', function () {
 
     $response->assertOk();
     expect($response->viewData('historico'))->toHaveCount(1)
-        ->and($response->viewData('historico')->first()->acao)->toBe(AcaoHistorico::Criado->value);
+        ->and($response->viewData('historico')->first()->acao)->toBe(AcaoHistorico::Criado);
 });
 
 it('filtra histórico por entidade', function () {
