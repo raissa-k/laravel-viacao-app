@@ -32,7 +32,7 @@
                 @foreach($cidades as $cidade)
                     <option value="{{ $cidade->id }}"
                     @selected(old('origem', request('origem')) == $cidade->id)>
-                        {{ $cidade->nome }}{{ $cidade->nome }}{{ $cidade->uf ? ' - ' . $cidade->uf : '' }}
+                        {{ $cidade->nome }}{{ $cidade->uf ? ' - ' . $cidade->uf : '' }}
                     </option>
                 @endforeach
             </select>
