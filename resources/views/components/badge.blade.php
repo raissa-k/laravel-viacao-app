@@ -2,9 +2,9 @@
 {{--se alguem passar um tipo diferente do que ja tem,ele manda um convencional mesmo,nao quebra--}}
 
 @php
-    $tiposConhecidos = ['convencional', 'executivo', 'semi-leito', 'leito', 'success', 'error', 'info', 'warning','padrao'];
+    $tiposConhecidos = ['padrao','executivo', 'semi-leito', 'leito', 'success', 'error', 'info', 'warning'];
     $tipoLimpo = strtolower($tipo);
-    $classeTipo = in_array($tipoLimpo, $tiposConhecidos) ? $tipoLimpo : 'convencional';
+    $classeTipo = in_array($tipoLimpo, $tiposConhecidos) ? $tipoLimpo : 'padrao';
 @endphp
 <span {{ $attributes->merge(['class' => "badge badge-{$classeTipo}"]) }}>
     {{ $rotulo }}

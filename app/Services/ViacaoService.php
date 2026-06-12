@@ -227,18 +227,18 @@ class ViacaoService
     private function builder(ViacaoFilterDTO $filter): Builder|HigherOrderWhenProxy
     {
         return Viacao::query()
-        ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
-        ->when($filter->q !== '', function ($query) use ($filter) {
-            // addcslashes escapa % e _ que o MySQL interpreta como wildcards no LIKE.
-            // Sem isso, "100%" no campo de busca viraria "qualquer coisa começando com 100".
-            // Pesquise "SQL LIKE wildcards", "ESCAPE clause".
-            $escaped = addcslashes($filter->q, '%_');
-            $query->where(function ($q2) use ($escaped) {
-                $q2->where('nome', 'like', '%'.$escaped.'%')
-                    ->orWhereHas('cidade', fn ($q3) => $q3->where('nome', 'like', '%'.$escaped.'%'));
-            });
-        })
-        ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
-        ->with('cidade'); // eager loading pra otimizar queries
+            ->when($filter->deletado, fn ($q) => $q->onlyTrashed())
+            ->when($filter->q !== '', function ($query) use ($filter) {
+                // addcslashes escapa % e _ que o MySQL interpreta como wildcards no LIKE.
+                // Sem isso, "100%" no campo de busca viraria "qualquer coisa começando com 100".
+                // Pesquise "SQL LIKE wildcards", "ESCAPE clause".
+                $escaped = addcslashes($filter->q, '%_');
+                $query->where(function ($q2) use ($escaped) {
+                    $q2->where('nome', 'like', '%'.$escaped.'%')
+                        ->orWhereHas('cidade', fn ($q3) => $q3->where('nome', 'like', '%'.$escaped.'%'));
+                });
+            })
+            ->when($filter->ativa !== null, fn ($query) => $query->where('ativa', $filter->ativa))
+            ->with('cidade'); // eager loading pra otimizar queries
+        }
     }
-}
