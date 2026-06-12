@@ -6,10 +6,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Cidade;
+use App\Services\CidadeService;
 use App\Services\ViacaoService;
 use Illuminate\View\View;
-use App\Services\CidadeService;
 
 class HomeController extends Controller
 {
