@@ -1,31 +1,44 @@
-@props(['linha' => []])
+@props(['linha'])
 
-<article class="linha-card">
+@php
+    // Normalização de preços para Float
+    preg_match('/(?:(\d+)h)?\s*(?:(\d+)m)?/', $linha->duracao, $m);
+    $duracaoMinutos = ((int)($m[1] ?? 0) * 60) + (int)($m[2] ?? 0);
+@endphp
 
+<article
+    class="linha-card"
+    data-categoria="{{ $linha->categoria?->value }}"
+    data-preco-min="{{ $linha->precoMinimo }}"
+    data-duracao-min="{{ $duracaoMinutos }}"
+>
     <div class="linha-card-info">
-        <?php // Captura de dados com fallback seguro ?>
-        <span class="linha-card-numero">{{ data_get($linha, 'numero', 'Linha 0000') }}</span>
-        <span class="linha-card-operadora">{{ data_get($linha, 'operadora', 'Viação Exemplo') }}</span>
+        {{-- Captura de dados com fallback seguro --}}
+        <span class="linha-card-numero">{{ $linha->numero }}</span>
+        <span class="linha-card-operadora">{{ $linha->operadoraNome }}</span>
 
         <div class="linha-card-meta">
-            <?php // Resolução da categoria ?>
-            <span class="linha-card-categoria">{{ data_get($linha, 'categoria', 'Convencional') }}</span>
-            <span class="linha-card-duracao">{{ data_get($linha, 'duracao', '6h 30min') }}</span>
+            {{-- Resolução da categoria --}}
+            @if($linha->categoria)
+                <x-badge
+                    :rotulo="$linha->categoria->rotulo()"
+                    :tipo="$linha->categoria->tipoBadge()"
+                />
+            @endif
+            <span class="linha-card-duracao">{{ $linha->duracao }}</span>
         </div>
     </div>
 
     <div class="linha-card-preco">
         <div class="linha-card-preco-text">
             <span class="linha-card-preco-label">a partir de</span>
+            <span class="linha-card-preco-min">R$ {{ number_format($linha->precoMinimo, 2, ',', '.') }}</span>
 
-            <?php // Normalização de preços para Float ?>
-            <span class="linha-card-preco-min">R$ {{ number_format(data_get($linha, 'precoMin', 59.90), 2, ',', '.') }}</span>
-            @if(data_get($linha, 'precoMax'))
-                <span class="linha-card-preco-max">até R$ {{ number_format(data_get($linha, 'precoMax'), 2, ',', '.') }}</span>
+            @if($linha->precoMaximo !== null)
+                <span class="linha-card-preco-max">até R$ {{ number_format($linha->precoMaximo, 2, ',', '.') }}</span>
             @endif
         </div>
 
         <a class="linha-card-btn" href="#">Selecionar</a>
     </div>
-
 </article>
