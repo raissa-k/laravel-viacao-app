@@ -3,7 +3,6 @@
 @section('title', 'Passagens de ' . request('origem') . ' para ' . request('destino'))
 
 @section('content')
-
     {{-- Faixa azul com a search bar, espelhando o protótipo da imagem 1 --}}
     <div class="bg-primary">
         <div class="container">
@@ -22,7 +21,6 @@
             </div>
 
             {{-- Filtros de Categoria (Client-Side) --}}
-            {{-- TODO: Quando o enum Categoria estiver disponível, esses filtros deverão ser gerados automaticamente a partir dos cases do Enum. --}}
             <div class="filtros-categoria">
                 <button class="filtro-pill" aria-pressed="true" data-filter="todas">Todas</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
@@ -32,16 +30,14 @@
 
             {{-- Container Flex para alinhar Contador à esquerda e Ordenação à direita --}}
             <div class="flex items-center justify-between mb-lg mt text-muted text-sm">
-
                 {{-- Contador (Lado esquerdo) --}}
                 <div id="results-count">
-                    {{ $linhas->count() }}
-                    {{ $linhas->count() === 1 ? 'resultado encontrado' : 'resultados encontrados' }}
+                    {{ $linhas->count() }} {{ $linhas->count() === 1 ? 'resultado encontrado' : 'resultados encontrados' }}
                 </div>
 
-                {{-- Seletor de Ordenação (Client-Side) --}}
+                {{-- Filtro de Ordenação (Lado direito - Adicionado conforme image_2.png) --}}
                 <div>
-                    <select id="sort-selector" class="field-input-sm">
+                    <select id="sort-selector" class="field-input">
                         <option value="api" selected>Sem ordenação</option>
                         <option value="preco">Menor preço</option>
                         <option value="duracao">Menor duração</option>
@@ -52,24 +48,21 @@
             {{-- Lista de Cards --}}
             <div id="cards-container" class="lista-resultados">
                 @forelse ($linhas as $linha)
-
-                    {{-- Cada card possui os atributos data-* necessários para filtro e ordenação --}}
+                    {{-- Mantida a estrutura HTML pura com o atributo data-categoria necessário para o script funcionar --}}
                     <x-linha-card :linha="$linha" />
-
                 @empty
                     <div class="empty-state">
                         <p>Nenhuma viagem encontrada para esta data.</p>
                     </div>
                 @endforelse
             </div>
-
         </div>
     </section>
 
     {{-- Seção de diferenciais movida para o final da página para espelhar o protótipo fielmente --}}
     <x-diferenciais />
 
-    {{-- Script responsável pelo filtro, contador e ordenação client-side --}}
+    {{-- Script de filtro do layout public --}}
     @push('scripts')
         <script>
             // Cache das referências (buscadas apenas uma vez no carregamento da página)
@@ -78,47 +71,27 @@
             const sortSelector = document.getElementById('sort-selector');
             const todosFiltros = document.querySelectorAll('[data-filter]');
 
-            // Guarda a ordem original recebida da API
             const originalOrder = Array.from(container?.children || []);
-
-            // Quantidade total de resultados
             const totalItems = originalOrder.length;
 
-            // Atualiza o contador de resultados conforme o filtro aplicado
             function updateCounter() {
-
                 if (!countElement || !container) return;
-
                 const botaoAtivo = document.querySelector('[data-filter][aria-pressed="true"]');
+                const filtroAtivo = botaoAtivo ? botaoAtivo.dataset.filter : 'todas';
+                const visiveis = Array.from(container.children).filter(card => card.style.display !== 'none').length;
 
-                const filtroAtivo = botaoAtivo
-                    ? botaoAtivo.dataset.filter
-                    : 'todas';
-
-                // Conta apenas os cards atualmente visíveis
-                const visiveis = Array.from(container.children)
-                    .filter(card => card.style.display !== 'none')
-                    .length;
-
-                // "Todas" mostra apenas o total
                 if (filtroAtivo === 'todas') {
-
                     countElement.textContent = totalItems === 1
                         ? '1 resultado encontrado'
                         : `${totalItems} resultados encontrados`;
-
                 } else {
-
-                    // Demais filtros mostram "N de M resultados"
                     countElement.textContent = `${visiveis} de ${totalItems} resultados`;
                 }
             }
 
             // Usando delegação de eventos para não depender de classes CSS
             document.addEventListener('click', (event) => {
-
                 const botaoClicado = event.target.closest('[data-filter]');
-
                 if (!botaoClicado) return;
 
                 // Usando dataset para melhor legibilidade
@@ -132,60 +105,32 @@
 
                 // 3. Aplica o filtro nos cards
                 Array.from(container.children).forEach(card => {
-
-                    card.style.display =
-                        (filtroAtivo === 'todas' || card.dataset.categoria === filtroAtivo)
-                            ? ''
-                            : 'none';
-
+                    card.style.display = (filtroAtivo === 'todas' || card.dataset.categoria === filtroAtivo) ? '' : 'none';
                 });
 
-                // 4. Atualiza o contador
                 updateCounter();
             });
 
-            // Reordenação client-side dos cards
             sortSelector?.addEventListener('change', function () {
-
                 if (!container) return;
-
                 const sortBy = this.value;
 
-                // Restaura a ordem original recebida da API
                 if (sortBy === 'api') {
-
                     originalOrder.forEach(node => container.appendChild(node));
-
                     updateCounter();
-
                     return;
                 }
 
-                // Ordena os cards conforme o critério escolhido
                 Array.from(container.children)
-
                     .sort((a, b) => {
-
-                        if (sortBy === 'preco') {
-                            return parseFloat(a.dataset.precoMin || 0)
-                                - parseFloat(b.dataset.precoMin || 0);
-                        }
-
-                        if (sortBy === 'duracao') {
-                            return parseInt(a.dataset.duracaoMin || 0)
-                                - parseInt(b.dataset.duracaoMin || 0);
-                        }
-
+                        if (sortBy === 'preco') return parseFloat(a.dataset.precoMin || 0) - parseFloat(b.dataset.precoMin || 0);
+                        if (sortBy === 'duracao') return parseInt(a.dataset.duracaoMin || 0) - parseInt(b.dataset.duracaoMin || 0);
                         return 0;
                     })
-
-                    // Reanexa os nós já ordenados
                     .forEach(node => container.appendChild(node));
 
-                // Atualiza o contador após a ordenação
                 updateCounter();
             });
         </script>
     @endpush
-
 @endsection
