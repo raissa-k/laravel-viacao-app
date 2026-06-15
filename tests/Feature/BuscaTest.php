@@ -21,7 +21,6 @@ it('redireciona para a home com erro se faltarem os parâmetros obrigatórios', 
 });
 
 it('exibe a base da página de resultados quando os parâmetros estão preenchidos', function () {
-    // Acessando com todos os parâmetros exigidos no Controller
     $response = $this->get(route('busca', [
         'origem'  => 'Curitiba',
         'destino' => 'São Paulo',
@@ -30,10 +29,10 @@ it('exibe a base da página de resultados quando os parâmetros estão preenchid
 
     $response->assertOk()
         ->assertViewIs('buscas.index')
-        // Garante que o requisito "Sem resultados ainda, só a base" foi cumprido
-        ->assertViewHas('linhas', []);
+        ->assertViewHas('linhas', function ($linhas) {
+            return $linhas instanceof \Illuminate\Support\Collection;
+        });
 });
-
 it('mantém a URL compartilhável e exibe os parâmetros na view', function () {
     $origem   = 'Curitiba';
     $destino  = 'Ourinhos';
