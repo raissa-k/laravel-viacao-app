@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\DTOs\LinhaResultadoDTO;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class FiltrarLinhas
 {
@@ -28,19 +29,17 @@ class FiltrarLinhas
 
         // 2. Filtrar por $categoria (quando não-null)
         if ($categoria !== null) {
-            $catNormalizada = mb_strtolower($categoria, 'UTF-8');
+            $catNormalizada = Str::lower($categoria);
             $resultado      = $resultado->filter(
-                fn (LinhaResultadoDTO $dto) =>
-                $dto->categoria?->value === $catNormalizada
+                fn (LinhaResultadoDTO $dto) => $dto->categoria?->value === $catNormalizada
             );
         }
 
         // 3. Filtrar por $dia (quando não-null)
         if ($dia !== null) {
-            $diaNormalizado = mb_strtolower($dia, 'UTF-8');
+            $diaNormalizado = Str::lower($dia);
             $resultado      = $resultado->filter(
-                fn (LinhaResultadoDTO $dto) =>
-            in_array($diaNormalizado, $dto->diasDaSemana, true)
+                fn (LinhaResultadoDTO $dto) => in_array($diaNormalizado, $dto->diasDaSemana, true)
             );
         }
 
