@@ -21,8 +21,7 @@ class BuscaController extends Controller
 
         // Mock de dados: Dados testes
 
-        $linhas = [];
-
+        $linhas = \App\DTOs\LinhaResultadoDTO::fake();
         return view('buscas.index', [
             'linhas' => $linhas
         ]);
