@@ -4,6 +4,14 @@
     // Normalização de preços para Float
     preg_match('/(?:(\d+)h)?\s*(?:(\d+)m)?/', $linha->duracao, $m);
     $duracaoMinutos = ((int)($m[1] ?? 0) * 60) + (int)($m[2] ?? 0);
+    $classeSlug = strtolower(trim($linha->categoria?->value ?? ''));
+
+    $tipoBadgeExistente = match($classeSlug) {
+        'convencional' => 'info',
+        'executivo'    => 'warning',
+        'leito'        => 'success',
+         default        => 'padrao',
+    };
 @endphp
 
 <article
@@ -18,11 +26,11 @@
         <span class="linha-card-operadora">{{ $linha->operadoraNome }}</span>
 
         <div class="linha-card-meta">
-            {{-- Resolução da categoria --}}
+            {{-- Resolução da categoria usando as badges existentes do sistema --}}
             @if($linha->categoria)
                 <x-badge
                     :rotulo="$linha->categoria->rotulo()"
-                    :tipo="$linha->categoria->tipoBadge()"
+                    :tipo="$tipoBadgeExistente"
                 />
             @endif
             <span class="linha-card-duracao">{{ $linha->duracao }}</span>
