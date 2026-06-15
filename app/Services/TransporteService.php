@@ -60,4 +60,53 @@ class TransporteService
 
         return $todos;
     }
+
+    public function listarLinhas(int $origemApiId, int $destinoApiId, int $pagina = 1, int $perPage = 50): array
+    {
+        try {
+        $url      = config('services.transporte_api.url');
+        $response = Http::withToken($this->gerarToken())
+            ->get($url . '/api/listar', [
+                'origemApiId' => $origemApiId,
+                'destinoApiId' => $destinoApiId,
+                'pagina' => $pagina,
+                'per_page' => $perPage,
+            ]);
+
+        if ($response->failed()) {
+            Log::error('TransporteService: falha ao listar linhas', [
+                'status' => $response->status(),
+                'pagina' => $pagina,
+            ]);
+
+            return ['data' => [], 'meta' => []];
+        }
+
+        return $response->json();
+    } catch (\Throwable $e) {
+        Log::error('TransporteService: exceção ao listar linhas', [
+            'erro'   => $e->getMessage(),
+            'pagina' => $pagina,
+        ]);
+
+        return ['data' => [], 'meta' => []];
+    }
+
+    }
+
+    public function listarTodasLinhas(int $pagina = 1, int $perPage = 50): array
+    {
+        $resultado = $this->listarLinhas($pagina, $perPage);
+        $todos     = $resultado['data'];
+        $lastPage  = $resultado['meta']['last_page'] ?? 1;
+
+        for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
+            $resultado = $this->listarLinhas($pagina, $perPage);
+            $todos     = array_merge($todos, $resultado['data']);
+        }
+
+        return $todos;
+
+    }
+
 }
