@@ -150,6 +150,17 @@ final readonly class LinhaResultadoDTO
                 categoria: Categoria::Leito,
                 diasDaSemana: [],
             ),
+            new self(
+                id: 4,
+                numero: '0404',
+                operadoraId: 4,
+                operadoraNome: 'Viação Sem Categoria',
+                duracao: '1h',
+                precoMinimo: 50.00,
+                precoMaximo: null,
+                categoria: null,
+                diasDaSemana: [],
+            ),
         ]);
     }
 }
