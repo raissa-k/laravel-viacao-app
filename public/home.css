@@ -785,3 +785,23 @@ Sem isso, o card ficaria colado no topo da página.
     border-bottom: none;
     box-shadow: none;
 }
+
+.bg-primary {
+    background-color: var(--primary);
+    padding: 2rem 0;
+}
+
+.h1-discreto {
+    font-size: 1rem;
+    font-weight: normal;
+    margin: 0;
+}
+
+.field-input-sm {
+    background-color: #f5f5f5;
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--text);
+}

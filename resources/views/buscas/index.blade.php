@@ -3,8 +3,9 @@
 @section('title', 'Passagens de ' . request('origem') . ' para ' . request('destino'))
 
 @section('content')
+
     {{-- Faixa azul com a search bar, espelhando o protótipo da imagem 1 --}}
-    <div style="background-color: #2563eb; padding: 2rem 0;">
+    <div class="bg-primary">
         <div class="container">
             <x-search-bar layout="horizontal" />
         </div>
@@ -14,14 +15,14 @@
         <div class="container">
 
             {{-- Cabeçalho promovido a H1, mantendo o estilo discreto e sem o título genérico antigo --}}
-            <div class="mb-md mt-xs">
-                <h1 class="text-muted" style="font-size: 1rem; font-weight: normal;">
+            <div class="mb mt-sm">
+                <h1 class="text-muted h1-discreto">
                     Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
                 </h1>
             </div>
 
             {{-- Filtros de Categoria (Client-Side) --}}
-            {{-- TODO: Quando o enum categoria estiver disponível, esses filtros deverão ser criados a partir dos cases do Enum. --}}
+            {{-- TODO: Quando o enum Categoria estiver disponível, esses filtros deverão ser gerados automaticamente a partir dos cases do Enum. --}}
             <div class="filtros-categoria">
                 <button class="filtro-pill" aria-pressed="true" data-filter="todas">Todas</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
@@ -30,49 +31,92 @@
             </div>
 
             {{-- Container Flex para alinhar Contador à esquerda e Ordenação à direita --}}
-            <div class="flex items-center justify-between mb-md mt-md text-muted" style="font-size: 0.9rem;">
+            <div class="flex items-center justify-between mb-lg mt text-muted text-sm">
+
                 {{-- Contador (Lado esquerdo) --}}
-                <div>
-                    <strong>{{ count($linhas) }}</strong> {{ count($linhas) == 1 ? 'resultado encontrado' : 'resultados encontrados' }}
+                <div id="results-count">
+                    {{ $linhas->count() }}
+                    {{ $linhas->count() === 1 ? 'resultado encontrado' : 'resultados encontrados' }}
                 </div>
 
-                {{-- Filtro de Ordenação (Lado direito - Adicionado conforme image_2.png) --}}
+                {{-- Seletor de Ordenação (Client-Side) --}}
                 <div>
-                    <select class="field-input-sm" style="background-color: #f5f5f5; border: 1px solid #e0e0e0; padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; color: #333;">
-                        <option value="menor-preco" selected>Menor preço</option>
-                        <option value="maior-preco">Maior preço</option>
+                    <select id="sort-selector" class="field-input-sm">
+                        <option value="api" selected>Sem ordenação</option>
+                        <option value="preco">Menor preço</option>
+                        <option value="duracao">Menor duração</option>
                     </select>
                 </div>
             </div>
 
             {{-- Lista de Cards --}}
-            <div class="grid-auto lista-resultados">
+            <div id="cards-container" class="lista-resultados">
                 @forelse ($linhas as $linha)
-                    {{-- Mantida a estrutura HTML pura com o atributo data-categoria necessário para o script funcionar --}}
-                    <div class="card viacao-card" data-categoria="{{ strtolower($linha->categoria) }}">
-                        <strong>{{ $linha->viacao }}</strong>
-                    </div>
+
+                    {{-- Cada card possui os atributos data-* necessários para filtro e ordenação --}}
+                    <x-linha-card :linha="$linha" />
+
                 @empty
                     <div class="empty-state">
                         <p>Nenhuma viagem encontrada para esta data.</p>
                     </div>
                 @endforelse
             </div>
+
         </div>
     </section>
 
     {{-- Seção de diferenciais movida para o final da página para espelhar o protótipo fielmente --}}
     <x-diferenciais />
 
-    {{-- Script de filtro do layout public --}}
+    {{-- Script responsável pelo filtro, contador e ordenação client-side --}}
     @push('scripts')
         <script>
             // Cache das referências (buscadas apenas uma vez no carregamento da página)
+            const container = document.getElementById('cards-container');
+            const countElement = document.getElementById('results-count');
+            const sortSelector = document.getElementById('sort-selector');
             const todosFiltros = document.querySelectorAll('[data-filter]');
-            const todosCards = document.querySelectorAll('[data-categoria]');
+
+            // Guarda a ordem original recebida da API
+            const originalOrder = Array.from(container?.children || []);
+
+            // Quantidade total de resultados
+            const totalItems = originalOrder.length;
+
+            // Atualiza o contador de resultados conforme o filtro aplicado
+            function updateCounter() {
+
+                if (!countElement || !container) return;
+
+                const botaoAtivo = document.querySelector('[data-filter][aria-pressed="true"]');
+
+                const filtroAtivo = botaoAtivo
+                    ? botaoAtivo.dataset.filter
+                    : 'todas';
+
+                // Conta apenas os cards atualmente visíveis
+                const visiveis = Array.from(container.children)
+                    .filter(card => card.style.display !== 'none')
+                    .length;
+
+                // "Todas" mostra apenas o total
+                if (filtroAtivo === 'todas') {
+
+                    countElement.textContent = totalItems === 1
+                        ? '1 resultado encontrado'
+                        : `${totalItems} resultados encontrados`;
+
+                } else {
+
+                    // Demais filtros mostram "N de M resultados"
+                    countElement.textContent = `${visiveis} de ${totalItems} resultados`;
+                }
+            }
 
             // Usando delegação de eventos para não depender de classes CSS
             document.addEventListener('click', (event) => {
+
                 const botaoClicado = event.target.closest('[data-filter]');
 
                 if (!botaoClicado) return;
@@ -86,19 +130,62 @@
                 // 2. Marca o botão atual como true (inclusive o "Todas")
                 botaoClicado.setAttribute('aria-pressed', 'true');
 
-                botaoClicado.setAttribute('aria-pressed', 'true');
-
                 // 3. Aplica o filtro nos cards
-                todosCards.forEach(card => {
-                    const categoriaCard = card.dataset.categoria;
+                Array.from(container.children).forEach(card => {
 
-                    if (filtroAtivo === 'todas' || categoriaCard === filtroAtivo) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
+                    card.style.display =
+                        (filtroAtivo === 'todas' || card.dataset.categoria === filtroAtivo)
+                            ? ''
+                            : 'none';
+
                 });
+
+                // 4. Atualiza o contador
+                updateCounter();
+            });
+
+            // Reordenação client-side dos cards
+            sortSelector?.addEventListener('change', function () {
+
+                if (!container) return;
+
+                const sortBy = this.value;
+
+                // Restaura a ordem original recebida da API
+                if (sortBy === 'api') {
+
+                    originalOrder.forEach(node => container.appendChild(node));
+
+                    updateCounter();
+
+                    return;
+                }
+
+                // Ordena os cards conforme o critério escolhido
+                Array.from(container.children)
+
+                    .sort((a, b) => {
+
+                        if (sortBy === 'preco') {
+                            return parseFloat(a.dataset.precoMin || 0)
+                                - parseFloat(b.dataset.precoMin || 0);
+                        }
+
+                        if (sortBy === 'duracao') {
+                            return parseInt(a.dataset.duracaoMin || 0)
+                                - parseInt(b.dataset.duracaoMin || 0);
+                        }
+
+                        return 0;
+                    })
+
+                    // Reanexa os nós já ordenados
+                    .forEach(node => container.appendChild(node));
+
+                // Atualiza o contador após a ordenação
+                updateCounter();
             });
         </script>
     @endpush
+
 @endsection
