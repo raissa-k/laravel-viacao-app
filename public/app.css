@@ -14,7 +14,7 @@
     --danger: #b91c1c;
     --success: #047857;
 
-    --badge-convencional-bg: #dbeafe;
+    --badge-convencional-bg: var(--bg);
     --badge-convencional-fg: var(--primary);
 
     --badge-executivo-bg: #fbef9f;
@@ -134,6 +134,26 @@ table tr:last-child td {
     line-height: 1;
 }
 /* Badges padrão do sistema */
+.badge-convencional {
+    background: var(--badge-convencional-bg);
+    color: var(--badge-convencional-fg);
+}
+
+.badge-executivo {
+    background: var(--badge-executivo-bg);
+    color: var(--badge-executivo-fg);
+}
+
+.badge-semileito {
+    background: var(--badge-semileito-bg);
+    color: var(--badge-semileito-fg);
+}
+
+.badge-leito {
+    background: var(--badge-leito-bg);
+    color: var(--badge-leito-fg);
+}
+
 .badge-success {
     background: var(--badge-sucesso-bg);
     color: var(--badge-sucesso-fg);
@@ -153,10 +173,11 @@ table tr:last-child td {
     background: var(--badge-info-bg);
     color: var(--badge-info-fg);
 }
-.badge-padrao {
-    background: var(--badge-padrao-bg);
+.badge-padrao{
+    background:var(--badge-padrao-bg);
     color: var(--badge-padrao-fg);
 }
+
 form {
     margin: 0;
 }
