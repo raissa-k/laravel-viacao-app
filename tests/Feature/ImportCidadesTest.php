@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
-    Http::preventStrayRequests();
+    Http::preventStrayRequests();                                        //impede que seja realizado requisição real durante os testes
     config([
         'services.transporte_api.url'   => 'https://api.test',
         'services.transporte_api.token' => 'token-secreto',

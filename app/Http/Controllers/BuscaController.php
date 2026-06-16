@@ -11,7 +11,9 @@ use Illuminate\View\View;
 
 class BuscaController extends Controller
 {
-    public function __construct(private readonly CidadeService $cidadeService) {}
+    public function __construct(private readonly CidadeService $cidadeService)
+    {
+    }
 
     public function index(Request $request): View|RedirectResponse
     {
@@ -30,7 +32,7 @@ class BuscaController extends Controller
                 ->with('error', 'Cidade não encontrada.');
         }
 
-        $linhas = [];
+        $linhas  = [];
 
         return view('buscas.index', [
             'linhas'  => $linhas,
