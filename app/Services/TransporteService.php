@@ -61,14 +61,14 @@ class TransporteService
         return $todos;
     }
 
-    public function listarLinhas(int $origemApiId, int $destinoApiId, int $pagina = 1, int $perPage = 50): array
+    public function listarLinhas(int $origem_cidade_Id, int $destino_cidade_Id, int $pagina = 1, int $perPage = 50): array
     {
         try {
         $url      = config('services.transporte_api.url');
         $response = Http::withToken($this->gerarToken())
-            ->get($url . '/api/listar', [
-                'origemApiId' => $origemApiId,
-                'destinoApiId' => $destinoApiId,
+            ->get($url . '/api/linhas', [
+                'origemApiId' => $origem_cidade_Id,
+                'destinoApiId' => $destino_cidade_Id,
                 'pagina' => $pagina,
                 'per_page' => $perPage,
             ]);
@@ -94,14 +94,14 @@ class TransporteService
 
     }
 
-    public function listarTodasLinhas(int $pagina = 1, int $perPage = 50): array
+    public function listarTodasLinhas(int $origemApiId, int $destinoApiId): array
     {
-        $resultado = $this->listarLinhas($pagina, $perPage);
+        $resultado = $this->listarLinhas($origemApiId, $destinoApiId);
         $todos     = $resultado['data'];
         $lastPage  = $resultado['meta']['last_page'] ?? 1;
 
         for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
-            $resultado = $this->listarLinhas($pagina, $perPage);
+            $resultado = $this->listarLinhas( $origemApiId, $destinoApiId, $pagina );
             $todos     = array_merge($todos, $resultado['data']);
         }
 
