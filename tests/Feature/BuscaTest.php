@@ -49,3 +49,21 @@ it('mantém a URL compartilhável e exibe os parâmetros na view', function () {
     $response->assertSee($origem);
     $response->assertSee($destino);
 });
+
+it('exibe a estrutura necessária para os filtros e ordenação client-side', function () {
+    $response = $this->get(route('busca', [
+        'origem'  => 'Curitiba',
+        'destino' => 'São Paulo',
+        'data'    => '2026-06-15',
+    ]));
+
+    $response->assertOk()
+        ->assertSee('id="results-count"', false)
+        ->assertSee('data-filter="todas"', false)
+        ->assertSee('data-filter="convencional"', false)
+        ->assertSee('data-filter="executivo"', false)
+        ->assertSee('data-filter="leito"', false)
+        ->assertSee('data-categoria="', false)
+        ->assertSee('data-preco-min="', false)
+        ->assertSee('data-duracao-min="', false);
+});

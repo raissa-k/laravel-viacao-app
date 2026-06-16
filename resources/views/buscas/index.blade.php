@@ -21,6 +21,7 @@
             </div>
 
             {{-- Filtros de Categoria (Client-Side) --}}
+            {{-- TODO: Quando o enum categoria estiver disponível, esses filtros deverão ser criados a partir dos cases do Enum. --}}
             <div class="filtros-categoria">
                 <button class="filtro-pill" aria-pressed="true" data-filter="todas">Todas</button>
                 <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
@@ -123,8 +124,12 @@
 
                 Array.from(container.children)
                     .sort((a, b) => {
-                        if (sortBy === 'preco') return parseFloat(a.dataset.precoMin || 0) - parseFloat(b.dataset.precoMin || 0);
-                        if (sortBy === 'duracao') return parseInt(a.dataset.duracaoMin || 0) - parseInt(b.dataset.duracaoMin || 0);
+                        if (sortBy === 'preco') {
+                            return Number(a.dataset.precoMin || 0) - Number(b.dataset.precoMin || 0);
+                        }
+                        if (sortBy === 'duracao') {
+                            return Number(a.dataset.duracaoMin || 0) - Number(b.dataset.duracaoMin || 0);
+                        }
                         return 0;
                     })
                     .forEach(node => container.appendChild(node));

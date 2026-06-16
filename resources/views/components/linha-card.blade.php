@@ -1,7 +1,7 @@
 @props(['linha'])
 
 @php
-    // Normalização de preços para Float
+    // regex para extrair horas e minutos de uma string como "2h 30m", "1h", "45m", etc.
     preg_match('/(?:(\d+)h)?\s*(?:(\d+)m)?/', $linha->duracao, $m);
     $duracaoMinutos = ((int)($m[1] ?? 0) * 60) + (int)($m[2] ?? 0);
     $classeSlug = strtolower(trim($linha->categoria?->value ?? ''));
