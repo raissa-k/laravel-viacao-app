@@ -6,7 +6,9 @@
     {{-- Faixa azul com a search bar, espelhando o protótipo da imagem 1 --}}
     <div class="bg-primary">
         <div class="container">
-            <x-search-bar layout="horizontal" />
+            <x-search-bar layout="horizontal"
+                          :cidades="$cidades"
+            />
         </div>
     </div>
 

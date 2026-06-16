@@ -25,6 +25,7 @@ class BuscaController extends Controller
 
         $origem  = $this->cidadeService->find((int) $request->get('origem'));
         $destino = $this->cidadeService->find((int) $request->get('destino'));
+        $cidades = $this->cidadeService->all();
 
         if (!$origem || !$destino) {
             return redirect()
@@ -37,6 +38,7 @@ class BuscaController extends Controller
             'linhas'  => $linhas,
             'origem'  => $origem,
             'destino' => $destino,
+            'cidades' => $cidades,
         ]);
     }
 }
