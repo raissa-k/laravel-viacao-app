@@ -61,7 +61,7 @@ class TransporteService
     public function buscarTerminalPorId($id): array
     {
         try {
-            $url = rtrim(config('services.transporte_api.url'), '/'); //para prevenir barra dupla,vide log
+            $url      = rtrim(config('services.transporte_api.url'), '/'); //para prevenir barra dupla,vide log
             $response = Http::withToken($this->gerarToken()) //geração do token para acesso
             ->get($url . '/api/terminais/' . $id); //pegando as infos da
 

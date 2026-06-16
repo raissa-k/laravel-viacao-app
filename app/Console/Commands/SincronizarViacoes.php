@@ -3,26 +3,22 @@
 
 declare(strict_types=1);
 
-
 namespace App\Console\Commands;
 
-
-use App\Services\TransporteService;
 use App\Models\Viacao;
+use App\Services\TransporteService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-
 class SincronizarViacoes extends Command
 {
-    protected $signature = 'viacoes:sincronizar';
+    protected $signature   = 'viacoes:sincronizar';
 
 
     protected $description = 'Consome a API de transporte e sincroniza as operadoras locais usando upsert';
 
 
     public function __construct(private readonly TransporteService $transporteService)
-
     {
         parent::__construct();
     }
@@ -45,7 +41,7 @@ class SincronizarViacoes extends Command
             return self::FAILURE;
         }
 
-        $apiIds = array_column($operadorasApi, 'id');
+        $apiIds        = array_column($operadorasApi, 'id');
 
 
 
@@ -54,13 +50,11 @@ class SincronizarViacoes extends Command
         ->toArray();
 
 
-        $inseridos = 0;
-        $atualizados = 0;
+        $inseridos     = 0;
+        $atualizados   = 0;
 
 
         $this->info('Processando e verificando dados da API...');
-
-
 
         foreach ($operadorasApi as $operadora) {
 
@@ -82,10 +76,10 @@ class SincronizarViacoes extends Command
                 $atualizados++;
 
 
-                $viacao->api_id = $operadora['id'];
-                $viacao->site = $operadora['site'] ?? $viacao->site;
+                $viacao->api_id    = $operadora['id'];
+                $viacao->site      = $operadora['site']           ?? $viacao->site;
                 $viacao->cidade_id = $operadora['sede_cidade_id'] ?? $viacao->cidade_id;
-                $viacao->ativa = $operadora['ativo'] ?? $viacao->ativa ?? true;
+                $viacao->ativa     = $operadora['ativo']          ?? $viacao->ativa ?? true;
 
 
             } else {
@@ -93,12 +87,12 @@ class SincronizarViacoes extends Command
                 $inseridos++;
 
 
-                $viacao = new Viacao();
-                $viacao->nome = $operadora['nome'];
-                $viacao->api_id = $operadora['id'];
-                $viacao->site = $operadora['site'] ?? null;
+                $viacao            = new Viacao();
+                $viacao->nome      = $operadora['nome'];
+                $viacao->api_id    = $operadora['id'];
+                $viacao->site      = $operadora['site']           ?? null;
                 $viacao->cidade_id = $operadora['sede_cidade_id'] ?? null;
-                $viacao->ativa = $operadora['ativo'] ?? true;
+                $viacao->ativa     = $operadora['ativo']          ?? true;
             }
 
 
