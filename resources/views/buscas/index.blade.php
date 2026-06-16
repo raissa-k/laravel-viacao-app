@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Passagens de ' . request('origem') . ' para ' . request('destino'))
+@section('title', 'Passagens de ' . $origem->nome . ' para ' . $destino->nome)
 
 @section('content')
     {{-- Faixa azul com a search bar, espelhando o protótipo da imagem 1 --}}
