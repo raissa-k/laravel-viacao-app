@@ -16,7 +16,6 @@ class TransporteService
 
         return hash('sha256', $tokenBase . ':' . $data);
     }
-
     public function listarCidades(int $pagina, int $perPage): array
     {
         try {
@@ -46,7 +45,6 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
-
     public function listarTodasCidades(): array
     {
         $resultado = $this->listarCidades(1, 50);
@@ -56,6 +54,80 @@ class TransporteService
         for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
             $resultado = $this->listarCidades($pagina, 50);
             $todos     = array_merge($todos, $resultado['data']);
+        }
+
+        return $todos;
+    }
+    public function buscarTerminalPorId($id): array
+    {
+        try {
+            $url = rtrim(config('services.transporte_api.url'), '/'); //para prevenir barra dupla,vide log
+            $response = Http::withToken($this->gerarToken()) //geração do token para acesso
+            ->get($url . '/api/terminais/' . $id); //pegando as infos da
+
+            // caso ele falhe ele retorna array vazio
+            if ($response->failed()) { //aqui e para erro de client ou server erro,que aqui a variavrel vem da geração do token da api
+                Log::error('TransporteService: falha ao buscar terminal por ID', [
+                    'status' => $response->status(),//status e referente ao 404,400 e etc
+                    'id'     => $id,
+                ]);
+                return ['data' => []];//return array data vazio,fallback padrao
+            }
+
+            // retorna o JSON completo no padrao da documentação
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao buscar terminal por ID', [ //bloco de captação de erro e leva pro log
+                'erro' => $e->getMessage(),
+                'id'   => $id,
+            ]);
+
+            return ['data' => []]; //fallback de rro
+        }
+    }
+    public function listarOperadoras(int $pagina, int $perPage): array
+    {
+        try {
+            $url      = config('services.transporte_api.url');
+            $response = Http::withToken($this->gerarToken())
+                ->get($url . '/api/operadoras', [
+                    'page'     => $pagina,
+                    'per_page' => $perPage,
+                ]);
+
+            if ($response->failed()) {
+                Log::error('TransporteService: falha ao listar operadoras', [
+                    'status' => $response->status(),
+                    'pagina' => $pagina,
+                ]);
+
+                return ['data' => [], 'meta' => []];
+
+            }
+
+            return $response->json();
+
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao listar operadoras', [
+                'erro'   => $e->getMessage(),
+                'pagina' => $pagina,
+            ]);
+
+            return ['data' => [], 'meta' => []];
+        }
+    }
+    public function listarTodasOperadoras(): array
+    {
+        $resultado = $this->listarOperadoras(1, 50);
+
+        $todos     = is_array($resultado['data']) ? $resultado['data'] : [];
+        $lastPage  = $resultado['meta']['last_page'] ?? 1;
+        for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
+            $resultado = $this->listarOperadoras($pagina, 50);
+
+            if (!empty($resultado['data']) && is_array($resultado['data'])) {
+                $todos = array_merge($todos, $resultado['data']);
+            }
         }
 
         return $todos;
