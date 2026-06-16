@@ -52,7 +52,12 @@
             <div id="cards-container" class="lista-resultados">
                 @forelse ($linhas as $linha)
                     {{-- Mantida a estrutura HTML pura com o atributo data-categoria necessário para o script funcionar --}}
-                    <x-linha-card :linha="$linha" />
+                    <x-linha-card
+                        :linha="$linha"
+                        :data-categoria="$linha->categoria?->value"
+                        :data-preco-min="$linha->precoMinimo"
+                        :data-duracao-min="$linha->duracaoMinutos"
+                    />
                 @empty
                     <div class="empty-state">
                         <p>Nenhuma viagem encontrada para esta data.</p>

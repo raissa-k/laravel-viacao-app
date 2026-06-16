@@ -1,24 +1,7 @@
 @props(['linha'])
 
-@php
-    // regex para extrair horas e minutos de uma string como "2h 30m", "1h", "45m", etc.
-    preg_match('/(?:(\d+)h)?\s*(?:(\d+)m)?/', $linha->duracao, $m);
-    $duracaoMinutos = ((int)($m[1] ?? 0) * 60) + (int)($m[2] ?? 0);
-    $classeSlug = strtolower(trim($linha->categoria?->value ?? ''));
-
-    $tipoBadgeExistente = match($classeSlug) {
-        'convencional' => 'info',
-        'executivo'    => 'warning',
-        'leito'        => 'success',
-         default        => 'padrao',
-    };
-@endphp
-
 <article
-    class="linha-card"
-    data-categoria="{{ $linha->categoria?->value }}"
-    data-preco-min="{{ $linha->precoMinimo }}"
-    data-duracao-min="{{ $duracaoMinutos }}"
+    {{ $attributes->class('linha-card') }}
 >
     <div class="linha-card-info">
         {{-- Captura de dados com fallback seguro --}}
@@ -30,7 +13,7 @@
             @if($linha->categoria)
                 <x-badge
                     :rotulo="$linha->categoria->rotulo()"
-                    :tipo="$tipoBadgeExistente"
+                    :tipo="$linha->categoria->tipoBadge()"
                 />
             @endif
             <span class="linha-card-duracao">{{ $linha->duracao }}</span>
