@@ -112,8 +112,7 @@ it('listarCidades retorna data e meta quando a API responde 200', function () {
         ], 200),
     ]);
 
-    $service = new TransporteService();
-    $result  = $service->listarCidades(1, 10);
+    $result = new TransporteService()->listarCidades(1, 10);
 
     expect($result['data'])->toHaveCount(1)
         ->and($result['data'][0]['nome'])->toBe('Curitiba')
@@ -125,8 +124,7 @@ it('listarCidades retorna array vazio ao receber HTTP 500', function () {
         'https://api.test/api/cidades*' => Http::response([], 500),
     ]);
 
-    $service = new TransporteService();
-    $result  = $service->listarCidades(1, 10);
+    $result = new TransporteService()->listarCidades(1, 10);
 
     expect($result)->toBe(['data' => [], 'meta' => []]);
 });
@@ -136,8 +134,7 @@ it('listarCidades retorna array vazio ao lançar ConnectionException', function 
         throw new ConnectionException();
     });
 
-    $service = new TransporteService();
-    $result  = $service->listarCidades(1, 10);
+    $result = new TransporteService()->listarCidades(1, 10);
 
     expect($result)->toBe(['data' => [], 'meta' => []]);
 });
@@ -158,8 +155,7 @@ it('listarTodasCidades pagina corretamente e concatena os resultados', function 
         ], 200);
     });
 
-    $service = new TransporteService();
-    $result  = $service->listarTodasCidades();
+    $result = new TransporteService()->listarCidades(1, 10);
 
     expect($result)->toHaveCount(2)
         ->and($result[0]['nome'])->toBe('Curitiba')
@@ -180,8 +176,7 @@ it('envia o token SHA-256 correto no header Authorization', function () {
         ], 200),
     ]);
 
-    $service  = new TransporteService();
-    $service->listarCidades(1, 10);
+     $result = new TransporteService()->listarCidades(1, 10);
 
     $esperado = hash('sha256', 'token-secreto:2026-06-16');
     $recorded = Http::recorded();
