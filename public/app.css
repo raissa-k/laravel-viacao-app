@@ -137,6 +137,7 @@ table tr:last-child td {
 .badge-convencional {
     background: var(--badge-convencional-bg);
     color: var(--badge-convencional-fg);
+    border: 1px solid var(--badge-convencional-fg);
 }
 
 .badge-executivo {
@@ -182,12 +183,6 @@ table tr:last-child td {
     background: var(--bg);
     color: var(--muted);
     border: 1px solid var(--border);
-}
-
-.badge-convencional {
-    background: transparent;
-    color: var(--badge-convencional-fg);
-    border: 1px solid var(--badge-convencional-fg);
 }
 
 form {
