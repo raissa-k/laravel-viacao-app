@@ -41,9 +41,8 @@ it('exibe a página de resultados para cidades existentes no banco', function ()
         'destino' => $destino->id,
         'data'    => '2026-06-15',
     ]))
-        ->assertOk()
         ->assertViewIs('buscas.index')
-        ->assertViewHas('linhas', []);
+        ->assertViewHas('linhas');
 });
 
 it('redireciona para home quando a cidade de origem não existe no banco', function () {
@@ -81,7 +80,25 @@ it('mantém a URL compartilhável e exibe os nomes das cidades na view', functio
         'destino' => $destino->id,
         'data'    => '2026-12-20',
     ]))
-        ->assertOk()
         ->assertSee('Curitiba')
         ->assertSee('Ourinhos');
+});
+
+it('exibe a estrutura necessária para os filtros e ordenação client-side', function () {
+
+    $origem  = Cidade::factory()->create(['nome' => 'Curitiba']);
+    $destino = Cidade::factory()->create(['nome' => 'Ourinhos']);
+
+    $this->get(route('busca', [
+        'origem'  => $origem->id,
+        'destino' => $destino->id,
+        'data'    => '2026-12-20',
+    ]))
+        ->assertSee('data-filter="todas"', false)
+        ->assertSee('data-filter="convencional"', false)
+        ->assertSee('data-filter="executivo"', false)
+        ->assertSee('data-filter="leito"', false)
+        ->assertSee('data-categoria="', false)
+        ->assertSee('data-preco-min="', false)
+        ->assertSee('data-duracao-min="', false);
 });

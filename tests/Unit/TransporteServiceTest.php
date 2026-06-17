@@ -7,6 +7,91 @@ use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
+test('lista linhas com sucesso', function () {
+
+    Http::fake([
+        '*' => Http::response([
+            'data' => [
+                [
+                    'id'   => 1,
+                    'nome' => 'Linha A',
+                ]
+            ],
+            'meta' => [
+                'last_page' => 1,
+            ],
+        ], 200),
+    ]);
+
+    $service   = new TransporteService();
+    $resultado = $service->listarLinhas(10, 20);
+
+    expect($resultado['data'])->toHaveCount(1);
+
+    Http::assertSent(function ($request) {
+        return str_contains($request->url(), '/api/linhas')
+            && $request['origem_cidade_id']  == 10
+            && $request['destino_cidade_id'] == 20;
+    });
+});
+
+test('listarLinhas retorna array vazio quando api responde 500', function () {
+    Http::fake([
+        '*' => Http::response([], 500),
+    ]);
+
+    $service   = new TransporteService();
+    $resultado = $service->listarLinhas(10, 20);
+
+    expect($resultado)->toBe(['data' => [], 'meta' => []]);
+});
+
+test('listarLinhas retorna array vazio quando ocorre ConnectionException', function () {
+    Http::fake([
+        '*' => fn () => throw new ConnectionException('timeout'),
+    ]);
+
+    $service   = new TransporteService();
+    $resultado = $service->listarLinhas(10, 20);
+
+    expect($resultado)->toBe(['data' => [], 'meta' => []]);
+});
+
+test('listarTodasLinhas concatena dados de duas páginas e faz exatamente 2 chamadas', function () {
+    $pagina    = 0;
+
+    Http::fake([
+        '*' => function () use (&$pagina) {
+            $pagina++;
+
+            if ($pagina === 1) {
+                return Http::response([
+                    'data' => [
+                        ['id' => 1, 'nome' => 'Linha A'],
+                    ],
+                    'meta' => ['last_page' => 2],
+                ], 200);
+            }
+
+            return Http::response([
+                'data' => [
+                    ['id' => 2, 'nome' => 'Linha B'],
+                ],
+                'meta' => ['last_page' => 2],
+            ], 200);
+        },
+    ]);
+
+    $service   = new TransporteService();
+    $resultado = $service->listarTodasLinhas(10, 20);
+
+    expect($resultado)->toHaveCount(2);
+    expect($resultado[0]['id'])->toBe(1);
+    expect($resultado[1]['id'])->toBe(2);
+
+    Http::assertSentCount(2);
+});
+
 beforeEach(function () {
     Http::preventStrayRequests();
     config([
@@ -98,4 +183,97 @@ it('envia o token SHA-256 correto no header Authorization', function () {
         ->toBe('Bearer ' . $esperado);
 
     Carbon::setTestNow();
+});
+
+//--listar operadoras--
+
+it('listarOperadoras retorna data e meta quando a API responde 200', function () { //teste de sucesso
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([
+            'data' => [['id' => 1, 'nome' => 'Operadora A']],
+            'meta' => ['last_page' => 1],
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->listarOperadoras(1, 10);
+
+    expect($result['data'])->toHaveCount(1)
+        ->and($result['meta']['last_page'])->toBe(1);
+});
+
+it('listarOperadoras retorna array vazio ao receber HTTP 500', function () { //teste 2
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([], 500),
+    ]);
+
+    $result = new TransporteService()->listarOperadoras(1, 10);
+
+    expect($result)->toBe(['data' => [], 'meta' => []]);
+});
+
+it('listarOperadoras retorna array vazio ao lançar ConnectionException', function () { //teste 3
+    Http::fake(function () {
+        throw new ConnectionException();
+    });
+
+    $result = new TransporteService()->listarOperadoras(1, 10);
+
+    expect($result)->toBe(['data' => [], 'meta' => []]);
+});
+
+it('listarTodasOperadoras retorna os dados unificados quando a API responde 200', function () { //teste 1
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([
+            'data' => [['id' => 1, 'nome' => 'Operadora A']],
+            'meta' => ['last_page' => 1],
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toHaveCount(1)
+        ->and($result[0]['nome'])->toBe('Operadora A');
+});
+
+it('listarTodasOperadoras retorna array vazio ao receber HTTP 500', function () { //teste 500 ou 2
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([], 500),
+    ]);
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toBeEmpty();
+});
+
+it('listarTodasOperadoras retorna array vazio ao lançar ConnectionException', function () { //teste 3
+    Http::fake(function () {
+        throw new ConnectionException();
+    });
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toBeEmpty();
+});
+
+it('listarTodasOperadoras pagina corretamente com closure fake e concatena os resultados', function () { //teste de closure
+    Http::fake(function (\Illuminate\Http\Client\Request $request) {
+        $page = (int) ($request->data()['page'] ?? 1);
+
+        $data = $page === 1
+            ? [['id' => 1, 'nome' => 'Operadora Pag 1']]
+            : [['id' => 2, 'nome' => 'Operadora Pag 2']];
+
+        return Http::response([
+            'data' => $data,
+            'meta' => ['last_page' => 2, 'current_page' => $page],
+        ], 200);
+    });
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toHaveCount(2)
+        ->and($result[0]['nome'])->toBe('Operadora Pag 1')
+        ->and($result[1]['nome'])->toBe('Operadora Pag 2');
+
+    Http::assertSentCount(2);
 });
