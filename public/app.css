@@ -186,8 +186,8 @@ table tr:last-child td {
 
 .badge-convencional {
     background: transparent;
-    color: var(--primary);
-    border: 1px solid var(--primary);
+    color: var(--badge-convencional-fg);
+    border: 1px solid var(--badge-convencional-fg);
 }
 
 form {
