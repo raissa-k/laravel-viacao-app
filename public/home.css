@@ -786,6 +786,406 @@ Sem isso, o card ficaria colado no topo da página.
     box-shadow: none;
 }
 
+
+
+
+
+
+/* SEÇÃO HORÁRIOS DISPONÍVEIS */
+.horarios-section {
+    margin-top: 24px;
+}
+
+.horarios-details {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.horarios-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    cursor: pointer;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+}
+
+.horarios-summary::-webkit-details-marker {
+    display: none;
+}
+
+.horarios-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.horarios-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.horarios-toggle-icon::before {
+    content: '∧';
+    font-size: 16px;
+    color: var(--muted);
+}
+
+details:not([open]) .horarios-toggle-icon::before {
+    content: '∨';
+}
+
+.horarios-lista {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* HORARIO CARD */
+.horario-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.horario-card-horarios {
+    display: flex;
+    gap: 24px;
+}
+
+.horario-card-horario {
+    display: flex;
+    flex-direction: column;
+}
+
+.horario-card-hora {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.horario-card-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.horario-card-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.horario-card-assentos {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.horario-card-dias {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.horario-card-dia {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.horario-card-preco {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.horario-card-preco-valores {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.horario-card-preco-valor {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.horario-card-preco-max {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.horario-card-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 4px;
+}
+
+.horario-card-btn:hover {
+    background: #2563eb;
+    color: #fff;
+}
+/* DETALHE HEADER */
+.detalhe-header-wrapper {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.detalhe-header {
+    background: #2563eb;
+    color: #fff;
+    padding: 20px 0;
+    width: 100%;
+}
+
+.detalhe-header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.detalhe-header-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.detalhe-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detalhe-header-numero {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+}
+
+.detalhe-header-preco {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.detalhe-header-distancia {
+    display: block;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+}
+
+.detalhe-header-preco-label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+}
+
+.detalhe-header-preco-valor {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.detalhe-header-rotas {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.detalhe-header-cidade {
+    flex: 1;
+    min-width: 0;
+}
+
+.detalhe-header-seta {
+    font-size: 24px;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+    padding-top: 4px;
+}
+
+.detalhe-header-cidade-nome {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.detalhe-header-cidade-sub {
+    display: block;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+    .detalhe-header-cidade-nome {
+        font-size: 22px;
+    }
+
+    .detalhe-header-preco-valor {
+        font-size: 18px;
+    }
+
+    .horario-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .horario-card-preco {
+        margin-left: 0;
+        width: 70%;
+    }
+
+    .horario-card-preco-valores {
+        align-items: flex-start;
+    }
+
+    .horario-card-preco-max {
+        width: 100%;
+        margin-top: -4px;
+    }
+
+    .horario-card-btn {
+        margin-left: auto;
+        padding: 10px 24px;
+    }
+
+    .horario-card-info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .horario-card-dias {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 200px) {
+    .detalhe-header-inner {
+        padding: 8px;
+    }
+
+    .detalhe-header-cidade-nome {
+        font-size: 14px;
+    }
+
+    .detalhe-header-preco-valor {
+        font-size: 13px;
+    }
+
+    .detalhe-header-distancia {
+        font-size: 11px;
+    }
+
+    .detalhe-header-numero {
+        font-size: 10px;
+    }
+
+    .detalhe-header-meta {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .horarios-section {
+        margin-top: 8px;
+    }
+
+    .horarios-lista {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .horarios-summary {
+        padding: 8px;
+    }
+
+    .horarios-titulo {
+        font-size: 12px;
+    }
+
+    .horario-card {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .horario-card-hora {
+        font-size: 16px;
+    }
+
+    .horario-card-horarios {
+        gap: 12px;
+    }
+
+    .horario-card-label {
+        font-size: 10px;
+    }
+
+    .horario-card-assentos {
+        font-size: 11px;
+    }
+
+    .horario-card-dia {
+        font-size: 10px;
+        padding: 2px 4px;
+    }
+
+    .horario-card-preco-valor {
+        font-size: 14px;
+        color: var(--primary);
+    }
+
+    .horario-card-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        width: 100%;
+        text-align: center;
+    }
+}
+
 .bg-primary {
     background-color: var(--primary);
     padding: 2rem 0;

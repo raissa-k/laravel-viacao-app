@@ -137,6 +137,7 @@ table tr:last-child td {
 .badge-convencional {
     background: var(--badge-convencional-bg);
     color: var(--badge-convencional-fg);
+    border: 1px solid var(--badge-convencional-fg);
 }
 
 .badge-executivo {
@@ -176,6 +177,12 @@ table tr:last-child td {
 .badge-padrao{
     background:var(--badge-padrao-bg);
     color: var(--badge-padrao-fg);
+}
+
+.badge-dias-da-semana {
+    background: var(--bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
 }
 
 form {
