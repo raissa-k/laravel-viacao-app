@@ -41,18 +41,15 @@
                         @if (!empty($h['dias']))
                             <div class="horario-card-dias">
                                 @foreach ($h['dias'] as $dia)
-                                   @php
-                                        $abrev = match($dia) {
-                                            'segunda' => Carbon::now()->startOfWeek()->translatedFormat('D'),
-                                            'terça'   => Carbon::now()->startOfWeek()->addDays(1)->translatedFormat('D'),
-                                            'quarta'  => Carbon::now()->startOfWeek()->addDays(2)->translatedFormat('D'),
-                                            'quinta'  => Carbon::now()->startOfWeek()->addDays(3)->translatedFormat('D'),
-                                            'sexta'   => Carbon::now()->startOfWeek()->addDays(4)->translatedFormat('D'),
-                                            'sábado'  => Carbon::now()->startOfWeek()->addDays(5)->translatedFormat('D'),
-                                            'domingo' => Carbon::now()->startOfWeek()->addDays(6)->translatedFormat('D'),
-                                            default   => null,
-                                        };
+                                    {{-- dias_semana vem como string pt_BR da API ("segunda", "sábado", etc).
+                                         O tratamento para formato de data deve ser feito ANTES de passar ao componente.
+                                         Carbon::parseFromLocale() interpreta o nome do dia no locale configurado
+                                         e getTranslatedShortDayName() retorna a abreviação traduzida. --}}
+                                    @php
+                                        $abrev = ucfirst(Carbon::parseFromLocale($dia, 'pt_BR')->getTranslatedShortDayName());
                                     @endphp
+                                    <span class="horario-card-dia">{{ $abrev }}</span>
+                                @endforeach
                                     @if ($abrev)
                                         <span class="horario-card-dia">{{ ucfirst($abrev) }}</span>
                                     @endif
