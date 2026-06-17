@@ -7,16 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
-beforeEach(function () {
-    Http::preventStrayRequests();
-    config([
-        'services.transporte_api.url'   => 'https://api.test',
-        'services.transporte_api.token' => 'token-secreto',
-    ]);
-});
-
-// — — — listarLinhas — — —
-
 test('lista linhas com sucesso', function () {
 
     Http::fake([
@@ -102,6 +92,14 @@ test('listarTodasLinhas concatena dados de duas páginas e faz exatamente 2 cham
     Http::assertSentCount(2);
 });
 
+beforeEach(function () {
+    Http::preventStrayRequests();
+    config([
+        'services.transporte_api.url'   => 'https://api.test',
+        'services.transporte_api.token' => 'token-secreto',
+    ]);
+});
+
 // — — — listarCidades — — —
 
 it('listarCidades retorna data e meta quando a API responde 200', function () {
@@ -155,7 +153,7 @@ it('listarTodasCidades pagina corretamente e concatena os resultados', function 
         ], 200);
     });
 
-    $result = new TransporteService()->listarCidades(1, 10);
+    $result = new TransporteService()->listarTodasCidades();
 
     expect($result)->toHaveCount(2)
         ->and($result[0]['nome'])->toBe('Curitiba')
@@ -176,7 +174,7 @@ it('envia o token SHA-256 correto no header Authorization', function () {
         ], 200),
     ]);
 
-     $result = new TransporteService()->listarCidades(1, 10);
+    new TransporteService()->listarCidades(1, 10);
 
     $esperado = hash('sha256', 'token-secreto:2026-06-16');
     $recorded = Http::recorded();
