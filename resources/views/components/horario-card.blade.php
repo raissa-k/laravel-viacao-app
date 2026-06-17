@@ -2,17 +2,7 @@
     'horarios' => [],
 ])
 
-@php
-    $diasAbrev = [
-        'segunda'  => 'Seg',
-        'terça'    => 'Ter',
-        'quarta'   => 'Qua',
-        'quinta'   => 'Qui',
-        'sexta'    => 'Sex',
-        'sábado'   => 'Sáb',
-        'domingo'  => 'Dom',
-    ];
-@endphp
+@use('Carbon\Carbon')
 
 <section class="horarios-section">
     <details class="horarios-details" open>
@@ -51,8 +41,33 @@
                         @if (!empty($h['dias']))
                             <div class="horario-card-dias">
                                 @foreach ($h['dias'] as $dia)
-                                    @if (isset($diasAbrev[$dia]))
-                                        <span class="horario-card-dia">{{ $diasAbrev[$dia] }}</span>
+                                    @php
+                                        /*
+                                         * Carbon::parse() com o nome do dia em pt-BR não funciona diretamente.
+                                         * Solução: mapeia o nome do dia para um número (1=seg ... 7=dom),
+                                         * cria uma data Carbon com esse dia da semana e usa translatedFormat()
+                                         * com locale pt-BR para obter a abreviação correta.
+                                         *
+                                         * translatedFormat('D') retorna abreviação de 3 letras no locale configurado:
+                                         * 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'
+                                         * Pesquise "Carbon translatedFormat", "Carbon locale".
+                                         */
+                                        $diaNome = [
+                                            'segunda' => 1,
+                                            'terça'   => 2,
+                                            'quarta'  => 3,
+                                            'quinta'  => 4,
+                                            'sexta'   => 5,
+                                            'sábado'  => 6,
+                                            'domingo' => 7,
+                                        ];
+                                        $numero = $diaNome[$dia] ?? null;
+                                        $abrev  = $numero
+                                            ? ucfirst(Carbon::now()->locale('pt_BR')->startOfWeek()->addDays($numero - 1)->translatedFormat('D'))
+                                            : null;
+                                    @endphp
+                                    @if ($abrev)
+                                        <span class="horario-card-dia">{{ $abrev }}</span>
                                     @endif
                                 @endforeach
                             </div>
@@ -61,10 +76,12 @@
 
                     @if (!empty($h['preco']))
                         <div class="horario-card-preco">
-                            <span class="horario-card-preco-valor">R$ {{ number_format($h['preco'], 2, ',', '.') }}</span>
-                            @if (!empty($h['precoMax']))
-                                <span class="horario-card-preco-max">até R$ {{ number_format($h['precoMax'], 2, ',', '.') }}</span>
-                            @endif
+                            <div class="horario-card-preco-valores">
+                                <span class="horario-card-preco-valor">R$ {{ number_format($h['preco'], 2, ',', '.') }}</span>
+                                @if (!empty($h['precoMax']))
+                                    <span class="horario-card-preco-max">até R$ {{ number_format($h['precoMax'], 2, ',', '.') }}</span>
+                                @endif
+                            </div>
                             <a class="horario-card-btn" href="#">Comprar</a>
                         </div>
                     @endif
