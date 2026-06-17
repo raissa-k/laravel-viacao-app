@@ -23,12 +23,14 @@
             </div>
 
             {{-- Filtros de Categoria (Client-Side) --}}
-            {{-- TODO: Quando o enum categoria estiver disponível, esses filtros deverão ser criados a partir dos cases do Enum. --}}
             <div class="filtros-categoria">
                 <button class="filtro-pill" aria-pressed="true" data-filter="todas">Todas</button>
-                <button class="filtro-pill" aria-pressed="false" data-filter="convencional">Convencional</button>
-                <button class="filtro-pill" aria-pressed="false" data-filter="executivo">Executivo</button>
-                <button class="filtro-pill" aria-pressed="false" data-filter="leito">Leito</button>
+
+                @foreach (\App\Enums\Categoria::cases() as $categoria)
+                    <button class="filtro-pill" aria-pressed="false" data-filter="{{ $categoria->value }}">
+                        {{ $categoria->rotulo() }}
+                    </button>
+                @endforeach
             </div>
 
             {{-- Container Flex para alinhar Contador à esquerda e Ordenação à direita --}}
