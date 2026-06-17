@@ -27,19 +27,19 @@ final readonly class LinhaResultadoDTO
     /** Constrói o DTO a partir do array bruto devolvido pela API. */
     public static function fromArray(array $data): self
     {
-        $id            = (int) ($data['id'] ?? 0);
-        $numero        = Str::title((string) ($data['numero'] ?? ''));
-        $operadoraId   = (int) ($data['operadora_id'] ?? 0);
-        $operadoraNome = Str::title((string) ($data['operadora_nome'] ?? ''));
+        $id             = (int) ($data['id'] ?? 0);
+        $numero         = Str::title((string) ($data['numero'] ?? ''));
+        $operadoraId    = (int) ($data['operadora_id'] ?? 0);
+        $operadoraNome  = Str::title((string) ($data['operadora_nome'] ?? ''));
         $duracaoMinutos = (int) ($data['duracao_media_min'] ?? 0);
-        $duracao = self::formatarDuracao($duracaoMinutos);
-        $precoMinimo   = (float) ($data['preco_min'] ?? 0);
-        $precoMaximo   = isset($data['preco_max'])
+        $duracao        = self::formatarDuracao($duracaoMinutos);
+        $precoMinimo    = (float) ($data['preco_min'] ?? 0);
+        $precoMaximo    = isset($data['preco_max'])
             ? (float) $data['preco_max']
             : null;
 
-        $categoria     = Categoria::tryFrom((string) ($data['categoria'] ?? ''));
-        $diasDaSemana  = self::normalizarDias($data['dias_semana'] ?? null);
+        $categoria      = Categoria::tryFrom((string) ($data['categoria'] ?? ''));
+        $diasDaSemana   = self::normalizarDias($data['dias_semana'] ?? null);
 
         return new self(
             id: $id,

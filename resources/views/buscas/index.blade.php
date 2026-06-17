@@ -18,7 +18,7 @@
             {{-- Cabeçalho promovido a H1, mantendo o estilo discreto e sem o título genérico antigo --}}
             <div class="mb mt-sm">
                 <h1 class="text-muted h1-discreto">
-                    Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
+                    Mostrando viagens de <strong>{{ $origem->nome }}</strong> para <strong>{{ $destino->nome }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
                 </h1>
             </div>
 

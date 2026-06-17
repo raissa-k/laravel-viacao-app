@@ -33,7 +33,7 @@ class BuscaController extends Controller
                 ->with('error', 'Cidade não encontrada.');
         }
 
-        $linhas = \App\DTOs\LinhaResultadoDTO::fake();
+        $linhas  = \App\DTOs\LinhaResultadoDTO::fake();
         return view('buscas.index', [
             'linhas'  => $linhas,
             'origem'  => $origem,

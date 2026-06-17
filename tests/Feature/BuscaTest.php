@@ -102,5 +102,3 @@ it('exibe a estrutura necessária para os filtros e ordenação client-side', fu
         ->assertSee('data-preco-min="', false)
         ->assertSee('data-duracao-min="', false);
 });
-
-
