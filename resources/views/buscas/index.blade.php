@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Passagens de ' . request('origem') . ' para ' . request('destino'))
+@section('title', 'Passagens de ' . $origem->nome . ' para ' . $destino->nome)
 
 @section('content')
     {{-- Faixa azul com a search bar, espelhando o protótipo da imagem 1 --}}
@@ -16,7 +16,7 @@
             {{-- Cabeçalho promovido a H1, mantendo o estilo discreto e sem o título genérico antigo --}}
             <div class="mb-md mt-xs">
                 <h1 class="text-muted" style="font-size: 1rem; font-weight: normal;">
-                    Mostrando viagens de <strong>{{ request('origem') }}</strong> para <strong>{{ request('destino') }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
+                    Mostrando viagens de <strong>{{ $origem->nome }}</strong> para <strong>{{ $destino->nome }}</strong> no dia {{ date('d/m/Y', strtotime(request('data'))) }}
                 </h1>
             </div>
 
