@@ -178,6 +178,18 @@ table tr:last-child td {
     color: var(--badge-padrao-fg);
 }
 
+.badge-dias-da-semana {
+    background: var(--bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.badge-convencional {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
 form {
     margin: 0;
 }

@@ -38,24 +38,27 @@
                             <span class="horario-card-assentos">{{ $h['assentos'] }} assentos</span>
                         @endif
 
-                        @if (!empty($h['dias']))
-                            <div class="horario-card-dias">
-                                @foreach ($h['dias'] as $dia)
-                                    {{-- dias_semana vem como string pt_BR da API ("segunda", "sábado", etc).
-                                         O tratamento para formato de data deve ser feito ANTES de passar ao componente.
-                                         Carbon::parseFromLocale() interpreta o nome do dia no locale configurado
-                                         e getTranslatedShortDayName() retorna a abreviação traduzida. --}}
-                                    @php
-                                        $abrev = ucfirst(Carbon::parseFromLocale($dia, 'pt_BR')->getTranslatedShortDayName());
-                                    @endphp
-                                    <span class="horario-card-dia">{{ $abrev }}</span>
-                                @endforeach
-                                    @if ($abrev)
-                                        <span class="horario-card-dia">{{ ucfirst($abrev) }}</span>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @endif
+                            @if (!empty($h['dias']))
+                                <div class="horario-card-dias">
+                                    @foreach ($h['dias'] as $dia)
+                                        {{-- dias_semana vem como string pt_BR da API ("segunda", "sábado", etc).
+                                             parseFromLocale interpreta o nome no locale pt_BR e
+                                             getTranslatedShortDayName retorna a abreviação traduzida. --}}
+                                        @php
+                                            try {
+                                                $abrev = ucfirst(
+                                                    Carbon::parseFromLocale(mb_strtolower($dia), 'pt_BR')
+                                                        ->locale('pt_BR')
+                                                        ->getTranslatedShortDayName()
+                                                );
+                                            } catch (\Throwable $e) {
+                                                $abrev = ucfirst($dia);
+                                            }
+                                        @endphp
+                                        <x-badge rotulo="{{ $abrev }}" tipo="dias-da-semana" />
+                                    @endforeach
+                                </div>
+                            @endif
                     </div>
 
                     @if (!empty($h['preco']))

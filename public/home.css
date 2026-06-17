@@ -1184,11 +1184,6 @@ details:not([open]) .horarios-toggle-icon::before {
         width: 100%;
         text-align: center;
     }
-
-    .badge {
-        font-size: 10px;
-        padding: 3px 8px;
-    }
 }
 
 .bg-primary {
