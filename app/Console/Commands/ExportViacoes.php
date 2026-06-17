@@ -44,7 +44,7 @@ class ExportViacoes extends Command
             if ($viacoes->isEmpty()) {
                 $this->warn('Não achei nada para exportar'); // warn é apenas um tipo de string exclusivo pra avisos ou warnings
 
-                return self::SUCCESS;
+                return self::SUCCESS; //retorna 0
             }
 
             // manipula o json armazenado em $viacoes(doService),usando as flags/constantes JSON_PRETTY_PINT e JSON_UNESCAPEWD_UNICODE
@@ -55,7 +55,7 @@ class ExportViacoes extends Command
                 $this->error('Algo deu zika');
                 $this->error(json_last_error_msg());
 
-                return self::FAILURE;
+                return self::FAILURE; //retorna 1
             }
             $rightPath = storage_path("app/{$filename}");
 

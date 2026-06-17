@@ -26,7 +26,7 @@ class Viacao extends Model
     // Seguindo o padrão do inglês ele poderia esperar a tabela 'viacaos', então colocamos o nome exato pra evitar problemas.
     protected $table    = 'viacoes';
 
-    protected $fillable = ['nome', 'cidade_id', 'ativa', 'logo', 'site'];
+    protected $fillable = ['api_id','nome', 'cidade_id', 'ativa', 'logo', 'site'];
 
     /*
      * Cast automático: o Eloquent converte ativa de TINYINT(1) (0/1) pra bool PHP automaticamente.

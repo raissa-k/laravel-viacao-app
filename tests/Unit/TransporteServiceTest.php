@@ -184,3 +184,96 @@ it('envia o token SHA-256 correto no header Authorization', function () {
 
     Carbon::setTestNow();
 });
+
+//--listar operadoras--
+
+it('listarOperadoras retorna data e meta quando a API responde 200', function () { //teste de sucesso
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([
+            'data' => [['id' => 1, 'nome' => 'Operadora A']],
+            'meta' => ['last_page' => 1],
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->listarOperadoras(1, 10);
+
+    expect($result['data'])->toHaveCount(1)
+        ->and($result['meta']['last_page'])->toBe(1);
+});
+
+it('listarOperadoras retorna array vazio ao receber HTTP 500', function () { //teste 2
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([], 500),
+    ]);
+
+    $result = new TransporteService()->listarOperadoras(1, 10);
+
+    expect($result)->toBe(['data' => [], 'meta' => []]);
+});
+
+it('listarOperadoras retorna array vazio ao lançar ConnectionException', function () { //teste 3
+    Http::fake(function () {
+        throw new ConnectionException();
+    });
+
+    $result = new TransporteService()->listarOperadoras(1, 10);
+
+    expect($result)->toBe(['data' => [], 'meta' => []]);
+});
+
+it('listarTodasOperadoras retorna os dados unificados quando a API responde 200', function () { //teste 1
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([
+            'data' => [['id' => 1, 'nome' => 'Operadora A']],
+            'meta' => ['last_page' => 1],
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toHaveCount(1)
+        ->and($result[0]['nome'])->toBe('Operadora A');
+});
+
+it('listarTodasOperadoras retorna array vazio ao receber HTTP 500', function () { //teste 500 ou 2
+    Http::fake([
+        'https://api.test/api/operadoras*' => Http::response([], 500),
+    ]);
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toBeEmpty();
+});
+
+it('listarTodasOperadoras retorna array vazio ao lançar ConnectionException', function () { //teste 3
+    Http::fake(function () {
+        throw new ConnectionException();
+    });
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toBeEmpty();
+});
+
+it('listarTodasOperadoras pagina corretamente com closure fake e concatena os resultados', function () { //teste de closure
+    Http::fake(function (\Illuminate\Http\Client\Request $request) {
+        $page = (int) ($request->data()['page'] ?? 1);
+
+        $data = $page === 1
+            ? [['id' => 1, 'nome' => 'Operadora Pag 1']]
+            : [['id' => 2, 'nome' => 'Operadora Pag 2']];
+
+        return Http::response([
+            'data' => $data,
+            'meta' => ['last_page' => 2, 'current_page' => $page],
+        ], 200);
+    });
+
+    $result = new TransporteService()->listarTodasOperadoras();
+
+    expect($result)->toHaveCount(2)
+        ->and($result[0]['nome'])->toBe('Operadora Pag 1')
+        ->and($result[1]['nome'])->toBe('Operadora Pag 2');
+
+    Http::assertSentCount(2);
+});
