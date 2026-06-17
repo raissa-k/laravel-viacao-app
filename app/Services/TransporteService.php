@@ -16,6 +16,7 @@ class TransporteService
 
         return hash('sha256', $tokenBase . ':' . $data);
     }
+
     public function listarCidades(int $pagina, int $perPage): array
     {
         try {
@@ -45,6 +46,7 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
+
     public function listarTodasCidades(): array
     {
         $resultado = $this->listarCidades(1, 50);
@@ -53,6 +55,56 @@ class TransporteService
 
         for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
             $resultado = $this->listarCidades($pagina, 50);
+            $todos     = array_merge($todos, $resultado['data']);
+        }
+
+        return $todos;
+    }
+
+    public function listarLinhas(int $origemApiId, int $destinoApiId, int $pagina = 1, int $perPage = 50): array
+    {
+        try {
+            $url      = config('services.transporte_api.url');
+            $response = Http::withToken($this->gerarToken())
+                ->get($url . '/api/linhas', [
+                    'origem_cidade_id'  => $origemApiId,
+                    'destino_cidade_id' => $destinoApiId,
+                    'page'              => $pagina,
+                    'per_page'          => $perPage,
+                ]);
+
+            if ($response->failed()) {
+                Log::error('TransporteService: falha ao listar linhas', [
+                    'status'    => $response->status(),
+                    'origemId'  => $origemApiId,
+                    'destinoId' => $destinoApiId,
+                    'pagina'    => $pagina,
+                ]);
+
+                return ['data' => [], 'meta' => []];
+            }
+
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao listar linhas', [
+                'erro'      => $e->getMessage(),
+                'origemId'  => $origemApiId,
+                'destinoId' => $destinoApiId,
+                'pagina'    => $pagina,
+            ]);
+
+            return ['data' => [], 'meta' => []];
+        }
+    }
+
+    public function listarTodasLinhas(int $origemApiId, int $destinoApiId): array
+    {
+        $resultado = $this->listarLinhas($origemApiId, $destinoApiId);
+        $todos     = $resultado['data'];
+        $lastPage  = $resultado['meta']['last_page'] ?? 1;
+
+        for ($pagina = 2; $pagina <= $lastPage; $pagina++) {
+            $resultado = $this->listarLinhas($origemApiId, $destinoApiId, $pagina);
             $todos     = array_merge($todos, $resultado['data']);
         }
 

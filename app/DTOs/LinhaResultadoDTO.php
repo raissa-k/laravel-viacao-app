@@ -16,6 +16,7 @@ final readonly class LinhaResultadoDTO
         public int $operadoraId,
         public string $operadoraNome,
         public string $duracao,
+        public int $duracaoMinutos,
         public float $precoMinimo,
         public ?float $precoMaximo,
         public ?Categoria $categoria,
@@ -26,19 +27,19 @@ final readonly class LinhaResultadoDTO
     /** Constrói o DTO a partir do array bruto devolvido pela API. */
     public static function fromArray(array $data): self
     {
-        $id            = (int) ($data['id'] ?? 0);
-        $numero        = Str::title((string) ($data['numero'] ?? ''));
-        $operadoraId   = (int) ($data['operadora_id'] ?? 0);
-        $operadoraNome = Str::title((string) ($data['operadora_nome'] ?? ''));
-        $duracao       = self::formatarDuracao((int) ($data['duracao_media_min'] ?? 0));
-        $precoMinimo   = (float) ($data['preco_min'] ?? 0);
-
-        $precoMaximo   = isset($data['preco_max'])
+        $id             = (int) ($data['id'] ?? 0);
+        $numero         = Str::title((string) ($data['numero'] ?? ''));
+        $operadoraId    = (int) ($data['operadora_id'] ?? 0);
+        $operadoraNome  = Str::title((string) ($data['operadora_nome'] ?? ''));
+        $duracaoMinutos = (int) ($data['duracao_media_min'] ?? 0);
+        $duracao        = self::formatarDuracao($duracaoMinutos);
+        $precoMinimo    = (float) ($data['preco_min'] ?? 0);
+        $precoMaximo    = isset($data['preco_max'])
             ? (float) $data['preco_max']
             : null;
 
-        $categoria     = Categoria::tryFrom((string) ($data['categoria'] ?? ''));
-        $diasDaSemana  = self::normalizarDias($data['dias_semana'] ?? null);
+        $categoria      = Categoria::tryFrom((string) ($data['categoria'] ?? ''));
+        $diasDaSemana   = self::normalizarDias($data['dias_semana'] ?? null);
 
         return new self(
             id: $id,
@@ -46,6 +47,7 @@ final readonly class LinhaResultadoDTO
             operadoraId: $operadoraId,
             operadoraNome: $operadoraNome,
             duracao: $duracao,
+            duracaoMinutos: $duracaoMinutos,
             precoMinimo: $precoMinimo,
             precoMaximo: $precoMaximo,
             categoria: $categoria,
@@ -109,6 +111,7 @@ final readonly class LinhaResultadoDTO
                 operadoraId: 1,
                 operadoraNome: 'Viação Itapemirim',
                 duracao: '6h',
+                duracaoMinutos: 360,
                 precoMinimo: 89.90,
                 precoMaximo: 149.90,
                 categoria: Categoria::Executivo,
@@ -128,6 +131,7 @@ final readonly class LinhaResultadoDTO
                 operadoraId: 2,
                 operadoraNome: 'Cometa',
                 duracao: '8h 11m',
+                duracaoMinutos: 491,
                 precoMinimo: 45.00,
                 precoMaximo: 75.00,
                 categoria: Categoria::Convencional,
@@ -145,9 +149,22 @@ final readonly class LinhaResultadoDTO
                 operadoraId: 3,
                 operadoraNome: 'Catarinense',
                 duracao: '45m',
+                duracaoMinutos: 45,
                 precoMinimo: 120.00,
                 precoMaximo: null,
                 categoria: Categoria::Leito,
+                diasDaSemana: [],
+            ),
+            new self(
+                id: 4,
+                numero: '0404',
+                operadoraId: 4,
+                operadoraNome: 'Viação Sem Categoria',
+                duracao: '1h',
+                duracaoMinutos: 60,
+                precoMinimo: 50.00,
+                precoMaximo: null,
+                categoria: null,
                 diasDaSemana: [],
             ),
         ]);
