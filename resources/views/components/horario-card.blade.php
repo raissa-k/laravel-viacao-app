@@ -41,33 +41,20 @@
                         @if (!empty($h['dias']))
                             <div class="horario-card-dias">
                                 @foreach ($h['dias'] as $dia)
-                                    @php
-                                        /*
-                                         * Carbon::parse() com o nome do dia em pt-BR não funciona diretamente.
-                                         * Solução: mapeia o nome do dia para um número (1=seg ... 7=dom),
-                                         * cria uma data Carbon com esse dia da semana e usa translatedFormat()
-                                         * com locale pt-BR para obter a abreviação correta.
-                                         *
-                                         * translatedFormat('D') retorna abreviação de 3 letras no locale configurado:
-                                         * 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'
-                                         * Pesquise "Carbon translatedFormat", "Carbon locale".
-                                         */
-                                        $diaNome = [
-                                            'segunda' => 1,
-                                            'terça'   => 2,
-                                            'quarta'  => 3,
-                                            'quinta'  => 4,
-                                            'sexta'   => 5,
-                                            'sábado'  => 6,
-                                            'domingo' => 7,
-                                        ];
-                                        $numero = $diaNome[$dia] ?? null;
-                                        $abrev  = $numero
-                                            ? ucfirst(Carbon::now()->locale('pt_BR')->startOfWeek()->addDays($numero - 1)->translatedFormat('D'))
-                                            : null;
+                                   @php
+                                        $abrev = match($dia) {
+                                            'segunda' => Carbon::now()->startOfWeek()->translatedFormat('D'),
+                                            'terça'   => Carbon::now()->startOfWeek()->addDays(1)->translatedFormat('D'),
+                                            'quarta'  => Carbon::now()->startOfWeek()->addDays(2)->translatedFormat('D'),
+                                            'quinta'  => Carbon::now()->startOfWeek()->addDays(3)->translatedFormat('D'),
+                                            'sexta'   => Carbon::now()->startOfWeek()->addDays(4)->translatedFormat('D'),
+                                            'sábado'  => Carbon::now()->startOfWeek()->addDays(5)->translatedFormat('D'),
+                                            'domingo' => Carbon::now()->startOfWeek()->addDays(6)->translatedFormat('D'),
+                                            default   => null,
+                                        };
                                     @endphp
                                     @if ($abrev)
-                                        <span class="horario-card-dia">{{ $abrev }}</span>
+                                        <span class="horario-card-dia">{{ ucfirst($abrev) }}</span>
                                     @endif
                                 @endforeach
                             </div>
