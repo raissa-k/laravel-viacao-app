@@ -16,7 +16,6 @@ class TransporteService
 
         return hash('sha256', $tokenBase . ':' . $data);
     }
-
     public function listarCidades(int $pagina, int $perPage): array
     {
         try {
@@ -46,7 +45,6 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
-
     public function listarTodasCidades(): array
     {
         $resultado = $this->listarCidades(1, 50);
