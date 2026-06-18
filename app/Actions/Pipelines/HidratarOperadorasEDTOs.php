@@ -13,33 +13,25 @@ class HidratarOperadorasEDTOs
 {
     public function handle(Collection $linhasFiltradas, Closure $next)
     {
-        // 1. Coleta os IDs suportando dinamicamente Array (operadora_id) ou Objeto/DTO antigo do teste
-        $operadoraIds   = $linhasFiltradas->map(function (mixed $item) {
-            return is_array($item) ? ($item['operadora_id'] ?? null) : ($item->operadoraId ?? null);
-        })->unique()->filter()->toArray();
+        // 1. Coleta os IDs lendo as propriedades tipadas do DTO direto
+        $operadoraIds = $linhasFiltradas->pluck('operadoraId')->unique()->filter()->toArray();
 
-        // 2. Busca as viações no banco de dados (Query unificada)
-        $viacoesLocais  = Viacao::whereIn('api_id', $operadoraIds)->get()->keyBy('api_id');
+        // 2. Busca as viações no banco de dados rodando apenas 1 query (Evita N+1 de forma otimizada)
+        $viacoesLocais = Viacao::whereIn('api_id', $operadoraIds)->get()->keyBy('api_id');
 
-        // 3. Mapeia DIRETAMENTE para o DTO. Zero "instanceof LinhaResultadoDTO" aqui dentro!
-        $dtosHidratados = $linhasFiltradas->map(function (mixed $item) use ($viacoesLocais) {
+        // 3. Reconstrói o DTO injetando o nome da operadora mapeado
+        $dtosHidratados = $linhasFiltradas->map(function (LinhaResultadoDTO $linha) use ($viacoesLocais) {
+            $viacao = $viacoesLocais->get($linha->operadoraId);
 
-            // Se for um objeto (teste antigo), normaliza para array mapeando chaves
-            if (is_object($item)) {
-                $dados                 = get_object_vars($item);
-                $dados['operadora_id'] = $item->operadoraId       ?? null;
-                $dados['categoria']    = $item->categoria?->value ?? $item->categoria ?? null;
-                $dados['dias_semana']  = $item->diasDaSemana      ?? [];
-            } else {
-                $dados = (array) $item;
-            }
-
-            // Injeta o nome da viação
-            $viacao                  = $viacoesLocais->get($dados['operadora_id'] ?? null);
-            $dados['operadora_nome'] = $viacao ? $viacao->nome : 'Operadora Desconhecida';
-
-            // Mapeamento direto pro DTO final
-            return LinhaResultadoDTO::fromArray($dados);
+            // Abre o DTO e injeta o nome resolvido sem usar instanceof ou checagens dinâmicas
+            return LinhaResultadoDTO::fromArray([
+                'id'                 => $linha->id ?? null,
+                'numero'             => $linha->numero ?? null,
+                'operadora_id'       => $linha->operadoraId,
+                'categoria'          => $linha->categoria?->value ?? $linha->categoria ?? null,
+                'dias_semana'        => $linha->diasDaSemana ?? [],
+                'operadora_nome'     => $viacao ? $viacao->nome : 'Operadora Desconhecida',
+            ]);
         });
 
         return $next($dtosHidratados);
