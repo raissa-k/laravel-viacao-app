@@ -21,7 +21,7 @@ class FiltrarLinhas
         });
 
         // Envia a coleção de DTOs limpos para a esteira
-        $resultado = app(Pipeline::class)
+        $resultado        = app(Pipeline::class)
             ->send($collectionDeDTOs)
             ->through([
                 new FiltroCategoria($categoria),
