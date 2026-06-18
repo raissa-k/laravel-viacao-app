@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Services\TransporteService;
 use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
 test('lista linhas com sucesso', function () {
@@ -140,7 +141,7 @@ it('listarCidades retorna array vazio ao lançar ConnectionException', function 
 // — — — listarTodasCidades — — —
 
 it('listarTodasCidades pagina corretamente e concatena os resultados', function () {
-    Http::fake(function (\Illuminate\Http\Client\Request $request) {
+    Http::fake(function (Request $request) {
         $page = (int) ($request->data()['page'] ?? 1);
 
         $data = $page === 1
@@ -180,14 +181,14 @@ it('envia o token SHA-256 correto no header Authorization', function () {
     $recorded = Http::recorded();
 
     expect($recorded[0][0]->header('Authorization')[0])
-        ->toBe('Bearer ' . $esperado);
+        ->toBe('Bearer '.$esperado);
 
     Carbon::setTestNow();
 });
 
-//--listar operadoras--
+// --listar operadoras--
 
-it('listarOperadoras retorna data e meta quando a API responde 200', function () { //teste de sucesso
+it('listarOperadoras retorna data e meta quando a API responde 200', function () { // teste de sucesso
     Http::fake([
         'https://api.test/api/operadoras*' => Http::response([
             'data' => [['id' => 1, 'nome' => 'Operadora A']],
@@ -201,7 +202,7 @@ it('listarOperadoras retorna data e meta quando a API responde 200', function ()
         ->and($result['meta']['last_page'])->toBe(1);
 });
 
-it('listarOperadoras retorna array vazio ao receber HTTP 500', function () { //teste 2
+it('listarOperadoras retorna array vazio ao receber HTTP 500', function () { // teste 2
     Http::fake([
         'https://api.test/api/operadoras*' => Http::response([], 500),
     ]);
@@ -211,7 +212,7 @@ it('listarOperadoras retorna array vazio ao receber HTTP 500', function () { //t
     expect($result)->toBe(['data' => [], 'meta' => []]);
 });
 
-it('listarOperadoras retorna array vazio ao lançar ConnectionException', function () { //teste 3
+it('listarOperadoras retorna array vazio ao lançar ConnectionException', function () { // teste 3
     Http::fake(function () {
         throw new ConnectionException();
     });
@@ -221,7 +222,7 @@ it('listarOperadoras retorna array vazio ao lançar ConnectionException', functi
     expect($result)->toBe(['data' => [], 'meta' => []]);
 });
 
-it('listarTodasOperadoras retorna os dados unificados quando a API responde 200', function () { //teste 1
+it('listarTodasOperadoras retorna os dados unificados quando a API responde 200', function () { // teste 1
     Http::fake([
         'https://api.test/api/operadoras*' => Http::response([
             'data' => [['id' => 1, 'nome' => 'Operadora A']],
@@ -235,7 +236,7 @@ it('listarTodasOperadoras retorna os dados unificados quando a API responde 200'
         ->and($result[0]['nome'])->toBe('Operadora A');
 });
 
-it('listarTodasOperadoras retorna array vazio ao receber HTTP 500', function () { //teste 500 ou 2
+it('listarTodasOperadoras retorna array vazio ao receber HTTP 500', function () { // teste 500 ou 2
     Http::fake([
         'https://api.test/api/operadoras*' => Http::response([], 500),
     ]);
@@ -245,7 +246,7 @@ it('listarTodasOperadoras retorna array vazio ao receber HTTP 500', function () 
     expect($result)->toBeEmpty();
 });
 
-it('listarTodasOperadoras retorna array vazio ao lançar ConnectionException', function () { //teste 3
+it('listarTodasOperadoras retorna array vazio ao lançar ConnectionException', function () { // teste 3
     Http::fake(function () {
         throw new ConnectionException();
     });
@@ -255,8 +256,8 @@ it('listarTodasOperadoras retorna array vazio ao lançar ConnectionException', f
     expect($result)->toBeEmpty();
 });
 
-it('listarTodasOperadoras pagina corretamente com closure fake e concatena os resultados', function () { //teste de closure
-    Http::fake(function (\Illuminate\Http\Client\Request $request) {
+it('listarTodasOperadoras pagina corretamente com closure fake e concatena os resultados', function () { // teste de closure
+    Http::fake(function (Request $request) {
         $page = (int) ($request->data()['page'] ?? 1);
 
         $data = $page === 1
@@ -276,4 +277,81 @@ it('listarTodasOperadoras pagina corretamente com closure fake e concatena os re
         ->and($result[1]['nome'])->toBe('Operadora Pag 2');
 
     Http::assertSentCount(2);
+});
+
+// — — — buscarLinhaPorId — — —
+
+it('buscarLinhaPorId retorna dados da linha quando a API responde 200', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1' => Http::response([
+            'id'   => 1,
+            'nome' => 'Linha Direta - Curitiba/SP',
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->buscarLinhaPorId(1);
+
+    expect($result)->toHaveKey('id', 1)
+        ->and($result)->toHaveKey('nome', 'Linha Direta - Curitiba/SP');
+});
+
+it('buscarLinhaPorId retorna array vazio documentando falha ao buscar quando a API responde 404 (não existe)', function () {
+    Http::fake([
+        'https://api.test/api/linhas/999' => Http::response([
+            'message' => 'Not Found'
+        ], 404),
+    ]);
+
+    $result = new TransporteService()->buscarLinhaPorId(999);
+
+    // Documentado: deve retornar fallback vazio caso falhe em encontrar
+    expect($result)->toBe([]);
+});
+
+it('buscarLinhaPorId retorna array vazio ao lançar ConnectionException', function () {
+    Http::fake(function () {
+        throw new ConnectionException();
+    });
+
+    $result = new TransporteService()->buscarLinhaPorId(1);
+
+    expect($result)->toBe([]);
+});
+
+// — — — listarHorariosDaLinha — — —
+
+it('listarHorariosDaLinha retorna os horários quando a API responde 200', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1/horarios' => Http::response([
+            'data' => [
+                ['id' => 1, 'saida' => '08:00', 'chegada' => '12:00']
+            ]
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->listarHorariosDaLinha(1);
+
+    expect($result['data'])->toHaveCount(1)
+        ->and($result['data'][0]['saida'])->toBe('08:00');
+});
+
+it('listarHorariosDaLinha retorna array vazio sem lançar exception quando a API responde 500', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1/horarios' => Http::response([], 500),
+    ]);
+
+    $result = new TransporteService()->listarHorariosDaLinha(1);
+
+    // Assegura que em vez de exception, temos a supressão e devolução de fallback limpo.
+    expect($result)->toBe([]);
+});
+
+it('listarHorariosDaLinha retorna array vazio sem disparar exceção em caso de timeout', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1/horarios' => fn () => throw new ConnectionException('timeout'),
+    ]);
+
+    $result = new TransporteService()->listarHorariosDaLinha(1);
+
+    expect($result)->toBe([]);
 });
