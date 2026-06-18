@@ -43,7 +43,7 @@
 
 @if ($usuarios->isEmpty())
     <x-empty-state
-        title="Nenhum usuário encontrado"
+        title="😯 Nenhum usuário encontrado"
         message="Tente limpar seus filtros ou criar um novo usuário."
         icon=""
     />

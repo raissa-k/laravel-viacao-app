@@ -60,8 +60,8 @@ Padrão idêntico ao viacoes/show.blade.php: detalhes + tabela de historico. --}
 
 @if ($historico->isEmpty())
     <x-empty-state
-        title="Nada encontrado"
-        message="tente novamente adm usuarios"
+        title="🧐 Nada encontrado.."
+        message="Verifique seus filtros"
         icon=""
         link=""
     />

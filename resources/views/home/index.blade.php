@@ -41,8 +41,8 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
 
         @if ($viacoes->isEmpty())
             <x-empty-state
-                title="Nada encontrado"
-                message="tente novamente home"
+                title="😅 oops.. Nehuma viação foi cadastrada"
+                message="Tente cadastrar uma nova viação em Painel > viações > Cadastrar uma nova viação."
                 icon=""
             />
             <div class="empty-state">
