@@ -14,15 +14,14 @@ class TransporteService
         $tokenBase = config('services.transporte_api.token');
         $data      = now()->setTimezone('America/Sao_Paulo')->toDateString();
 
-        return hash('sha256', $tokenBase.':'.$data);
+        return hash('sha256', $tokenBase . ':' . $data);
     }
-
     public function listarCidades(int $pagina, int $perPage): array
     {
         try {
             $url      = config('services.transporte_api.url');
             $response = Http::withToken($this->gerarToken())
-                ->get($url.'/api/cidades', [
+                ->get($url . '/api/cidades', [
                     'page'     => $pagina,
                     'per_page' => $perPage,
                 ]);
@@ -46,7 +45,6 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
-
     public function listarTodasCidades(): array
     {
         $resultado = $this->listarCidades(1, 50);
@@ -66,7 +64,7 @@ class TransporteService
         try {
             $url      = config('services.transporte_api.url');
             $response = Http::withToken($this->gerarToken())
-                ->get($url.'/api/linhas', [
+                ->get($url . '/api/linhas', [
                     'origem_cidade_id'  => $origemApiId,
                     'destino_cidade_id' => $destinoApiId,
                     'page'              => $pagina,
@@ -110,41 +108,39 @@ class TransporteService
 
         return $todos;
     }
-
     public function buscarTerminalPorId(int $id): array
     {
         try {
-            $url      = config('services.transporte_api.url'); // para prevenir barra dupla,vide log
-            $response = Http::withToken($this->gerarToken()) // geração do token para acesso
-                ->get($url.'/api/terminais/'.$id); // pegando as infos da
+            $url      = config('services.transporte_api.url'); //para prevenir barra dupla,vide log
+            $response = Http::withToken($this->gerarToken()) //geração do token para acesso
+            ->get($url . '/api/terminais/' . $id); // pegando as infos da
 
             // caso ele falhe ele retorna array vazio
-            if ($response->failed()) { // aqui e para erro de client ou server erro,que aqui a variavrel vem da geração do token da api
+            if ($response->failed()) { //aqui e para erro de client ou server erro,que aqui a variavrel vem da geração do token da api
                 Log::error('TransporteService: falha ao buscar terminal por ID', [
-                    'status' => $response->status(), // status e referente ao 404,400 e etc
+                    'status' => $response->status(),//status e referente ao 404,400 e etc
                     'id'     => $id,
                 ]);
-                return ['data' => []]; // return array data vazio,fallback padrao
+                return ['data' => []];//return array data vazio,fallback padrao
             }
 
             // retorna o JSON completo no padrao da documentação
             return $response->json();
         } catch (\Throwable $e) {
-            Log::error('TransporteService: exceção ao buscar terminal por ID', [ // bloco de captação de erro e leva pro log
+            Log::error('TransporteService: exceção ao buscar terminal por ID', [//bloco de captação de erro e leva pro log
                 'erro' => $e->getMessage(),
                 'id'   => $id,
             ]);
 
-            return ['data' => []]; // fallback de erro
+            return ['data' => []]; //fallback de rro
         }
     }
-
     public function listarOperadoras(int $pagina, int $perPage): array
     {
         try {
             $url      = config('services.transporte_api.url');
             $response = Http::withToken($this->gerarToken())
-                ->get($url.'/api/operadoras', [
+                ->get($url . '/api/operadoras', [
                     'page'     => $pagina,
                     'per_page' => $perPage,
                 ]);
@@ -156,6 +152,7 @@ class TransporteService
                 ]);
 
                 return ['data' => [], 'meta' => []];
+
             }
 
             return $response->json();
@@ -169,7 +166,6 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
-
     public function listarTodasOperadoras(): array
     {
         $resultado = $this->listarOperadoras(1, 50);
