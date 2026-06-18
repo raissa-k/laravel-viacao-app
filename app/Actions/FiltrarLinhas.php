@@ -20,18 +20,24 @@ class FiltrarLinhas
 {
     public function execute(array $linhas, ?string $categoria = null, ?string $dia = null): Collection
     {
-        // PASSO 1: RESOLUÇÃO DE NOMES E HIDRATAÇÃO (Evita N+1)
-        // 1. Coleta os IDs únicos das operadoras diretamente do array de entrada
-        $operadoraIds     = collect($linhas)->pluck('operadora_id')->unique()->filter()->toArray();
+        // RESOLUÇÃO DE NOMES (Evita N+1)
+        // 1. Coleta os IDs suportando tanto Array (operadora_id) quanto DTO (operadoraId)
+        $operadoraIds     = collect($linhas)->map(function (mixed $linha) {
+            return is_array($linha) ? ($linha['operadora_id'] ?? null) : ($linha->operadoraId ?? null);
+        })->unique()->filter()->toArray();
 
-        // 2. Busca todas as viações de uma vez só no banco de dados local
+        // 2. Busca todas as viações de uma vez só
         $viacoesLocais    = Viacao::whereIn('api_id', $operadoraIds)->get()->keyBy('api_id');
 
-        // 3. Transforma o array "sujo" que veio da API em DTOs seguros já com o nome resolvido
-        $collectionDeDTOs = collect($linhas)->map(function (array $item) use ($viacoesLocais) {
+        // 3. Monta a coleção final garantindo que tudo vire DTO com o nome resolvido
+        $collectionDeDTOs = collect($linhas)->map(function (mixed $linha) use ($viacoesLocais) {
+            if ($linha instanceof LinhaResultadoDTO) {
+                return $linha;
+            }
+
+            $item                   = (array) $linha;
             $viacao                 = $viacoesLocais->get($item['operadora_id'] ?? null);
 
-            // Define o nome esperado pela chave do array que o seu DTO consome
             $item['operadora_nome'] = $viacao ? $viacao->nome : 'Operadora Desconhecida';
 
             return LinhaResultadoDTO::fromArray($item);
