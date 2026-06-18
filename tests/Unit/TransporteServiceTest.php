@@ -277,3 +277,80 @@ it('listarTodasOperadoras pagina corretamente com closure fake e concatena os re
 
     Http::assertSentCount(2);
 });
+
+// — — — buscarLinhaPorId — — —
+
+it('buscarLinhaPorId retorna dados da linha quando a API responde 200', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1' => Http::response([
+            'id'   => 1,
+            'nome' => 'Linha Direta - Curitiba/SP',
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->buscarLinhaPorId(1);
+
+    expect($result)->toHaveKey('id', 1)
+        ->and($result)->toHaveKey('nome', 'Linha Direta - Curitiba/SP');
+});
+
+it('buscarLinhaPorId retorna array vazio documentando falha ao buscar quando a API responde 404 (não existe)', function () {
+    Http::fake([
+        'https://api.test/api/linhas/999' => Http::response([
+            'message' => 'Not Found'
+        ], 404),
+    ]);
+
+    $result = new TransporteService()->buscarLinhaPorId(999);
+
+    // Documentado: deve retornar fallback vazio caso falhe em encontrar
+    expect($result)->toBe([]);
+});
+
+it('buscarLinhaPorId retorna array vazio ao lançar ConnectionException', function () {
+    Http::fake(function () {
+        throw new ConnectionException();
+    });
+
+    $result = new TransporteService()->buscarLinhaPorId(1);
+
+    expect($result)->toBe([]);
+});
+
+// — — — listarHorariosDaLinha — — —
+
+it('listarHorariosDaLinha retorna os horários quando a API responde 200', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1/horarios' => Http::response([
+            'data' => [
+                ['id' => 1, 'saida' => '08:00', 'chegada' => '12:00']
+            ]
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->listarHorariosDaLinha(1);
+
+    expect($result['data'])->toHaveCount(1)
+        ->and($result['data'][0]['saida'])->toBe('08:00');
+});
+
+it('listarHorariosDaLinha retorna array vazio sem lançar exception quando a API responde 500', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1/horarios' => Http::response([], 500),
+    ]);
+
+    $result = new TransporteService()->listarHorariosDaLinha(1);
+
+    // Assegura que em vez de exception, temos a supressão e devolução de fallback limpo.
+    expect($result)->toBe([]);
+});
+
+it('listarHorariosDaLinha retorna array vazio sem disparar exceção em caso de timeout', function () {
+    Http::fake([
+        'https://api.test/api/linhas/1/horarios' => fn () => throw new ConnectionException('timeout'),
+    ]);
+
+    $result = new TransporteService()->listarHorariosDaLinha(1);
+
+    expect($result)->toBe([]);
+});
