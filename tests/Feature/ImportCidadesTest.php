@@ -69,7 +69,7 @@ it('retorna falha quando a API não retorna cidades', function () {
         ->and(Cidade::count())->toBe(0);
 });
 
-it('retorna falha e banco intocado quando a API responde 500', function () {
+it('não persiste dados no banco quando a API responde 500', function () {
     Http::fake([
         'https://api.test/api/cidades*' => Http::response([], 500),
     ]);
