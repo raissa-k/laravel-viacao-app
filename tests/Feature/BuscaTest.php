@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Cidade;
+use App\Services\TransporteService;
+use App\Actions\FiltrarLinhas;
 
 // — — — Validação de campos obrigatórios — — —
 
@@ -88,6 +90,31 @@ it('exibe a estrutura necessária para os filtros e ordenação client-side', fu
 
     $origem  = Cidade::factory()->create(['nome' => 'Curitiba']);
     $destino = Cidade::factory()->create(['nome' => 'Ourinhos']);
+
+    $categoriaFake = new class {
+        public $value = 'executivo';
+        public function rotulo() { return 'Executivo'; }
+        public function tipoBadge() { return 'primary'; }
+    };
+
+    $linhaFake = (object) [
+        'id' => 1,
+        'numero' => '4002',
+        'operadoraNome' => 'Catarinense',
+        'categoria' => $categoriaFake,
+        'precoMinimo' => 80.00,
+        'precoMaximo' => null,
+        'duracao' => '05h 00m',
+        'duracaoMinutos' => 300,
+    ];
+
+    $this->mock(TransporteService::class, function ($mock) {
+        $mock->shouldReceive('listarTodasLinhas')->andReturn([]);
+    });
+
+    $this->mock(FiltrarLinhas::class, function ($mock) use ($linhaFake) {
+        $mock->shouldReceive('execute')->andReturn(collect([$linhaFake]));//collect pois collection é recbido e n array
+    });
 
     $this->get(route('busca', [
         'origem'  => $origem->id,
