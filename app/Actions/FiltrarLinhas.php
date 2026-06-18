@@ -22,14 +22,14 @@ class FiltrarLinhas
     {
         // PASSO 1: RESOLUÇÃO DE NOMES E HIDRATAÇÃO (Evita N+1)
         // 1. Coleta os IDs únicos das operadoras diretamente do array de entrada
-        $operadoraIds = collect($linhas)->pluck('operadora_id')->unique()->filter()->toArray();
+        $operadoraIds     = collect($linhas)->pluck('operadora_id')->unique()->filter()->toArray();
 
         // 2. Busca todas as viações de uma vez só no banco de dados local
-        $viacoesLocais = Viacao::whereIn('api_id', $operadoraIds)->get()->keyBy('api_id');
+        $viacoesLocais    = Viacao::whereIn('api_id', $operadoraIds)->get()->keyBy('api_id');
 
         // 3. Transforma o array "sujo" que veio da API em DTOs seguros já com o nome resolvido
         $collectionDeDTOs = collect($linhas)->map(function (array $item) use ($viacoesLocais) {
-            $viacao = $viacoesLocais->get($item['operadora_id'] ?? null);
+            $viacao                 = $viacoesLocais->get($item['operadora_id'] ?? null);
 
             // Define o nome esperado pela chave do array que o seu DTO consome
             $item['operadora_nome'] = $viacao ? $viacao->nome : 'Operadora Desconhecida';
@@ -39,7 +39,7 @@ class FiltrarLinhas
 
         // PASSO 2: A LINHA DE MONTAGEM (Pipeline Pattern)
         // Pedimos para o Laravel instanciar a classe de Pipeline nativa dele.
-        $resultado = app(Pipeline::class)
+        $resultado        = app(Pipeline::class)
             ->send($collectionDeDTOs)
             ->through([               // Por quais canos (filtros) essa coleção vai passar?
 

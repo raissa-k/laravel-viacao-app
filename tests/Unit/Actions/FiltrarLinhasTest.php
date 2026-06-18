@@ -84,7 +84,7 @@ it('resolve o nome das operadoras nos DTOs com uma única query no banco, evitan
     \App\Models\Viacao::factory()->create(['api_id' => 1, 'nome' => 'Viação Catarinense']);
     \App\Models\Viacao::factory()->create(['api_id' => 2, 'nome' => 'Viação Cometa']);
 
-    $dadosBrutos = [
+    $dadosBrutos       = [
         ['id' => 10, 'numero' => '1010', 'operadora_id' => 1, 'duracao_media_min' => 120, 'preco_min' => 50.0, 'categoria' => 'executivo', 'dias_semana' => ['segunda']],
         ['id' => 20, 'numero' => '2020', 'operadora_id' => 2, 'duracao_media_min' => 120, 'preco_min' => 60.0, 'categoria' => 'executivo', 'dias_semana' => ['segunda']],
         ['id' => 30, 'numero' => '3030', 'operadora_id' => 1, 'duracao_media_min' => 120, 'preco_min' => 70.0, 'categoria' => 'executivo', 'dias_semana' => ['segunda']], // Repetido
@@ -95,7 +95,7 @@ it('resolve o nome das operadoras nos DTOs com uma única query no banco, evitan
     \Illuminate\Support\Facades\DB::enableQueryLog();
 
     // 3. Executa a action
-    $resultado = $this->action->execute($dadosBrutos);
+    $resultado         = $this->action->execute($dadosBrutos);
 
     // 4. Coleta as queries que foram executadas
     $queriesExecutadas = \Illuminate\Support\Facades\DB::getQueryLog();
