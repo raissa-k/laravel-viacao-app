@@ -113,7 +113,7 @@ class TransporteService
         try {
             $url      = config('services.transporte_api.url'); //para prevenir barra dupla,vide log
             $response = Http::withToken($this->gerarToken()) //geração do token para acesso
-            ->get($url . '/api/terminais/' . $id); // pegando as infos da
+            ->get($url . '/api/terminais/' . $id); //pegando as infos da
 
             // caso ele falhe ele retorna array vazio
             if ($response->failed()) { //aqui e para erro de client ou server erro,que aqui a variavrel vem da geração do token da api
@@ -127,7 +127,7 @@ class TransporteService
             // retorna o JSON completo no padrao da documentação
             return $response->json();
         } catch (\Throwable $e) {
-            Log::error('TransporteService: exceção ao buscar terminal por ID', [//bloco de captação de erro e leva pro log
+            Log::error('TransporteService: exceção ao buscar terminal por ID', [ //bloco de captação de erro e leva pro log
                 'erro' => $e->getMessage(),
                 'id'   => $id,
             ]);
