@@ -29,6 +29,13 @@ class BuscaController extends Controller
                 ->with('error', 'Por favor, preencha origem, destino e data para realizar a busca.');
         }
 
+//-- bloco de condição para caso a data seja no passado --
+        if ($request->input('data') < date('Y-m-d')){
+            return redirect()
+                ->route('home')
+                ->with('error', 'A data da busca não pode ser uma data no passado.');
+        }
+
         $origem            = $this->cidadeService->find((int) $request->get('origem'));
         $destino           = $this->cidadeService->find((int) $request->get('destino'));
         $cidades           = $this->cidadeService->all();
