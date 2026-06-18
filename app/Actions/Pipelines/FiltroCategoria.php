@@ -46,7 +46,7 @@ class FiltroCategoria
         // Usamos o operador "?->" (null-safe) para não dar erro se a linha não tiver categoria.
         $linhasFiltradas = $linhas->filter(
             fn ($dto) =>
-            $dto->categoria?->value === $catNormalizada
+                $dto->categoria?->value === $catNormalizada
         );
 
         // 4. Missão cumprida! Passamos o resultado filtrado para o próximo da fila.
