@@ -8,8 +8,21 @@ use App\Enums\Categoria;
 
 beforeEach(function () {
     $this->action  = new FiltrarLinhas();
-    // Passamos ->all() para extrair o array bruto e forçar a Action a converter e lidar com array
-    $this->fixture = LinhaResultadoDTO::fake()->all();
+
+    // Desmolda os DTOs do fake de volta para o formato cru da API externa
+    $this->fixture = LinhaResultadoDTO::fake()
+        ->map(fn (LinhaResultadoDTO $linha) => [
+            'id'                => $linha->id,
+            'numero'            => $linha->numero,
+            'operadora_id'      => $linha->operadoraId,
+            'operadora_nome'    => $linha->operadoraNome,
+            'duracao_media_min' => $linha->duracaoMinutos,
+            'preco_min'         => $linha->precoMinimo,
+            'preco_max'         => $linha->precoMaximo,
+            'categoria'         => $linha->categoria?->value, // Pega a string pura do Enum
+            'dias_semana'       => $linha->diasDaSemana,
+        ])
+        ->all();
 });
 
 it('Sem filtros -> todos os 4 itens retornam', function () {
