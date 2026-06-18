@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -16,6 +17,7 @@ class TransporteService
 
         return hash('sha256', $tokenBase . ':' . $data);
     }
+
     public function listarCidades(int $pagina, int $perPage): array
     {
         try {
@@ -45,6 +47,7 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
+
     public function listarTodasCidades(): array
     {
         $resultado = $this->listarCidades(1, 50);
@@ -108,8 +111,20 @@ class TransporteService
 
         return $todos;
     }
+
     public function buscarTerminalPorId(int $id): array
     {
+        $chave = "terminal:{$id}";
+
+        if (Cache::has($chave)) {
+            Log::debug('TransporteService: cache hit ao buscar terminal por ID', [
+                'id'    => $id,
+                'chave' => $chave,
+            ]);
+
+            return Cache::get($chave);
+        }
+
         try {
             $url      = config('services.transporte_api.url'); //para prevenir barra dupla,vide log
             $response = Http::withToken($this->gerarToken()) //geração do token para acesso
@@ -121,20 +136,29 @@ class TransporteService
                     'status' => $response->status(),//status e referente ao 404,400 e etc
                     'id'     => $id,
                 ]);
-                return ['data' => []];//return array data vazio,fallback padrao
+                $resultado = ['data' => []];//return array data vazio,fallback padrao
+            } else {
+                // JSON completo no padrao da documentação
+                $resultado = $response->json();
             }
 
-            // retorna o JSON completo no padrao da documentação
-            return $response->json();
         } catch (\Throwable $e) {
             Log::error('TransporteService: exceção ao buscar terminal por ID', [ //bloco de captação de erro e leva pro log
                 'erro' => $e->getMessage(),
                 'id'   => $id,
             ]);
 
-            return ['data' => []]; //fallback de rro
+            $resultado = ['data' => []]; //fallback de rro
         }
+
+        // só cacheia se veio dado de verdade — erro/vazio não grudam por 1h
+        if (!empty($resultado['data'])) {
+            Cache::put($chave, $resultado, now()->addHour());
+        }
+
+        return $resultado;
     }
+
     public function listarOperadoras(int $pagina, int $perPage): array
     {
         try {
@@ -166,6 +190,7 @@ class TransporteService
             return ['data' => [], 'meta' => []];
         }
     }
+
     public function listarTodasOperadoras(): array
     {
         $resultado = $this->listarOperadoras(1, 50);
