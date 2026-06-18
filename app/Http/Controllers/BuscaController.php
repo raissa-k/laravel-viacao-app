@@ -43,8 +43,7 @@ class BuscaController extends Controller
         $apiIdDestino      = $destino->api_id;
 
         $linhasBrutas      = $this->transporteService->listarTodasLinhas($apiIdOrigem, $apiIdDestino);
-        Carbon::setLocale('pt_BR');
-        $diaSemanaCompleto = Carbon::parse($request->get('data'))->translatedFormat('l');
+        $diaSemanaCompleto = Carbon::parse($request->get('data'))->locale('pt_BR')->translatedFormat('l');
         $diaSemana         = str_replace('-feira', '', $diaSemanaCompleto);
 
         $linhasFiltradas   = $this->filtrarLinhas->execute($linhasBrutas, null, $diaSemana);
