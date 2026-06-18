@@ -40,8 +40,12 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
         </p>
 
         @if ($viacoes->isEmpty())
+            <x-empty-state
+                title="Nada encontrado"
+                message="tente novamente home"
+                icon=""
+            />
             <div class="empty-state">
-                <p>Nenhuma viação cadastrada ainda.</p>
                 <a href="{{ route('login') }}">Entrar</a> pra cadastrar a primeira.
             </div>
         @else

@@ -537,6 +537,13 @@ Evita "broken image" e ainda fica bonito :D
     background: #ffffff;
 }
 
+.empty-state_icon {}
+
+.empty-state_title {}
+
+.empty-state_message {}
+
+
 /* FOOTER */
 
 .footer-pub {

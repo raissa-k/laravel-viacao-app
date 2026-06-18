@@ -66,7 +66,12 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
 </form>
 
 @if ($viacoes->isEmpty())
-    <p class="muted">Nenhuma viação cadastrada ainda.</p>
+    <x-empty-state
+        title="Nada encontrado"
+        message="tente novamente adm viacoes"
+        icon=""
+        link=""
+    />
 @else
     <p class="small muted">{{ $viacoes->total() }} viação(ões) encontrada(s)</p>
 

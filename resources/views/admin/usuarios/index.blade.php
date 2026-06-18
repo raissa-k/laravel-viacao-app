@@ -42,7 +42,12 @@
 </form>
 
 @if ($usuarios->isEmpty())
-    <p>Nenhum usuário cadastrado.</p>
+    <x-empty-state
+        title="Nada encontrado"
+        message="tente novamente adm viacoes"
+        icon=""
+        link=""
+    />
 @else
     <p class="small muted">{{ $usuarios->total() }} usuário(s) encontrado(s)</p>
 
