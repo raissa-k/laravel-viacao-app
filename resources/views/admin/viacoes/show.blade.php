@@ -82,14 +82,13 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
 
 <h2>Histórico de alterações</h2>
 
-@if ($historico->isEmpty())
-    <x-empty-state
-        title="Nada encontrado"
-        message="tente novamente adm viacoes"
-        icon=""
-        link=""
-    />
-@else
+    @if ($viacoes->isEmpty())
+        <x-empty-state
+            title="Nenhuma viação cadastrada"
+            message="Tente cadastrar em uma nova viação"
+            icon=""
+        />
+    @else
     <table class="admin-table">
         <thead>
             <tr>

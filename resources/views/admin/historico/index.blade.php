@@ -89,10 +89,9 @@ O href usa ->value pra gerar a string do parâmetro de URL. --}}
 
 @if ($historico->isEmpty())
     <x-empty-state
-        title="Nada encontrado"
-        message="tente novamente adm viacoes"
+        title="Histórico vazio"
+        message="Tente modificar alguma viação ou usuário ou limpe seus filtros."
         icon=""
-        link=""
     />
 @else
 

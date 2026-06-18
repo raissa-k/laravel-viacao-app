@@ -43,10 +43,9 @@
 
 @if ($usuarios->isEmpty())
     <x-empty-state
-        title="Nada encontrado"
-        message="tente novamente adm viacoes"
+        title="Nenhum usuário encontrado"
+        message="Tente limpar seus filtros ou criar um novo usuário."
         icon=""
-        link=""
     />
 @else
     <p class="small muted">{{ $usuarios->total() }} usuário(s) encontrado(s)</p>
