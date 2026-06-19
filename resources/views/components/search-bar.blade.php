@@ -2,9 +2,6 @@
     'layout' => 'vertical',
     'cidades' => null,
     'action' => null,
-    'title' => 'Nada encontrado',
-    'message' => 'tente novamente',
-    'icon' => 'null',
     ])
 
 @php
