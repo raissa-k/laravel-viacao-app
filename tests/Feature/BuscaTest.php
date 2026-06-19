@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Actions\FiltrarLinhas;
+use App\DTOs\LinhaResultadoDTO;
 use App\Models\Cidade;
+use App\Services\TransporteService;
+use Carbon\Carbon;
 
 // — — — Validação de campos obrigatórios — — —
 
@@ -39,7 +43,7 @@ it('exibe a página de resultados para cidades existentes no banco', function ()
     $this->get(route('busca', [
         'origem'  => $origem->id,
         'destino' => $destino->id,
-        'data'    => '2026-06-15',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertViewIs('buscas.index')
         ->assertViewHas('linhas');
@@ -51,7 +55,7 @@ it('redireciona para home quando a cidade de origem não existe no banco', funct
     $this->get(route('busca', [
         'origem'  => 999,
         'destino' => $destino->id,
-        'data'    => '2026-06-15',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertRedirect(route('home'))
         ->assertSessionHas('error');
@@ -63,7 +67,7 @@ it('redireciona para home quando a cidade de destino não existe no banco', func
     $this->get(route('busca', [
         'origem'  => $origem->id,
         'destino' => 999,
-        'data'    => '2026-06-15',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertRedirect(route('home'))
         ->assertSessionHas('error');
@@ -86,13 +90,16 @@ it('mantém a URL compartilhável e exibe os nomes das cidades na view', functio
 
 it('exibe a estrutura necessária para os filtros e ordenação client-side', function () {
 
-    $origem  = Cidade::factory()->create(['nome' => 'Curitiba']);
-    $destino = Cidade::factory()->create(['nome' => 'Ourinhos']);
+    $origem  = Cidade::factory()->create();
+    $destino = Cidade::factory()->create();
+
+    $this->mock(TransporteService::class)->shouldReceive('listarTodasLinhas')->andReturn([]);
+    $this->mock(FiltrarLinhas::class)->shouldReceive('execute')->andReturn(LinhaResultadoDTO::fake());//metodo que ja tinha todo um fake preparado.......
 
     $this->get(route('busca', [
         'origem'  => $origem->id,
         'destino' => $destino->id,
-        'data'    => '2026-12-20',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertSee('data-filter="todas"', false)
         ->assertSee('data-filter="convencional"', false)
