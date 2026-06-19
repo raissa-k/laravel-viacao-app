@@ -5,9 +5,11 @@
 ])
 
 <div class="empty-state">
-    <div class="empty-state_icon">
-        <img src="{{ asset('favicon.ico') }}" alt="Ícone de Empty state">
-    </div>
+    @if(isset($icon))
+        <div class="empty-state_icon">
+            <img src="{{ $icon }}" alt="Ícone de Empty state">
+        </div>
+    @endif
 
     <h2 class="empty-state_title">
         {{ $title }}
@@ -17,6 +19,7 @@
         {{ $message }}
     </p>
 
+    <div>
         {{ $slot }}
-
+    </div>
 </div>

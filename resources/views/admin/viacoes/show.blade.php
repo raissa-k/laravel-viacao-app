@@ -84,9 +84,9 @@ Lazy collection: nenhuma query extra ao acessar $h->ator->nome (eager-loaded no 
 
     @if ($viacoes->isEmpty())
         <x-empty-state
-            title="😱 Nenhuma viação cadastrada!!"
+            title="Nenhuma viação cadastrada!!"
             message="Tente cadastrar em uma nova viação"
-            icon=""
+            icon="{{asset('favicon.ico')}}"
         />
     @else
     <table class="admin-table">

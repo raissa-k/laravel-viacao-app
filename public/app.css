@@ -371,7 +371,6 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
 /* empty-state, retornos vazios.*/
 .empty-state {
     text-align: center;
-    color: var(--primary);
     padding: 40px;
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -384,8 +383,9 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
 }
 
 .empty-state_title {
-    font-size: 30px;
-    font-weight: 6000;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary);
 }
 
 .empty-state_message {
@@ -393,6 +393,6 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
     margin-top: 15px;
 }
 .empty-state_slot {
-    font-size: 3px;
+    font-size: 10px;
 }
 

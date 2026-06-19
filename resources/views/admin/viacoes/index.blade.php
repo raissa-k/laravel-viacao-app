@@ -67,9 +67,9 @@ addslashes() (usado no PHP puro) não é seguro para todos os casos em JS. --}}
 
 @if ($viacoes->isEmpty())
     <x-empty-state
-        title="🤔 Nenhuma viação cadastrada"
+        title="Nenhuma viação cadastrada"
         message="Tente cadastrar em uma nova viação ou limpar seus filtros"
-        icon=""
+        icon="{{asset('favicon.ico')}}"
     />
 @else
     <p class="small muted">{{ $viacoes->total() }} viação(ões) encontrada(s)</p>

@@ -43,9 +43,9 @@
 
 @if ($usuarios->isEmpty())
     <x-empty-state
-        title="😯 Nenhum usuário encontrado"
+        title="Nenhum usuário encontrado"
         message="Tente limpar seus filtros ou criar um novo usuário."
-        icon=""
+        icon="{{asset('favicon.ico')}}"
     />
 @else
     <p class="small muted">{{ $usuarios->total() }} usuário(s) encontrado(s)</p>
