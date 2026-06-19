@@ -392,7 +392,3 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
     color: var(--text);
     margin-top: 15px;
 }
-.empty-state_slot {
-    font-size: 10px;
-}
-
