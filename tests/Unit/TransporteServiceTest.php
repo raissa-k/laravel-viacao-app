@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Services\TransporteService;
 use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 test('lista linhas com sucesso', function () {
 
@@ -94,6 +96,7 @@ test('listarTodasLinhas concatena dados de duas páginas e faz exatamente 2 cham
 
 beforeEach(function () {
     Http::preventStrayRequests();
+    Cache::flush();
     config([
         'services.transporte_api.url'   => 'https://api.test',
         'services.transporte_api.token' => 'token-secreto',
@@ -276,6 +279,95 @@ it('listarTodasOperadoras pagina corretamente com closure fake e concatena os re
         ->and($result[1]['nome'])->toBe('Operadora Pag 2');
 
     Http::assertSentCount(2);
+});
+
+
+// — — — buscarTerminal (cache) — — —
+
+it('buscarTerminal retorna os dados do terminal quando a API responde 200', function () {
+    Http::fake([
+        'https://api.test/api/terminais/*' => Http::response([
+            'data' => ['id' => 1, 'nome' => 'Rodoviária de Curitiba'],
+        ], 200),
+    ]);
+
+    $result = new TransporteService()->buscarTerminal(1);
+
+    expect($result['data']['nome'])->toBe('Rodoviária de Curitiba');
+});
+
+it('buscarTerminal usa o cache na segunda chamada e bate na API só uma vez', function () {
+    Http::fake([
+        'https://api.test/api/terminais/*' => Http::response([
+            'data' => ['id' => 1, 'nome' => 'Rodoviária de Curitiba'],
+        ], 200),
+    ]);
+
+    $service  = new TransporteService();
+
+    $primeira = $service->buscarTerminal(1);
+    $segunda  = $service->buscarTerminal(1);
+
+    expect($segunda)->toBe($primeira);
+
+    // prova do "caminho curto": a API foi chamada uma única vez
+    Http::assertSentCount(1);
+});
+
+it('buscarTerminal não cacheia erro e tenta a API de novo no request seguinte', function () {
+    Http::fake([
+        'https://api.test/api/terminais/*' => Http::sequence()
+            ->push([], 500)                                        // 1ª: erro
+            ->push(['data' => ['id' => 1, 'nome' => 'OK']], 200),  // 2ª: sucesso
+    ]);
+
+    $service  = new TransporteService();
+
+    $primeira = $service->buscarTerminal(1);
+    $segunda  = $service->buscarTerminal(1);
+
+    expect($primeira)->toBe(['data' => []])           // erro = fallback vazio
+    ->and($segunda['data']['nome'])->toBe('OK');  // não veio do cache: bateu na API de novo
+
+    Http::assertSentCount(2); // prova que o erro NÃO grudou no cache
+});
+
+it('buscarTerminal loga o cache hit na segunda chamada', function () {
+    Http::fake([
+        'https://api.test/api/terminais/*' => Http::response([
+            'data' => ['id' => 1, 'nome' => 'Rodoviária de Curitiba'],
+        ], 200),
+    ]);
+
+    $service = new TransporteService();
+
+    $service->buscarTerminal(1); // miss: popula o cache
+
+    Log::spy();                       // a partir daqui, observa o Log
+
+    $service->buscarTerminal(1); // hit: deve logar debug
+
+    Log::shouldHaveReceived('debug')
+        ->once()
+        ->withArgs(function (string $message, array $context) {
+            return str_contains($message, 'cache hit')
+                && $context['id'] === 1;
+        });
+});
+
+it('buscarTerminalSemCache sempre bate na API e ignora o cache', function () {
+    Http::fake([
+        'https://api.test/api/terminais/*' => Http::response([
+            'data' => ['id' => 1, 'nome' => 'Terminal Fresco'],
+        ], 200),
+    ]);
+
+    $service = new TransporteService();
+
+    $service->buscarTerminalSemCache(1);
+    $service->buscarTerminalSemCache(1);
+
+    Http::assertSentCount(2); // duas chamadas = nunca usou cache
 });
 
 // — — — buscarLinhaPorId — — —
