@@ -88,7 +88,11 @@ O href usa ->value pra gerar a string do parâmetro de URL. --}}
 </form>
 
 @if ($historico->isEmpty())
-    <p class="muted">Nenhum registro encontrado.</p>
+    <x-empty-state
+        title="Histórico vazio"
+        message="Tente modificar alguma viação ou usuário ou limpe seus filtros."
+        icon="{{asset('favicon.ico')}}"
+    />
 @else
 
     <p class="small muted">{{ $historico->total() }} registro(s) encontrado(s)</p>

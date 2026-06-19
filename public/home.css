@@ -537,6 +537,8 @@ Evita "broken image" e ainda fica bonito :D
     background: #ffffff;
 }
 
+/*outras partes do empty-state estão dentro de app.css*/
+
 /* FOOTER */
 
 .footer-pub {

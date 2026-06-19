@@ -59,7 +59,11 @@ Padrão idêntico ao viacoes/show.blade.php: detalhes + tabela de historico. --}
 <h2>Histórico de alterações</h2>
 
 @if ($historico->isEmpty())
-    <p class="muted">Nenhuma alteração registrada.</p>
+    <x-empty-state
+        title="Nada encontrado"
+        message="Verifique seus filtros"
+        icon="{{asset('favicon.ico')}}"
+    />
 @else
     <table class="admin-table">
         <thead>

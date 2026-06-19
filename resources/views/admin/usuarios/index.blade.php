@@ -42,7 +42,11 @@
 </form>
 
 @if ($usuarios->isEmpty())
-    <p>Nenhum usuário cadastrado.</p>
+    <x-empty-state
+        title="Nenhum usuário encontrado"
+        message="Tente limpar seus filtros ou criar um novo usuário."
+        icon="{{asset('favicon.ico')}}"
+    />
 @else
     <p class="small muted">{{ $usuarios->total() }} usuário(s) encontrado(s)</p>
 

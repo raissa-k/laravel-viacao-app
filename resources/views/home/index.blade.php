@@ -40,10 +40,12 @@ $v->nome, $v->logo, $v->ativa: mesmas propriedades, agora via Eloquent com cast 
         </p>
 
         @if ($viacoes->isEmpty())
-            <div class="empty-state">
-                <p>Nenhuma viação cadastrada ainda.</p>
+            <x-empty-state
+                message="Nenhuma viação cadastrada ainda."
+                icon="{{asset('favicon.ico')}}"
+            >
                 <a href="{{ route('login') }}">Entrar</a> pra cadastrar a primeira.
-            </div>
+            </x-empty-state>
         @else
             <div class="grid-auto">
                 @foreach ($viacoes as $v)
