@@ -207,4 +207,59 @@ class TransporteService
 
         return $todos;
     }
+
+    public function buscarLinhaPorId(int $id): array
+    {
+        try {
+            $url      = config('services.transporte_api.url');
+            $response = Http::withToken($this->gerarToken())
+                ->get($url.'/api/linhas/'.$id);
+
+            if ($response->failed()) {
+                Log::error('TransporteService: falha ao buscar linha por ID', [
+                    'status' => $response->status(), // Registrará 404 se não existir
+                    'id'     => $id,
+                ]);
+
+                // Fallback documentado para "não existe" ou erro na requisição
+                return [];
+            }
+
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao buscar linha por ID', [
+                'erro' => $e->getMessage(),
+                'id'   => $id,
+            ]);
+
+            return [];
+        }
+    }
+
+    public function listarHorariosDaLinha(int $id): array
+    {
+        try {
+            $url      = config('services.transporte_api.url');
+            $response = Http::withToken($this->gerarToken())
+                ->get($url.'/api/linhas/'.$id.'/horarios');
+
+            if ($response->failed()) {
+                Log::error('TransporteService: falha ao listar horarios da linha', [
+                    'status' => $response->status(),
+                    'id'     => $id,
+                ]);
+
+                return [];
+            }
+
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao listar horarios da linha', [
+                'erro' => $e->getMessage(),
+                'id'   => $id,
+            ]);
+
+            return [];
+        }
+    }
 }

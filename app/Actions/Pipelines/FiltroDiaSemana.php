@@ -34,9 +34,9 @@ class FiltroDiaSemana
         // 3. Filtramos a Collection para manter apenas as linhas que operam neste dia.
         $linhasFiltradas = $linhas->filter(
             fn ($dto) =>
-            // Usamos o 'true' no in_array (strict mode) para evitar comportamentos
-            // bizarros do PHP. Ele garante que o tipo e o valor sejam exatos.
-        in_array($diaNormalizado, $dto->diasDaSemana, true)
+                // Usamos o 'true' no in_array (strict mode) para evitar comportamentos
+                // bizarros do PHP. Ele garante que o tipo e o valor sejam exatos.
+            in_array($diaNormalizado, $dto->diasDaSemana, true)
         );
 
         // 4. Passa o resultado para o próximo da fila (ou finaliza, se não houver mais filtros).

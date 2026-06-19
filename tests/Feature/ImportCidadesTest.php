@@ -62,6 +62,18 @@ it('retorna falha quando a API não retorna cidades', function () {
         ], 200),
     ]);
 
+
+    $exitCode = Artisan::call('cidades:importar');
+
+    expect($exitCode)->toBe(1)
+        ->and(Cidade::count())->toBe(0);
+});
+
+it('não persiste dados no banco quando a API responde 500', function () {
+    Http::fake([
+        'https://api.test/api/cidades*' => Http::response([], 500),
+    ]);
+
     $exitCode = Artisan::call('cidades:importar');
 
     expect($exitCode)->toBe(1)
