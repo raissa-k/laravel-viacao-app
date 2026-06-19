@@ -43,7 +43,7 @@ it('exibe a página de resultados para cidades existentes no banco', function ()
     $this->get(route('busca', [
         'origem'  => $origem->id,
         'destino' => $destino->id,
-        'data'    => '2026-06-15',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertViewIs('buscas.index')
         ->assertViewHas('linhas');
@@ -55,7 +55,7 @@ it('redireciona para home quando a cidade de origem não existe no banco', funct
     $this->get(route('busca', [
         'origem'  => 999,
         'destino' => $destino->id,
-        'data'    => '2026-06-15',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertRedirect(route('home'))
         ->assertSessionHas('error');
@@ -67,7 +67,7 @@ it('redireciona para home quando a cidade de destino não existe no banco', func
     $this->get(route('busca', [
         'origem'  => $origem->id,
         'destino' => 999,
-        'data'    => '2026-06-15',
+        'data'    => Carbon::tomorrow()->format('Y-m-d'),
     ]))
         ->assertRedirect(route('home'))
         ->assertSessionHas('error');
