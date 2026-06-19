@@ -112,9 +112,9 @@ class TransporteService
         return $todos;
     }
 
-    public function buscarTerminalPorId(int $id): array
+    public function buscarTerminal(int $id): array
     {
-        $chave = "terminal:{$id}";
+        $chave     = "terminal:{$id}";
 
         if (Cache::has($chave)) {
             Log::debug('TransporteService: cache hit ao buscar terminal por ID', [
@@ -125,31 +125,7 @@ class TransporteService
             return Cache::get($chave);
         }
 
-        try {
-            $url      = config('services.transporte_api.url'); //para prevenir barra dupla,vide log
-            $response = Http::withToken($this->gerarToken()) //geração do token para acesso
-            ->get($url . '/api/terminais/' . $id); //pegando as infos da
-
-            // caso ele falhe ele retorna array vazio
-            if ($response->failed()) { //aqui e para erro de client ou server erro,que aqui a variavrel vem da geração do token da api
-                Log::error('TransporteService: falha ao buscar terminal por ID', [
-                    'status' => $response->status(),//status e referente ao 404,400 e etc
-                    'id'     => $id,
-                ]);
-                $resultado = ['data' => []];//return array data vazio,fallback padrao
-            } else {
-                // JSON completo no padrao da documentação
-                $resultado = $response->json();
-            }
-
-        } catch (\Throwable $e) {
-            Log::error('TransporteService: exceção ao buscar terminal por ID', [ //bloco de captação de erro e leva pro log
-                'erro' => $e->getMessage(),
-                'id'   => $id,
-            ]);
-
-            $resultado = ['data' => []]; //fallback de rro
-        }
+        $resultado = $this->buscarTerminalSemCache($id);
 
         // só cacheia se veio dado de verdade — erro/vazio não grudam por 1h
         if (!empty($resultado['data'])) {
@@ -157,6 +133,33 @@ class TransporteService
         }
 
         return $resultado;
+    }
+
+    public function buscarTerminalSemCache(int $id): array
+    {
+        try {
+            $url      = config('services.transporte_api.url'); //para prevenir barra dupla
+            $response = Http::withToken($this->gerarToken())   //geração do token para acesso
+            ->get($url . '/api/terminais/' . $id);         //pegando as infos do terminal
+
+            if ($response->failed()) {
+                Log::error('TransporteService: falha ao buscar terminal por ID', [
+                    'status' => $response->status(),
+                    'id'     => $id,
+                ]);
+
+                return ['data' => []];
+            }
+
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao buscar terminal por ID', [
+                'erro' => $e->getMessage(),
+                'id'   => $id,
+            ]);
+
+            return ['data' => []];
+        }
     }
 
     public function listarOperadoras(int $pagina, int $perPage): array
