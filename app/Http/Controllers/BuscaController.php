@@ -73,7 +73,7 @@ class BuscaController extends Controller
         }
 
         // busca a linha na API; se falhar/não existir, 404
-        $linhaDados = $this->transporteService->buscarLinhaPorId($linha);
+        $linhaDados        = $this->transporteService->buscarLinhaPorId($linha);
 
         if (empty($linhaDados)) {
             abort(404);
@@ -83,13 +83,13 @@ class BuscaController extends Controller
         $diaSemanaCompleto = Carbon::parse($request->get('data'))->locale('pt_BR')->translatedFormat('l');
         $diaSemana         = str_replace('-feira', '', $diaSemanaCompleto);
 
-        $horarios = $this->transporteService->listarHorariosDaLinha($linha, $diaSemana);
+        $horarios          = $this->transporteService->listarHorariosDaLinha($linha, $diaSemana);
 
         // terminais de origem e destino via método COM cache
-        $terminalOrigem  = $this->transporteService->buscarTerminal($linhaDados['terminal_origem_id']);
-        $terminalDestino = $this->transporteService->buscarTerminal($linhaDados['terminal_destino_id']);
+        $terminalOrigem    = $this->transporteService->buscarTerminal($linhaDados['terminal_origem_id']);
+        $terminalDestino   = $this->transporteService->buscarTerminal($linhaDados['terminal_destino_id']);
 
-        $cidades = $this->cidadeService->all();
+        $cidades           = $this->cidadeService->all();
 
         // passa as variáveis cruas para a view
         return view('buscas.show', [

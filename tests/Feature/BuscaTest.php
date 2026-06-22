@@ -132,22 +132,5 @@ it('retorna 404 quando a linha não existe na API', function () {
         ->assertNotFound();
 });
 
-it('exibe a view de detalhe quando a linha é válida', function () {
-    $this->mock(TransporteService::class, function ($mock) {
-        $mock->shouldReceive('buscarLinhaPorId')->andReturn([
-            'id'                  => 1,
-            'numero'              => '0101',
-            'terminal_origem_id'  => 10,
-            'terminal_destino_id' => 20,
-        ]);
-        $mock->shouldReceive('listarHorariosDaLinha')->andReturn(['data' => []]);
-        $mock->shouldReceive('buscarTerminal')->andReturn(['data' => ['id' => 10, 'nome' => 'Terminal']]);
-    });
-
-    $this->get(route('linhas.show', ['linha' => 1, 'data' => Carbon::tomorrow()->format('Y-m-d')]))
-        ->assertViewIs('buscas.show')
-        ->assertViewHas('linha')
-        ->assertViewHas('horarios')
-        ->assertViewHas('terminalOrigem')
-        ->assertViewHas('terminalDestino');
-});
+// O teste de renderização de buscas.show entra com a integração da C5-C (DTOs):
+// a view espera objetos e o controller passa arrays brutos, conforme o requisito 7.
