@@ -73,30 +73,46 @@ class BuscaController extends Controller
         }
 
         // busca a linha na API; se falhar/não existir, 404
-        $linhaDados        = $this->transporteService->buscarLinhaPorId($linha);
+        $linhaDados         = $this->transporteService->buscarLinhaPorId($linha);
 
         if (empty($linhaDados)) {
             abort(404);
         }
 
         // dia da semana derivado da data, repassado como filtro
-        $diaSemanaCompleto = Carbon::parse($request->get('data'))->locale('pt_BR')->translatedFormat('l');
-        $diaSemana         = str_replace('-feira', '', $diaSemanaCompleto);
+        $diaSemanaCompleto  = Carbon::parse($request->get('data'))->locale('pt_BR')->translatedFormat('l');
+        $diaSemana          = str_replace('-feira', '', $diaSemanaCompleto);
 
-        $horarios          = $this->transporteService->listarHorariosDaLinha($linha, $diaSemana);
+        $horarios           = $this->transporteService->listarHorariosDaLinha($linha, $diaSemana);
 
-        // terminais de origem e destino via método COM cache
-        $terminalOrigem    = $this->transporteService->buscarTerminal($linhaDados['terminal_origem_id']);
-        $terminalDestino   = $this->transporteService->buscarTerminal($linhaDados['terminal_destino_id']);
+        // terminais brutos da API (método COM cache)
+        $terminalOrigemRaw  = $this->transporteService->buscarTerminal($linhaDados['terminal_origem_id']);
+        $terminalDestinoRaw = $this->transporteService->buscarTerminal($linhaDados['terminal_destino_id']);
 
-        $cidades           = $this->cidadeService->all();
+        // cidades locais no banco para hidratar os DTOs
+        $cidadeOrigem       = $this->cidadeService->find((int) $request->get('origem'));
+        $cidadeDestino      = $this->cidadeService->find((int) $request->get('destino'));
+        $cidades            = $this->cidadeService->all();
 
-        // passa as variáveis cruas para a view
+        // converte os dados brutos para DTOs de terminal
+        $terminalOrigemDTO  = \App\DTOs\TerminalDTO::fromArray($terminalOrigemRaw ?? [], $cidadeOrigem);
+        $terminalDestinoDTO = \App\DTOs\TerminalDTO::fromArray($terminalDestinoRaw ?? [], $cidadeDestino);
+
+        // transforma os horários em Collection de HorarioResultadoDTO
+        $horariosCollection = collect($horarios['data'] ?? [])->map(function (array $horarioRaw) use ($linhaDados) {
+            return \App\DTOs\HorarioResultadoDTO::fromArray(
+                $horarioRaw,
+                (float) ($linhaDados['preco_min'] ?? 0.0),
+                isset($linhaDados['preco_max']) ? (float) $linhaDados['preco_max'] : null
+            );
+        });
+
+        // passa as instâncias tipadas para a view
         return view('buscas.show', [
             'linha'           => $linhaDados,
-            'horarios'        => $horarios,
-            'terminalOrigem'  => $terminalOrigem,
-            'terminalDestino' => $terminalDestino,
+            'horarios'        => $horariosCollection,
+            'terminalOrigem'  => $terminalOrigemDTO,
+            'terminalDestino' => $terminalDestinoDTO,
             'cidades'         => $cidades,
         ]);
     }

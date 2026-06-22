@@ -1,90 +1,78 @@
 @extends('layouts.public')
 
 @section('content')
-    <main class="detalhe-container">
+    <div class="detalhe-container">
 
-        <div style="margin-bottom: 1.5rem;">
+        <div class="voltar-container">
             <a href="{{ route('busca', request()->only(['origem', 'destino', 'data'])) }}" class="btn-voltar">
-                &larr; Voltar para Resultados
+                <svg class="icon-seta" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Voltar para Resultados
             </a>
         </div>
 
         <x-detalhe-header
-            :origem="request('origem', $linha->origem ?? '')"
-            :destino="request('destino', $linha->destino ?? '')"
-            :distanciaKm="$linha->distancia ?? null"
-            :precoMinimo="$linha->preco_base ?? null"
-            :categoria="$linha->categoria ?? null"
-            :numero="$linha->id ?? null"
+            :origem="$origem"
+            :destino="$destino"
+            origemSubtitulo="Rodoviária"
+            destinoSubtitulo="Rodoviária"
+            :distanciaKm="$linha->distancia ?? '300'"
+            precoMinimo="59.90"
+            numero="0606"
+            :categoria="isset($horarios[0]) ? $horarios[0]->categoria : null"
         />
 
-        <div class="detalhe-layout">
+        <section class="operadora-card">
+            <div class="operadora-item">
+                <span class="operadora-label">OPERADORA</span>
+                <strong class="operadora-valor text-azul">{{ $linha->viacao->nome ?? null }}</strong>
+            </div>
+            <div class="operadora-item">
+                <span class="operadora-label">DURAÇÃO MÉDIA</span>
+                <strong class="operadora-valor">{{ $linha->duracao_estimada ?? null }}</strong>
+            </div>
+            <div class="operadora-item">
+                <span class="operadora-label">DISTÂNCIA</span>
+                <strong class="operadora-valor">{{ $linha->distancia ?? null }} km</strong>
+            </div>
+            <div class="operadora-item">
+                <span class="operadora-label">FAIXA DE PREÇO</span>
+                <strong class="operadora-valor">R$ 59,90 – R$ 89,90</strong>
+            </div>
+        </section>
 
-            <div class="detalhe-main">
+        @if(empty($horarios) || count($horarios) === 0)
+            <x-empty-state mensagem="Não há partidas para o dia selecionado." />
+        @else
+            <x-horario-card :horarios="$horarios" />
+        @endif
 
-                <section class="bloco-viacao-info">
-                    <div class="viacao-header">
-                        <div class="viacao-logo-placeholder">
-                            {{ strtoupper(substr($linha->viacao->nome ?? 'V', 0, 2)) }}
-                        </div>
-                        <div>
-                            <h2 class="viacao-titulo">{{ $linha->viacao->nome ?? 'Operadora Local' }}</h2>
-                            <span class="viacao-subtitulo">Viação responsável pelo trajeto selecionado</span>
-                        </div>
+        <section class="terminais-grid">
+            <div class="terminal-card">
+                <h3 class="terminal-card-titulo">TERMINAL DE ORIGEM</h3>
+                <div class="terminal-card-corpo">
+                    <a href="#" class="terminal-cidade-link">{{ $terminalOrigem->nome ?? 'Terminal de Embarque' }}</a>
+                    <div class="terminal-info-lista">
+                        <p><strong>Telefone:</strong> {{ $terminalOrigem->telefone ?? '(00) 0000-0000' }}</p>
+                        <p><strong>Horário de Funcionamento:</strong> {{ $terminalOrigem->horario ?? '24 horas' }}</p>
+                        <p><strong>Número de Plataformas:</strong> {{ $terminalOrigem->plataformas ?? '15' }}</p>
                     </div>
-                </section>
-
-                <div class="bloco-horarios">
-                    <h3 class="bloco-titulo">Horários Disponíveis</h3>
-
-                    @if(empty($horarios) || (is_countable($horarios) && count($horarios) === 0))
-                        <x-empty-state mensagem="Não há partidas programadas para esta viação no dia selecionado." />
-                    @else
-                        <x-horario-card :horarios="$horarios" />
-                    @endif
                 </div>
-
             </div>
 
-            <aside class="detalhe-sidebar">
-
-                @if(!empty($terminalOrigem))
-                    <div class="bloco-terminal">
-                        <div class="terminal-header embarque">
-                            <h3 class="terminal-titulo">Terminal de Embarque</h3>
-                        </div>
-                        <div class="terminal-body">
-                            <h4 class="terminal-nome">{{ $terminalOrigem->nome }}</h4>
-                            <ul class="terminal-dados">
-                                <li>{{ $terminalOrigem->endereco }}</li>
-                                <li>{{ $terminalOrigem->cidade }} - {{ $terminalOrigem->uf }}</li>
-                                @if(!empty($terminalOrigem->telefone))
-                                    <li><strong>Tel:</strong> {{ $terminalOrigem->telefone }}</li>
-                                @endif
-                            </ul>
-                        </div>
+            <div class="terminal-card">
+                <h3 class="terminal-card-titulo">TERMINAL DE DESTINO</h3>
+                <div class="terminal-card-corpo">
+                    <a href="#" class="terminal-cidade-link">{{ $terminalDestino->nome ?? 'Terminal de Desembarque' }}</a>
+                    <div class="terminal-info-lista">
+                        <p><strong>Telefone:</strong> {{ $terminalDestino->telefone ?? '(00) 0000-0000' }}</p>
+                        <p><strong>Horário de Funcionamento:</strong> {{ $terminalDestino->horario ?? '06:00 às 23:00' }}</p>
+                        <p><strong>Número de Plataformas:</strong> {{ $terminalDestino->plataformas ?? '12' }}</p>
                     </div>
-                @endif
+                </div>
+            </div>
+        </section>
 
-                @if(!empty($terminalDestino))
-                    <div class="bloco-terminal">
-                        <div class="terminal-header desembarque">
-                            <h3 class="terminal-titulo">Terminal de Desembarque</h3>
-                        </div>
-                        <div class="terminal-body">
-                            <h4 class="terminal-nome">{{ $terminalDestino->nome }}</h4>
-                            <ul class="terminal-dados">
-                                <li>{{ $terminalDestino->endereco }}</li>
-                                <li>{{ $terminalDestino->cidade }} - {{ $terminalDestino->uf }}</li>
-                                @if(!empty($terminalDestino->telefone))
-                                    <li><strong>Tel:</strong> {{ $terminalDestino->telefone }}</li>
-                                @endif
-                            </ul>
-                        </div>
-                    </div>
-                @endif
-
-            </aside>
-        </div>
-    </main>
+    </div>
 @endsection
