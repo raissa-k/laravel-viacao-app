@@ -109,3 +109,45 @@ it('exibe a estrutura necessária para os filtros e ordenação client-side', fu
         ->assertSee('data-preco-min="', false)
         ->assertSee('data-duracao-min="', false);
 });
+
+// — — — show (detalhe da linha) — — —
+
+it('redireciona para home quando data está ausente no show', function () {
+    $this->get(route('linhas.show', ['linha' => 1]))
+        ->assertRedirect(route('home'))
+        ->assertSessionHas('error');
+});
+
+it('redireciona para home quando data está no passado no show', function () {
+    $this->get(route('linhas.show', ['linha' => 1, 'data' => '2020-01-01']))
+        ->assertRedirect(route('home'))
+        ->assertSessionHas('error');
+});
+
+it('retorna 404 quando a linha não existe na API', function () {
+    $this->mock(TransporteService::class)
+        ->shouldReceive('buscarLinhaPorId')->andReturn([]);
+
+    $this->get(route('linhas.show', ['linha' => 999, 'data' => Carbon::tomorrow()->format('Y-m-d')]))
+        ->assertNotFound();
+});
+
+it('exibe a view de detalhe quando a linha é válida', function () {
+    $this->mock(TransporteService::class, function ($mock) {
+        $mock->shouldReceive('buscarLinhaPorId')->andReturn([
+            'id'                  => 1,
+            'numero'              => '0101',
+            'terminal_origem_id'  => 10,
+            'terminal_destino_id' => 20,
+        ]);
+        $mock->shouldReceive('listarHorariosDaLinha')->andReturn(['data' => []]);
+        $mock->shouldReceive('buscarTerminal')->andReturn(['data' => ['id' => 10, 'nome' => 'Terminal']]);
+    });
+
+    $this->get(route('linhas.show', ['linha' => 1, 'data' => Carbon::tomorrow()->format('Y-m-d')]))
+        ->assertViewIs('buscas.show')
+        ->assertViewHas('linha')
+        ->assertViewHas('horarios')
+        ->assertViewHas('terminalOrigem')
+        ->assertViewHas('terminalDestino');
+});

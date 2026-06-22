@@ -30,6 +30,6 @@
             @endif
         </div>
 
-        <a class="linha-card-btn" href="#">Selecionar</a>
+        <a class="linha-card-btn" href="{{ route('linhas.show', ['linha' => $linha->id, 'data' => request('data')]) }}">Selecionar</a>
     </div>
 </article>

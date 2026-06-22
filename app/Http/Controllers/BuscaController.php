@@ -62,4 +62,42 @@ class BuscaController extends Controller
             'cidades' => $cidades,
         ]);
     }
+
+    public function show(Request $request, int $linha): View|RedirectResponse
+    {
+        // valida o parâmetro 'data'
+        if (!$request->filled('data') || $request->input('data') < date('Y-m-d')) {
+            return redirect()
+                ->route('home')
+                ->with('error', 'Data inválida ou ausente para visualizar a linha.');
+        }
+
+        // busca a linha na API; se falhar/não existir, 404
+        $linhaDados = $this->transporteService->buscarLinhaPorId($linha);
+
+        if (empty($linhaDados)) {
+            abort(404);
+        }
+
+        // dia da semana derivado da data, repassado como filtro
+        $diaSemanaCompleto = Carbon::parse($request->get('data'))->locale('pt_BR')->translatedFormat('l');
+        $diaSemana         = str_replace('-feira', '', $diaSemanaCompleto);
+
+        $horarios = $this->transporteService->listarHorariosDaLinha($linha, $diaSemana);
+
+        // terminais de origem e destino via método COM cache
+        $terminalOrigem  = $this->transporteService->buscarTerminal($linhaDados['terminal_origem_id']);
+        $terminalDestino = $this->transporteService->buscarTerminal($linhaDados['terminal_destino_id']);
+
+        $cidades = $this->cidadeService->all();
+
+        // passa as variáveis cruas para a view
+        return view('buscas.show', [
+            'linha'           => $linhaDados,
+            'horarios'        => $horarios,
+            'terminalOrigem'  => $terminalOrigem,
+            'terminalDestino' => $terminalDestino,
+            'cidades'         => $cidades,
+        ]);
+    }
 }
