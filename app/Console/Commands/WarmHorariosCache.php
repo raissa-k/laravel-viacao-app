@@ -65,6 +65,7 @@ class WarmHorariosCache extends Command
             $progress->finish();
         }
 
+        //aviso
         $this->info('Pre-Warming de cache finalizado com sucesso!');
         return Command::SUCCESS;
     }
