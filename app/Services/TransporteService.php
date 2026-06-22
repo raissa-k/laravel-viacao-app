@@ -266,7 +266,14 @@ class TransporteService
                 return [];
             }
 
-            return $response->json();
+            $dados    = $response->json();
+
+            if (!empty($dados)) {
+                Cache::put($chave, $dados, now()->addMinutes(30));
+            }
+
+            return $dados;
+
         } catch (\Throwable $e) {
             Log::error('TransporteService: exceção ao listar horarios da linha', [
                 'erro' => $e->getMessage(),
@@ -277,7 +284,7 @@ class TransporteService
         }
     }
 
-    public function  listarTodasLinhasAtivasPorOperadora(int $operadoraApiId): array
+    public function listarTodasLinhasAtivasPorOperadora(int $operadoraApiId): array
     {
         try {
             $url      = config('services.transporte_api.url');
@@ -286,23 +293,23 @@ class TransporteService
                     'status' => 'ativa',
                 ]);
 
-    if ($response->failed()) {
-        Log::error('TransporteService: falha ao listar linhas ativas da operadora', [
-            'status'        => $response->status(),
-            'operadoraApiId' => $operadoraApiId,
-        ]);
-        return [];
-    }
+            if ($response->failed()) {
+                Log::error('TransporteService: falha ao listar linhas ativas da operadora', [
+                    'status'         => $response->status(),
+                    'operadoraApiId' => $operadoraApiId,
+                ]);
+                return [];
+            }
 
-    return $response->json();['data'] ?? $response->json();
-    } catch (\Throwable $e) {
-        Log::error('TransporteService: exceção ao listar linhas ativas da operadora', [
-            'erro' => $e->getMessage(),
-            'operadoraApiId' => $operadoraApiId,
-        ]);
+            return $response->json()['data'] ?? $response->json();
 
-        return [];
+        } catch (\Throwable $e) {
+            Log::error('TransporteService: exceção ao listar linhas ativas da operadora', [
+                'erro'           => $e->getMessage(),
+                'operadoraApiId' => $operadoraApiId,
+            ]);
 
+            return [];
         }
     }
 }
