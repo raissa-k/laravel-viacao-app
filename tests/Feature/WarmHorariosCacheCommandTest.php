@@ -3,45 +3,36 @@
 declare(strict_types=1);
 
 use App\Models\Viacao;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
-// 1. Vincula a trait de reset de banco nativa do Laravel/Pest
-uses(RefreshDatabase::class);
-
 beforeEach(function () {
-    // 2. Força dinamicamente o driver em memória para o CI do GitHub não falhar
-    config(['cache.default' => 'array']);
-
     Cache::clear();
 });
 
 test('deve rodar o comando de pre-warming, ignorar viações inválidas e salvar horários no cache', function () {
     // ARRANGEMENT (Preparação dos dados no banco local)
-    // Viação válida e sincronizada (Deve ser processada)
     Viacao::factory()->create([
         'nome'   => 'Viação Sul Sincronizada',
         'api_id' => 10,
         'ativa'  => true,
     ]);
 
-    // Viação sem api_id (Deve ser pulada pelo 'continue')
     Viacao::factory()->create([
         'nome'   => 'Viação Local Sem API ID',
         'api_id' => null,
         'ativa'  => true,
     ]);
 
-    // Viação inativa (Deve ser ignorada no escopo do Where)
     Viacao::factory()->create([
         'nome'   => 'Viação Antiga Inativa',
         'api_id' => 20,
         'ativa'  => false,
     ]);
 
-    // MOCKING (Interceptação das chamadas de API externa)
-    $apiUrl     = config('services.transporte_api.url');
+    // MOCKING (Fixa a URL para blindar o teste contra diferenças de ambiente no CI)
+    $apiUrl     = 'https://api.test';
+    config(['services.transporte_api.url' => $apiUrl]);
 
     Http::fake([
         // Mock da listagem de linhas ativas para a operadora ID 10
@@ -72,7 +63,6 @@ test('deve rodar o comando de pre-warming, ignorar viações inválidas e salvar
         ->assertSuccessful();
 
     // Verificação do Cache
-    // Garante que as chaves dinâmicas blindadas foram criadas com sucesso
     expect(Cache::has('linha:horarios:901'))->toBeTrue()
         ->and(Cache::has('linha:horarios:902'))->toBeTrue();
 
