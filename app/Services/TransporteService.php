@@ -241,6 +241,17 @@ class TransporteService
 
     public function listarHorariosDaLinha(int $id): array
     {
+        $chave = "linha:horarios:{$id}";
+
+        if (Cache::has($chave)) {
+            Log::debug('TransporteService: cache hit ao listar horarios da linha', [
+                'id'    => $id,
+                'chave' => $chave,
+            ]);
+
+            return Cache::get($chave);
+        }
+
         try {
             $url      = config('services.transporte_api.url');
             $response = Http::withToken($this->gerarToken())
@@ -263,6 +274,35 @@ class TransporteService
             ]);
 
             return [];
+        }
+    }
+
+    public function  listarTodasLinhasAtivasPorOperadora(int $operadoraApiId): array
+    {
+        try {
+            $url      = config('services.transporte_api.url');
+            $response = Http::withToken($this->gerarToken())
+                ->get($url . '/api/operadoras/' . $operadoraApiId . '/linhas', [
+                    'status' => 'ativa',
+                ]);
+
+    if ($response->failed()) {
+        Log::error('TransporteService: falha ao listar linhas ativas da operadora', [
+            'status'        => $response->status(),
+            'operadoraApiId' => $operadoraApiId,
+        ]);
+        return [];
+    }
+
+    return $response->json();['data'] ?? $response->json();
+    } catch (\Throwable $e) {
+        Log::error('TransporteService: exceção ao listar linhas ativas da operadora', [
+            'erro' => $e->getMessage(),
+            'operadoraApiId' => $operadoraApiId,
+        ]);
+
+        return [];
+
         }
     }
 }
