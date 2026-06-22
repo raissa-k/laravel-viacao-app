@@ -3,11 +3,17 @@
 declare(strict_types=1);
 
 use App\Models\Viacao;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
-// O pest permite usar Hooks globais ou específicos para limpar/preparar o ambiente
+// 1. Vincula a trait de reset de banco nativa do Laravel/Pest
+uses(RefreshDatabase::class);
+
 beforeEach(function () {
+    // 2. Força dinamicamente o driver em memória para o CI do GitHub não falhar
+    config(['cache.default' => 'array']);
+
     Cache::clear();
 });
 
@@ -60,7 +66,6 @@ test('deve rodar o comando de pre-warming, ignorar viações inválidas e salvar
 
     // Execução do comando Artisan usando a API do Pest
     $this->artisan('viacao:warm-cache-horarios')
-        // Você pode testar se textos esperados aparecem no terminal
         ->expectsOutput('Iniciando o Pre-Warming do cache de horários...')
         ->expectsOutput('Buscando linhas ativas para a Viação: Viação Sul Sincronizada (API ID: 10)')
         ->expectsOutput('Viação [Viação Local Sem API ID] sem api_id. Pulando...')
