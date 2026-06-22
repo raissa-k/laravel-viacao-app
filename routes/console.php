@@ -32,3 +32,5 @@ Schedule::command('viacoes:sincronizar')
     ->onSuccess(function () {
         Log::info('Scheduler: viacoes:sincronizar concluído com sucesso', ['hora' => now()->toDateTimeString()]);
     });
+
+Schedule::command('viacao:warm-cache-horarios')->everyThirtyMinutes()->runInBackground();
