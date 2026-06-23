@@ -14,8 +14,6 @@
     @if($layout === 'vertical')
         <h2 class="card-title">Buscar passagem</h2>
     @endif
-    <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}" action="{{ route('busca') }}" method="GET">
-
     <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}"
           action="{{ $action }}" method="GET">
 
