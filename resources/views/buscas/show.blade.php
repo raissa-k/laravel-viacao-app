@@ -26,7 +26,7 @@
         <section class="operadora-card">
             <div class="operadora-item">
                 <span class="operadora-label">OPERADORA</span>
-                <strong class="operadora-valor text-azul">{{ $linha->viacao->nome ?? 'Auto Viação' }}</strong>
+                <strong class="operadora-valor text-azul">{{ $nomeOperadora }}</strong>
             </div>
             <div class="operadora-item">
                 <span class="operadora-label">DURAÇÃO MÉDIA</span>

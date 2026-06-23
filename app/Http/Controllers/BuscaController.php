@@ -114,14 +114,18 @@ class BuscaController extends Controller
         // 2. Converte o array para Objeto (stdClass) para a View conseguir ler $linha->numero
         $linhaObjeto = json_decode(json_encode($linhaReal));
 
+        $viacao = \App\Models\Viacao::where('api_id', $linhaReal['operadora_id'])->first();
+        $nomeOperadora = $viacao ? $viacao->nome : 'Viação Desconhecida';
+
         return view('buscas.show', [
             'linha'           => $linhaObjeto,
             'horarios'        => $horariosCollection,
             'terminalOrigem'  => $terminalOrigemDTO,
             'terminalDestino' => $terminalDestinoDTO,
             'cidades'         => $cidades,
-            'origem'          => $nomeOrigem,    // Enviando a variável correta
-            'destino'         => $nomeDestino,   // Enviando a variável correta
+            'origem'          => $nomeOrigem,
+            'destino'         => $nomeDestino,
+            'nomeOperadora'   => $nomeOperadora,
         ]);
     }
 }
