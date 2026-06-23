@@ -7,7 +7,7 @@
         <div class="container">
             <div class="error-list">
 
-                <p class="button-error-blue">500</p>
+                <p class="big-button-error-blue">500</p>
 
                 <h1 class="card-title hero-title">Erro Interno no Servidor</h1>
 
@@ -18,7 +18,7 @@
                 </a>
 
                 @if(!empty($traceId))
-                    <p class="error-list" style="margin-top: 1.5rem; font-size: 0.9rem; color: #666;">
+                    <p class="error-list-sos">
                         Informe este código ao suporte: <strong>{{ $traceId }}</strong>
                     </p>
                 @endif
