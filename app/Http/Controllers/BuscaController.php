@@ -69,9 +69,9 @@ class BuscaController extends Controller
             return redirect()->route('home')->with('error', 'Data inválida ou ausente para visualizar a linha.');
         }
 
-        $linhaDados = $this->transporteService->buscarLinhaPorId($linha);
+        $linhaDados         = $this->transporteService->buscarLinhaPorId($linha);
 
-        // Linha inexistente / API sem retorno → 404
+        // 404 PRIMEIRO — antes de qualquer outra chamada ao serviço
         if (empty($linhaDados)) {
             abort(404);
         }
@@ -82,8 +82,8 @@ class BuscaController extends Controller
         $horarios           = $this->transporteService->listarHorariosDaLinha($linha);
 
         // Busca o ID com fallback. Tenta na raiz, depois tenta dentro de 'data', e se não achar usa null.
-        $origemId  = $linhaDados['terminal_origem_id'] ?? $linhaDados['data']['terminal_origem_id'] ?? null;
-        $destinoId = $linhaDados['terminal_destino_id'] ?? $linhaDados['data']['terminal_destino_id'] ?? null;
+        $origemId           = $linhaDados['terminal_origem_id']  ?? $linhaDados['data']['terminal_origem_id'] ?? null;
+        $destinoId          = $linhaDados['terminal_destino_id'] ?? $linhaDados['data']['terminal_destino_id'] ?? null;
 
         // Só faz a requisição para a API se o ID realmente existir
         $terminalOrigemRaw  = $origemId ? $this->transporteService->buscarTerminal($origemId) : ['data' => []];
@@ -97,7 +97,7 @@ class BuscaController extends Controller
         $terminalDestinoDTO = \App\DTOs\TerminalDTO::fromArray($terminalDestinoRaw['data'] ?? [], $cidadeDestino);
 
         // Remove o envelope 'data' caso a API o utilize
-        $linhaReal = $linhaDados['data'] ?? $linhaDados;
+        $linhaReal          = $linhaDados['data']                ?? $linhaDados;
 
         $horariosCollection = collect($horarios['data'] ?? [])->map(function (array $horarioRaw) use ($linhaReal) {
             return \App\DTOs\HorarioResultadoDTO::fromArray(
@@ -108,14 +108,14 @@ class BuscaController extends Controller
         });
 
         // 1. Pega APENAS o texto (nome) das cidades para o Hero Banner não imprimir JSON na tela
-        $nomeOrigem  = $cidadeOrigem ? $cidadeOrigem->nome : 'Origem';
-        $nomeDestino = $cidadeDestino ? $cidadeDestino->nome : 'Destino';
+        $nomeOrigem         = $cidadeOrigem ? $cidadeOrigem->nome : 'Origem';
+        $nomeDestino        = $cidadeDestino ? $cidadeDestino->nome : 'Destino';
 
         // 2. Converte o array para Objeto (stdClass) para a View conseguir ler $linha->numero
-        $linhaObjeto = json_decode(json_encode($linhaReal));
+        $linhaObjeto        = json_decode(json_encode($linhaReal));
 
-        $viacao = \App\Models\Viacao::where('api_id', $linhaReal['operadora_id'])->first();
-        $nomeOperadora = $viacao ? $viacao->nome : 'Viação Desconhecida';
+        $viacao             = \App\Models\Viacao::where('api_id', $linhaReal['operadora_id'])->first();
+        $nomeOperadora      = $viacao ? $viacao->nome : 'Viação Desconhecida';
 
         return view('buscas.show', [
             'linha'           => $linhaObjeto,

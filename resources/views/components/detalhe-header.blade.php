@@ -42,7 +42,7 @@
 
             <div class="detalhe-header-rotas">
                 <div class="detalhe-header-cidade">
-                    <span class="detalhe-header-cidade-nome">{{ $origem }}</span>
+                    <span class="detalhe-header-cidade-nome">{{ $origem?->nome ?? 'Origem' }}</span>
                     @if ($origemSubtitulo)
                         <span class="detalhe-header-cidade-sub">{{ $origemSubtitulo }}</span>
                     @endif
@@ -51,7 +51,7 @@
                 <span class="detalhe-header-seta" aria-hidden="true">→</span>
 
                 <div class="detalhe-header-cidade">
-                    <span class="detalhe-header-cidade-nome">{{ $destino }}</span>
+                    <span class="detalhe-header-cidade-nome">{{ $destino?->nome ?? 'Destino' }}</span>
                     @if ($destinoSubtitulo)
                         <span class="detalhe-header-cidade-sub">{{ $destinoSubtitulo }}</span>
                     @endif
