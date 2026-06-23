@@ -1,20 +1,14 @@
 @extends('errors::minimal')
 
-@section('title', __('Unauthorized'))
 @section('code', '401')
-@section('message', __('Unauthorized'))
+@section('title', 'Não autorizado')
+@section('message', 'Você precisa estar logado para acessar esta página.')
 
-
-<head>
-    <meta charset="UTF-8">
-    <meta  name="viewport" content="width=device-width">
-    <title>Página não encontrada</title>
-</head>
-<body>
-<div>
-    <h1>401</h1>
-    <p>Oops!página não encontrada</p>
-    <p> a página que você está porcurando foi movida ou não existe</p>
-    <a href="{{ route('viacoes.index') }}"> Voltar ao início </a>
-</div>
-</body>
+@section('extra-content')
+    <a href="{{ route('login') }}" class="btn btn--primary">
+        Fazer login
+    </a>
+    <a href="{{ route('home') }}" class="btn btn--outline">
+        Voltar ao início
+    </a>
+@endsection

@@ -301,6 +301,16 @@ img {
     border-top: 8px solid #dc2626;
 }
 
+.button-error-blue{
+    font-size: 500px;
+    align-content: center;
+    text-align: center;
+    border-bottom: 8px solid #1b56d9;
+    border-left: 18px solid #1B56D9FF;
+    border-right: 18px solid #1B56D9FF;
+    border-top: 8px solid #1B56D9FF;
+}
+
 /* Panels */
 
 .panel {

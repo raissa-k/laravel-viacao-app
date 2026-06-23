@@ -1,21 +1,22 @@
-
-@extends('layouts.public')
+@extends('layouts::public')
 
 @section('content')
-    <section class="section">
+    <section class="section-alt">
         <div class="container">
-            <div class="error-page">
+            <div class="error-list">
+
                 @hasSection('code')
-                    <p class="error-page__code">@yield('code')</p>
+                    <p class="button-error-blue">@yield('code')</p>
                 @endif
 
-                <h1 class="error-page__heading">@yield('title')</h1>
+                <h1 class="card-title hero-title">@yield('title')</h1>
 
                 @hasSection('message')
-                    <p class="error-page__message">@yield('message')</p>
+                    <p class="button-error">@yield('message')</p>
                 @endif
 
                 @yield('error-content')
+
             </div>
         </div>
     </section>

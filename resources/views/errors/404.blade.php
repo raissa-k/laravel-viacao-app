@@ -1,17 +1,16 @@
-@extends('errors.layout')
+@extends('layouts.public')
 
-@section('code', '404')
 @section('title', 'Página não encontrada')
-@section('message', 'A página que você está procurando foi movida ou não existe. Mas calma, vamos te ajudar a achar sua viagem.')
+@section('code', '404')
+@section('message', 'A página que você está procurando foi movida ou não existe.')
 
-@section('error-content')
-    <a href="{{ route('viacoes.index') }}" class="btn btn--primary btn--lg error-page__back">
+@section('content')
+    <a href="{{ route('home') }}" class="btn btn-primary">
         Voltar para Início
     </a>
 
-    <div class="error-page__search">
-        <x-trip-search-form
-            heading="Ou procure sua próxima viagem aqui"
-        />
+    <div class="error-list">
+        <h2 class="card-title">Procure sua próxima viagem aqui</h2>
+        <x-search-bar layout="horizontal" :action="route('busca')" />
     </div>
 @endsection
