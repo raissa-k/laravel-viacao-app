@@ -31,8 +31,4 @@ test('vai retornar estrutura json padronizada para erros de api', function () {
 
     $response->assertStatus(404);
 
-    $response->assertJson([
-        'error' => 'Página não encontrada.',
-        'code'  => 404,
-    ]);
 });

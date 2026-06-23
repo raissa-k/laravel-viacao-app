@@ -2,17 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Models\Cidade;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use App\Models\Cidade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Throwable;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -76,10 +79,25 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (Throwable $e, Request $request) use ($isApi) {
 
-            // Ignora exceções já tratadas acima
+            /*
+             * Deixa o Laravel/Symfony tratar do jeito padrão deles qualquer
+             * exceção que já tenha um comportamento HTTP conhecido:
+             * - HttpExceptionInterface cobre NotFoundHttpException,
+             *   MethodNotAllowedHttpException, TooManyRequestsHttpException,
+             *   TokenMismatchException (419), etc.
+             * - AuthenticationException -> redirect para login (302)
+             * - AuthorizationException  -> 403
+             * - ValidationException     -> redirect com erros (web) ou 422 (api)
+             *
+             * Sem isso, este handler genérico "engole" essas exceções e
+             * devolve 500 em vez do comportamento esperado (ex: testes de
+             * redirecionamento de visitante para login).
+             */
             if (
-                $e instanceof NotFoundHttpException ||
-                $e instanceof MethodNotAllowedHttpException
+                $e instanceof HttpExceptionInterface  ||
+                $e instanceof AuthenticationException ||
+                $e instanceof AuthorizationException  ||
+                $e instanceof ValidationException
             ) {
                 return null;
             }
@@ -98,9 +116,9 @@ return Application::configure(basePath: dirname(__DIR__))
             Log::error(
                 "Erro interno no servidor [Trace ID: {$traceId}]",
                 [
-                    'trace_id' => $traceId,
+                    'trace_id'  => $traceId,
                     'exception' => $e,
-                    'url' => $request->fullUrl(),
+                    'url'       => $request->fullUrl(),
                 ]
             );
 
