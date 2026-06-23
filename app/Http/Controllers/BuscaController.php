@@ -81,8 +81,13 @@ class BuscaController extends Controller
 
         $horarios           = $this->transporteService->listarHorariosDaLinha($linha);
 
-        $terminalOrigemRaw  = $this->transporteService->buscarTerminal($linhaDados['terminal_origem_id']);
-        $terminalDestinoRaw = $this->transporteService->buscarTerminal($linhaDados['terminal_destino_id']);
+        // Busca o ID com fallback. Tenta na raiz, depois tenta dentro de 'data', e se não achar usa null.
+        $origemId  = $linhaDados['terminal_origem_id'] ?? $linhaDados['data']['terminal_origem_id'] ?? null;
+        $destinoId = $linhaDados['terminal_destino_id'] ?? $linhaDados['data']['terminal_destino_id'] ?? null;
+
+        // Só faz a requisição para a API se o ID realmente existir
+        $terminalOrigemRaw  = $origemId ? $this->transporteService->buscarTerminal($origemId) : ['data' => []];
+        $terminalDestinoRaw = $destinoId ? $this->transporteService->buscarTerminal($destinoId) : ['data' => []];
 
         $cidadeOrigem       = $this->cidadeService->find((int) $request->get('origem'));
         $cidadeDestino      = $this->cidadeService->find((int) $request->get('destino'));
