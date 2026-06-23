@@ -7,6 +7,7 @@
         <div class="container">
             <div class="error-list">
 
+
                 <p class="big-button-error-blue">404</p>
 
                 <h1 class="card-title hero-title">Página Não Encontrada</h1>
@@ -17,10 +18,10 @@
                     Voltar para o Início
                 </a>
 
-                <div class="form-group-error">
+                <div class="form-group">
                     <h2 class="card-title">Procure sua próxima viagem aqui</h2>
                     <x-search-bar
-                        :cidades="collect()"
+                        :cidades="$cidades"
                         :action="route('busca')"
                         layout="horizontal"
                     />

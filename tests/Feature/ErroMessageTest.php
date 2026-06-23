@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('vai exibir tela 404 customizada com botao voltar na web', function () {
     $response = $this->get('/rotaQueNaoExiste');
 
