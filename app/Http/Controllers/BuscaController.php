@@ -69,7 +69,7 @@ class BuscaController extends Controller
             return redirect()->route('home')->with('error', 'Data inválida ou ausente para visualizar a linha.');
         }
 
-        $linhaDados         = $this->transporteService->buscarLinhaPorId($linha);
+        $linhaDados = $this->transporteService->buscarLinhaPorId($linha);
 
         // Linha inexistente / API sem retorno → 404
         if (empty($linhaDados)) {
@@ -96,22 +96,32 @@ class BuscaController extends Controller
         $terminalOrigemDTO  = \App\DTOs\TerminalDTO::fromArray($terminalOrigemRaw['data'] ?? [], $cidadeOrigem);
         $terminalDestinoDTO = \App\DTOs\TerminalDTO::fromArray($terminalDestinoRaw['data'] ?? [], $cidadeDestino);
 
-        $horariosCollection = collect($horarios['data'] ?? [])->map(function (array $horarioRaw) use ($linhaDados) {
+        // Remove o envelope 'data' caso a API o utilize
+        $linhaReal = $linhaDados['data'] ?? $linhaDados;
+
+        $horariosCollection = collect($horarios['data'] ?? [])->map(function (array $horarioRaw) use ($linhaReal) {
             return \App\DTOs\HorarioResultadoDTO::fromArray(
                 $horarioRaw,
-                (float) ($linhaDados['preco_min'] ?? 0.0),
-                isset($linhaDados['preco_max']) ? (float) $linhaDados['preco_max'] : null
+                (float) ($linhaReal['preco_min'] ?? 0.0),
+                isset($linhaReal['preco_max']) ? (float) $linhaReal['preco_max'] : null
             );
         });
 
+        // 1. Pega APENAS o texto (nome) das cidades para o Hero Banner não imprimir JSON na tela
+        $nomeOrigem  = $cidadeOrigem ? $cidadeOrigem->nome : 'Origem';
+        $nomeDestino = $cidadeDestino ? $cidadeDestino->nome : 'Destino';
+
+        // 2. Converte o array para Objeto (stdClass) para a View conseguir ler $linha->numero
+        $linhaObjeto = json_decode(json_encode($linhaReal));
+
         return view('buscas.show', [
-            'linha'           => $linhaDados,
+            'linha'           => $linhaObjeto,
             'horarios'        => $horariosCollection,
             'terminalOrigem'  => $terminalOrigemDTO,
             'terminalDestino' => $terminalDestinoDTO,
             'cidades'         => $cidades,
-            'origem'          => $cidadeOrigem,
-            'destino'         => $cidadeDestino,
+            'origem'          => $nomeOrigem,    // Enviando a variável correta
+            'destino'         => $nomeDestino,   // Enviando a variável correta
         ]);
     }
 }

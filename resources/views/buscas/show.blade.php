@@ -6,10 +6,10 @@
         :destino="$destino"
         origemSubtitulo="Rodoviária"
         destinoSubtitulo="Rodoviária"
-        :distanciaKm="$linha->distancia ?? '300'"
-        precoMinimo="59.90"
-        numero="0606"
-        :categoria="isset($horarios[0]) ? $horarios[0]->categoria : null"
+        :distanciaKm="$linha->distancia_km ?? '0'"
+        precoMinimo="{{ number_format($linha->preco_min ?? 0, 2, ',', '.') }}"
+        numero="{{ $linha->numero ?? '0000' }}"
+        :categoria="$linha->categoria ?? 'Convencional'"
     />
 
     <div class="detalhe-container">
@@ -26,19 +26,19 @@
         <section class="operadora-card">
             <div class="operadora-item">
                 <span class="operadora-label">OPERADORA</span>
-                <strong class="operadora-valor text-azul">{{ $linha->viacao->nome ?? null }}</strong>
+                <strong class="operadora-valor text-azul">{{ $linha->viacao->nome ?? 'Auto Viação' }}</strong>
             </div>
             <div class="operadora-item">
                 <span class="operadora-label">DURAÇÃO MÉDIA</span>
-                <strong class="operadora-valor">{{ $linha->duracao_estimada ?? null }}</strong>
+                <strong class="operadora-valor">{{ isset($linha->duracao_media_min) ? floor($linha->duracao_media_min / 60) . 'h' : '4h' }}</strong>
             </div>
             <div class="operadora-item">
                 <span class="operadora-label">DISTÂNCIA</span>
-                <strong class="operadora-valor">{{ $linha->distancia ?? null }} km</strong>
+                <strong class="operadora-valor">{{ $linha->distancia_km ?? '0' }} km</strong>
             </div>
             <div class="operadora-item">
                 <span class="operadora-label">FAIXA DE PREÇO</span>
-                <strong class="operadora-valor">R$ 59,90 – R$ 89,90</strong>
+                <strong class="operadora-valor">R$ {{ number_format($linha->preco_min ?? 0, 2, ',', '.') }} – R$ {{ number_format($linha->preco_max ?? 0, 2, ',', '.') }}</strong>
             </div>
         </section>
 
