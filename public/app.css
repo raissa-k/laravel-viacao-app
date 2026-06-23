@@ -356,6 +356,10 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
     color: var(--danger);
 }
 
+.error-list-sos{
+    margin-top: 1.5rem; font-size: 0.9rem; color: #666;
+}
+
 /* .logo-preview: miniatura do logo atual de uma viação. */
 .logo-preview {
     height: 40px;
@@ -392,3 +396,10 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
     color: var(--text);
     margin-top: 15px;
 }
+
+.big-button-error-blue {
+    font-size: 180px;
+    color: #1B56D9FF;
+    text-align: center;
+}
+

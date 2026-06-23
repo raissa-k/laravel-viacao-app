@@ -66,6 +66,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     // Histórico de alterações
     Route::get('/historico', [HistoricoController::class, 'index'])->name('historico.index');
+    Route::get('/test-abort-500', function () {
+        abort(500);
+    });
 
     // CRUD de usuários
     Route::get('/usuarios', [UsuariosController::class, 'index'])->name('usuarios.index');
