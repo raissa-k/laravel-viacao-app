@@ -1,6 +1,17 @@
 @extends('layouts.public')
 
 @section('content')
+    <x-detalhe-header
+        :origem="$origem"
+        :destino="$destino"
+        origemSubtitulo="Rodoviária"
+        destinoSubtitulo="Rodoviária"
+        :distanciaKm="$linha->distancia ?? '300'"
+        precoMinimo="59.90"
+        numero="0606"
+        :categoria="isset($horarios[0]) ? $horarios[0]->categoria : null"
+    />
+
     <div class="detalhe-container">
 
         <div class="voltar-container">
@@ -11,17 +22,6 @@
                 Voltar para Resultados
             </a>
         </div>
-
-        <x-detalhe-header
-            :origem="$origem"
-            :destino="$destino"
-            origemSubtitulo="Rodoviária"
-            destinoSubtitulo="Rodoviária"
-            :distanciaKm="$linha->distancia ?? '300'"
-            precoMinimo="59.90"
-            numero="0606"
-            :categoria="isset($horarios[0]) ? $horarios[0]->categoria : null"
-        />
 
         <section class="operadora-card">
             <div class="operadora-item">
