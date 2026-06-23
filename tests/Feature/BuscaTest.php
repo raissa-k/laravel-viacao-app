@@ -109,3 +109,28 @@ it('exibe a estrutura necessária para os filtros e ordenação client-side', fu
         ->assertSee('data-preco-min="', false)
         ->assertSee('data-duracao-min="', false);
 });
+
+// — — — show (detalhe da linha) — — —
+
+it('redireciona para home quando data está ausente no show', function () {
+    $this->get(route('linhas.show', ['linha' => 1]))
+        ->assertRedirect(route('home'))
+        ->assertSessionHas('error');
+});
+
+it('redireciona para home quando data está no passado no show', function () {
+    $this->get(route('linhas.show', ['linha' => 1, 'data' => '2020-01-01']))
+        ->assertRedirect(route('home'))
+        ->assertSessionHas('error');
+});
+
+it('retorna 404 quando a linha não existe na API', function () {
+    $this->mock(TransporteService::class)
+        ->shouldReceive('buscarLinhaPorId')->andReturn([]);
+
+    $this->get(route('linhas.show', ['linha' => 999, 'data' => Carbon::tomorrow()->format('Y-m-d')]))
+        ->assertNotFound();
+});
+
+// O teste de renderização de buscas.show entra com a integração da C5-C (DTOs):
+// a view espera objetos e o controller passa arrays brutos, conforme o requisito 7.

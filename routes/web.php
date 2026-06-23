@@ -25,6 +25,9 @@ use Illuminate\Support\Facades\Route;
 // Home pública: qualquer visitante pode acessar
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/busca', [BuscaController::class, 'index'])->name('busca');
+Route::get('/busca/linhas/{linha}', [BuscaController::class, 'show'])
+    ->name('linhas.show')
+    ->where('linha', '[0-9]+');
 
 // Serve arquivos de upload (logos) armazenados fora do docroot.
 // where(): restringe {filename} ao padrão gerado pelo UploadService (bin2hex(8 bytes) + extensão).
