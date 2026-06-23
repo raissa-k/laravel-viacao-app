@@ -16,7 +16,6 @@
                 @if ($categoria || $numero)
                     <div class="detalhe-header-meta">
                         @if ($categoria)
-                            {{-- CORRIGIDO: Agora trata $categoria como string (texto puro) --}}
                             <x-badge
                                 rotulo="{{ ucfirst($categoria) }}"
                                 tipo="badge-{{ strtolower($categoria) }}"
@@ -35,7 +34,6 @@
                         @endif
                         @if ($precoMinimo)
                             <span class="detalhe-header-preco-label">a partir de</span>
-                            {{-- CORRIGIDO: Apenas imprime o valor, pois já foi formatado no show.blade.php --}}
                             <span class="detalhe-header-preco-valor">R$ {{ $precoMinimo }}</span>
                         @endif
                     </div>
