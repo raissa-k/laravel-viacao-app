@@ -6,7 +6,7 @@
             <div class="error-list">
 
                 @hasSection('code')
-                    <p class="button-error-blue">@yield('code')</p>
+                    <p class="big-button-error-blue">@yield('code')</p>
                 @endif
 
                 <h1 class="card-title hero-title">@yield('title')</h1>

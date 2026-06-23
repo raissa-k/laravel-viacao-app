@@ -1,26 +1,32 @@
-@props([
-    'layout' => 'vertical',
-    'cidades' => null,
-    'action' => null,
-]);
 @extends('layouts.public')
 
-@section('title', 'Página não encontrada')
-@section('code', '404')
-@section('message', 'A página que você está procurando foi movida ou não existe.')
+@section('title', 'Página Não Encontrada')
 
 @section('content')
-    @php
-        $cidades = $cidades ?? \App\Models\Cidade::orderBy('nome')->get();
-    @endphp
-    <a href="{{ route('home') }}" class="btn btn-primary">
-        Voltar para Início
-    </a>
+    <section class="section-alt">
+        <div class="container">
+            <div class="error-list">
 
-        <h2 class="card-title">Procure sua próxima viagem aqui</h2>
+                <p class="big-button-error-blue">404</p>
 
-        <x-search-bar
-        :cidades="$cidades"
-        :action="route('busca')"
-        />
+                <h1 class="card-title hero-title">Página Não Encontrada</h1>
+
+                <p class="button-error">A página que você está procurando foi movida ou não existe.</p>
+
+                <a href="{{ route('home') }}" class="btn btn-primary">
+                    Voltar para o Início
+                </a>
+
+                <div class="form-group-error">
+                    <h2 class="card-title">Procure sua próxima viagem aqui</h2>
+                    <x-search-bar
+                        :cidades="collect()"
+                        :action="route('busca')"
+                        layout="horizontal"
+                    />
+                </div>
+
+            </div>
+        </div>
+    </section>
 @endsection

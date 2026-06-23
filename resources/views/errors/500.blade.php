@@ -1,17 +1,29 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
-@section('code', '500')
-@section('title', 'Erro interno no servidor ')
-@section('message', 'Algo deu errado no nosso lado. Já fomos avisados e estamos resolvendo.')
+@section('title', 'Erro Interno no Servidor')
 
-@section('error-content')
-    <a href="{{ route('home') }}" class="btn btn-primary">
-        Voltar ao início
-    </a>
+@section('content')
+    <section class="section-alt">
+        <div class="container">
+            <div class="error-list">
 
-    @if(!empty($traceId))
-        <p class="error-list">
-            Informe este código ao suporte: <strong>{{ $traceId }}</strong>
-        </p>
-    @endif
+                <p class="button-error-blue">500</p>
+
+                <h1 class="card-title hero-title">Erro Interno no Servidor</h1>
+
+                <p class="button-error">Algo deu errado no nosso lado. Já fomos avisados e estamos resolvendo.</p>
+
+                <a href="{{ route('home') }}" class="btn btn-primary">
+                    Voltar ao início
+                </a>
+
+                @if(!empty($traceId))
+                    <p class="error-list" style="margin-top: 1.5rem; font-size: 0.9rem; color: #666;">
+                        Informe este código ao suporte: <strong>{{ $traceId }}</strong>
+                    </p>
+                @endif
+
+            </div>
+        </div>
+    </section>
 @endsection

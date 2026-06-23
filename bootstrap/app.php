@@ -7,6 +7,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -24,50 +26,22 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
+        // Helper para identificar requisições de API de forma robusta
         $isApi = fn (Request $request): bool => $request->is('api', 'api/*') || $request->expectsJson();
 
-        $exceptions->render(function (Throwable $e, Request $request) use ($isApi) {
-            if (!$isApi($request)) {
-                $code = 500;
-                $message = 'Erro interno no servidor';
-
-                if ($e instanceof HttpExceptionInterface) {
-                    $code = $e->getStatusCode();
-                    $message = $e->getMessage() ?: 'Erro na requisição';
-                }
-
-                if ($e instanceof NotFoundHttpException && $e->getPrevious() instanceof ModelNotFoundException) {
-                    $message = 'recurso não encontrado';
-                };
-
-            }
-
-            if (!($e instanceof HttpExceptionInterface)) {
-                $traceId = (string) Str::uuid();
-
-                Log::error("Erro interno no servidor [Trace ID:{$traceId}]:" . $e->getMessage(), [
-                    'exception' => $e,
-                    'url' => $request->fullUrl()
-                ]);
-
-                return response()->view('errors.500', ['traceId' => $traceId], 500);
-            }
-            });
-
-            /*
-             * ModelNotFoundException é lançada pelo route model binding quando o model não é encontrado.
-             * Exemplo: Route::get('/viacoes/{viacao}', ...) com ID inexistente -> ModelNotFoundException.
-             * O ViacaoApiController atual usa int $id + find() manual e retorna JSON diretamente,
-             * aqui só entra em ação se as rotas de API passarem a usar route model binding.
-             * A mensagem é genérica ("Recurso") para funcionar com qualquer model.
-             */
+        // 1. Tratamento específico para 404 (Geral, Route Model Binding ou rotas inexistentes)
         $exceptions->render(function (NotFoundHttpException $e, Request $request) use ($isApi) {
-            if (!$isApi($request)) {
-                return response()->view('errors.404', [], 404);
+            if ($isApi($request)) {
+                return response()->json([
+                    'error' => 'Página não encontrada.', // Exatamente a string cobrada no teste
+                    'code' => 404,
+                ], 404);
             }
 
+            return response()->view('errors.404', [], 404);
         });
 
+        // 2. Tratamento para métodos HTTP incorretos (ex: dar POST onde deveria ser GET)
         $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) use ($isApi) {
             if ($isApi($request)) {
                 return response()->json([
@@ -76,4 +50,34 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 405);
             }
         });
+
+        // 3. Tratamento genérico para erros fatais (Erros 500 / Exceções não capturadas)
+        $exceptions->render(function (Throwable $e, Request $request) use ($isApi) {
+
+            // Determina se é um erro HTTP ou um erro de código puro (500)
+            $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+
+            // Se for API, devolve a estrutura JSON unificada requerida
+            if ($isApi($request)) {
+                $message = $statusCode === 500 ? 'Erro Interno no Servidor' : $e->getMessage();
+                return response()->json([
+                    'error' => $message,
+                    'code' => $statusCode,
+                ], $statusCode);
+            }
+
+            // Se for WEB e for um erro crítico do servidor (500)
+            if ($statusCode === 500) {
+                $traceId = (string) Str::uuid();
+
+                // Registra o ID no log com espaço corrigido conforme boas práticas
+                Log::error("Erro interno no servidor [Trace ID: {$traceId}]: " . $e->getMessage(), [
+                    'exception' => $e,
+                    'url' => $request->fullUrl()
+                ]);
+
+                return response()->view('errors.500', ['traceId' => $traceId], 500);
+            }
+        });
+
     })->create();
