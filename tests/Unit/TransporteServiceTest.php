@@ -446,3 +446,66 @@ it('listarHorariosDaLinha retorna array vazio sem disparar exceção em caso de 
 
     expect($result)->toBe([]);
 });
+
+// — — — dois ids diferentes chaves de cache independentes — — —
+
+it('buscarTerminal faz 2 chamadas HTTP para 2 ids diferentes pois as chaves de cache são independentes', function () {
+    Http::fake([
+        'https://api.test/api/terminais/1' => Http::response(['data' => ['id' => 1, 'nome' => 'Terminal A']], 200),
+        'https://api.test/api/terminais/2' => Http::response(['data' => ['id' => 2, 'nome' => 'Terminal B']], 200),
+    ]);
+
+    $service = new TransporteService();
+    $service->buscarTerminal(1);
+    $service->buscarTerminal(2);
+
+    Http::assertSentCount(2);
+});
+
+// — — — Cache::shouldReceive() — chave e TTL exato — — —
+
+it('buscarTerminal invoca Cache com a chave terminal:{id} e TTL de exatamente 60 minutos', function () {
+    Carbon::setTestNow('2026-06-22 10:00:00');
+
+    Http::fake([
+        'https://api.test/api/terminais/42' => Http::response(
+            ['data' => ['id' => 42, 'nome' => 'Terminal Fake']],
+            200
+        ),
+    ]);
+
+    Cache::shouldReceive('has')
+        ->with('terminal:42')
+        ->once()
+        ->andReturn(false);
+
+    Cache::shouldReceive('put')
+        ->with(
+            'terminal:42',
+            Mockery::any(),
+            Mockery::on(fn ($ttl) => $ttl->eq(Carbon::now()->addHour()))
+        )
+        ->once();
+
+    new TransporteService()->buscarTerminal(42);
+
+    Carbon::setTestNow();
+});
+
+// — — — Time Travel — expiração do TTL — — —
+
+it('buscarTerminal consulta a API de novo após o TTL de 1 hora expirar', function () {
+    Http::fake([
+        'https://api.test/api/terminais/1' => Http::response(['data' => ['id' => 1, 'nome' => 'Terminal']], 200),
+    ]);
+
+    $service = new TransporteService();
+
+    $service->buscarTerminal(1);   // cache miss → popula (1ª req)
+
+    $this->travel(61)->minutes();  // avança além do TTL de 60 min
+
+    $service->buscarTerminal(1);   // expirado → consulta API (2ª req)
+
+    Http::assertSentCount(2);
+});
