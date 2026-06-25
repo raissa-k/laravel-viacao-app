@@ -487,7 +487,7 @@ it('buscarTerminal invoca Cache com a chave terminal:{id} e TTL de exatamente 60
         )
         ->once();
 
-    (new TransporteService())->buscarTerminal(42);
+    new TransporteService()->buscarTerminal(42);
 
     Carbon::setTestNow();
 });

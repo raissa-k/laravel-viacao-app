@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 it('view de detalhe exibe nome da operadora, horários e terminais sem o controller', function () {
     // $origem/$destino chegam ao componente x-detalhe-header, que lê ->nome
-    $origem  = (object) ['nome' => 'Curitiba'];
-    $destino = (object) ['nome' => 'São Paulo'];
+    $origem          = (object) ['nome' => 'Curitiba'];
+    $destino         = (object) ['nome' => 'São Paulo'];
 
-    $linha = (object) [
+    $linha           = (object) [
         'numero'            => '1050',
         'distancia_km'      => 408,
         'preco_min'         => 45.50,
@@ -19,7 +19,7 @@ it('view de detalhe exibe nome da operadora, horários e terminais sem o control
     $terminalOrigem  = (object) ['nome' => 'Rodoviária de Curitiba'];
     $terminalDestino = (object) ['nome' => 'Rodoviária de São Paulo'];
 
-    $horario = (object) [
+    $horario         = (object) [
         'partida'   => '08:00',
         'chegada'   => '12:30',
         'categoria' => null,
@@ -51,7 +51,7 @@ it('view de detalhe exibe empty-state quando não há horários', function () {
     $origem  = (object) ['nome' => 'Curitiba'];
     $destino = (object) ['nome' => 'São Paulo'];
 
-    $linha = (object) [
+    $linha   = (object) [
         'numero'       => '1050',
         'distancia_km' => 408,
         'preco_min'    => 45.50,
