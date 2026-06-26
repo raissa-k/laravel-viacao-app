@@ -7,14 +7,14 @@ use App\Enums\Categoria;
 
 test('deve instanciar HorarioResultadoDTO mapeando os dados com sucesso e formatando as horas com Carbon', function () {
     $dadosBrutos = [
-        'id'                    => 45,
-        'partida'               => '14:35:00',
+        'id'           => 45,
+        'partida'      => '14:35:00',
         'chegada_estimada'      => '18:10:00',
-        'tipo'                  => 'leito',
-        'assentos'              => 32,
-        'diasDaSemana'          => ['Segunda', 'Quarta'],
-        'preco_min'             => 140.50,
-        'preco_max'             => 210.00,
+        'tipo'         => 'leito',
+        'assentos'     => 32,
+        'diasDaSemana' => ['Segunda', 'Quarta'],
+        'preco_min'    => 140.50,
+        'preco_max'    => 210.00,
     ];
 
     $dto         = HorarioResultadoDTO::fromArray($dadosBrutos, 50.00, 100.00);
@@ -31,8 +31,8 @@ test('deve instanciar HorarioResultadoDTO mapeando os dados com sucesso e format
 
 test('deve aplicar os fallbacks de preço da linha pai e categoria padrão se a API omitir os dados', function () {
     $dadosBrutos = [
-        'id'               => 10,
-        'partida'          => '08:00',
+        'id'      => 10,
+        'partida' => '08:00',
         'chegada_estimada' => '11:00',
     ];
 
