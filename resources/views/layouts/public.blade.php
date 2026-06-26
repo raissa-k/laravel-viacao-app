@@ -36,7 +36,9 @@
 
 @include('partials.flash')
 
-@yield('content')
+<main id="main-content" style="display: contents;">
+    @yield('content')
+</main>
 
 <footer class="footer-pub">
     <p>© {{ date('Y') }} Viações Demo</p>
