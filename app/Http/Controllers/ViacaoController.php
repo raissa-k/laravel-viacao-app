@@ -152,7 +152,7 @@ class ViacaoController extends Controller
             auth()->id()
         );
 
-        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação actualizada.');
+        return redirect()->route('viacoes.show', $viacao)->with('success', 'Viação atualizada.');
     }
     /** Marca a viação como excluída. */
     /** Marca a viação como excluída (soft delete). */
