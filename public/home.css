@@ -44,9 +44,22 @@ A vantagem é que você compõe o layout no HTML sem precisar ficar criando clas
     padding: 0 24px;
 }
 
+@media (max-width: 400px) {
+    .search-card-horizontal {
+        margin-top: 25px;
+    }
+}
+
 /* Flexbox básico */
 .flex {
     display: flex;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 400px) {
+    .gap {
+        margin-top: 10px;
+    }
 }
 
 .flex-col {
