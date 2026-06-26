@@ -9,7 +9,7 @@ test('deve instanciar HorarioResultadoDTO mapeando os dados com sucesso e format
     $dadosBrutos = [
         'id'           => 45,
         'partida'      => '14:35:00',
-        'chegada'      => '18:10:00',
+        'chegada_estimada'      => '18:10:00',
         'tipo'         => 'leito',
         'assentos'     => 32,
         'diasDaSemana' => ['Segunda', 'Quarta'],
@@ -33,7 +33,7 @@ test('deve aplicar os fallbacks de preço da linha pai e categoria padrão se a 
     $dadosBrutos = [
         'id'      => 10,
         'partida' => '08:00',
-        'chegada' => '11:00',
+        'chegada_estimada' => '11:00',
     ];
 
     $dto         = HorarioResultadoDTO::fromArray($dadosBrutos, 75.90, null);
