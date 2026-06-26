@@ -25,7 +25,7 @@
                 <span class="nav-link">Olá, {{ auth()->user()->nome }}</span>
                 <form class="inline-form" method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button class="btn btn-outline" type="submit">Sair</button>
+                    <button class="btn:hover" type="submit">Sair</button>
                 </form>
             @else
                 <a href="{{ route('login') }}" class="btn btn-primary">Entrar</a>
