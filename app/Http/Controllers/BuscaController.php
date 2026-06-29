@@ -23,17 +23,18 @@ class BuscaController extends Controller
 
     public function index(Request $request): View|RedirectResponse
     {
-        $request->validate([
-            'origem'  => 'required',
-            'destino' => 'required',
-            'data'    => 'required|date|after_or_equal:today',
-        ], [
-            // Mensagens personalizadas caso falte algo ou a data seja no passado
-            'origem.required'  => 'Por favor, preencha a origem.',
-            'destino.required' => 'Por favor, preencha o destino.',
-            'data.required'    => 'Por favor, preencha a data.',
-            'data.after_or_equal' => 'A data da busca não pode ser uma data no passado.',
-        ]);
+        if (!$request->filled(['origem','destino','data'])) {
+            return redirect()
+                ->route('home')
+                ->with('error', 'Por favor, preencha origem, destino e data para realizar a busca.');
+        }
+
+        //-- bloco de condição para caso a data seja no passado --
+        if ($request->input('data') < date('Y-m-d')) {
+            return redirect()
+                ->route('home')
+                ->with('error', 'A data da busca não pode ser uma data no passado.');
+        }
 
         $origem            = $this->cidadeService->find((int) $request->get('origem'));
         $destino           = $this->cidadeService->find((int) $request->get('destino'));
