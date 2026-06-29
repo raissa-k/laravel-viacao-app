@@ -31,9 +31,11 @@
                             />
                         @endif
 
-                        @if (!empty($h->assentos))
-                            <span class="horario-card-assentos">{{ $h->assentos }} assentos</span>
-                        @endif
+                            @if(isset($h->assentos) && $h->assentos > 0)
+                                <span class="horario-card-assentos">{{ $h->assentos }} assentos disponíveis</span>
+                            @else
+                                <span class="horario-card-assentos esgotado">Esgotado</span>
+                            @endif
 
                         @if (!empty($h->dias))
                             <div class="horario-card-dias">
