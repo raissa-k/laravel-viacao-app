@@ -87,8 +87,3 @@ final readonly class HorarioResultadoDTO
         );
     }
 }
-//Aqui eu estabeleci o HorarioResultadoDTO e configurei o __construct. Na propriedade categoria, em específico, o DTO define que o objeto receberá o Enum Categoria.
-//Os dados brutos chegam através do parâmetro de array $dados. A partir dele, eu cato o resto das informações que serão tratadas. No caso da categoria, o código pega a string contida na chave 'tipo' da API e a armazena na variável $categoria.
-// Se não vier nada ou o valor for inválido, entra em ação um fallback padrão que receberá Categoria::Convencional.
-//Em precoMinimo e precoMaximo, usa o isset para verificar se os campos existem e não são nulos.
-// Se não forem nulos, ele colocará os dados corretos vindos da API. Caso contrário, ativa o Fallback e resgata os preços padrões recebidos por parâmetro.
