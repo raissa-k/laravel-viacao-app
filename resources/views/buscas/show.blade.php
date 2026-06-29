@@ -4,8 +4,8 @@
     <x-detalhe-header
         :origem="$origem"
         :destino="$destino"
-        origemSubtitulo="Rodoviária"
-        destinoSubtitulo="Rodoviária"
+        origemSubtitulo="{{ $terminalOrigem->nome ?? 'Rodoviária' }}"
+        destinoSubtitulo="{{ $terminalDestino->nome ?? 'Rodoviária' }}"
         :distanciaKm="$linha->distancia_km ?? '0'"
         precoMinimo="{{ number_format($linha->preco_min ?? 0, 2, ',', '.') }}"
         numero="{{ $linha->numero ?? '0000' }}"
