@@ -27,7 +27,7 @@ final readonly class HorarioResultadoDTO
     {
         $id              = (int) ($dados['id'] ?? 0);
         $partida         = Carbon::parse((string) ($dados['partida'] ?? '00:00'))->format('H:i');
-        $chegada         = Carbon::parse((string) ($dados['chegada_estimada'] ?? '00:00'))->format('H:i');
+        $chegada = Carbon::parse((string) ($dados['chegada_estimada'] ?? '00:00'), 'UTC')->format('H:i');//adicionado a timezone pois estava quebrando o teste
         $categoria       = Categoria::tryFrom((string)($dados['tipo']??'')) ?? Categoria::Convencional;
         $assentos        = (int) ($dados['assentos'] ?? 0);
         $diasDaSemana    = (array) ($dados['diasDaSemana'] ?? []);
