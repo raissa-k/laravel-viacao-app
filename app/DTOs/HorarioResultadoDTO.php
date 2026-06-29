@@ -23,11 +23,26 @@ final readonly class HorarioResultadoDTO
 
 
     /** Constrói o DTO a partir do array bruto devolvido pela API. */
-    public static function fromArray(array $dados, float $precoMinimo, ?float $precoMaximo = null): self
+    public static function fromArray(array $dados, float $precoMinimo, ?float $precoMaximo = null): ?self
     {
+        $vPartida        = Carbon::createFromFormat('H:i', $dados['partida'] ?? '00:00'); //obj carbon puro
+        $vChegada        = Carbon::createFromFormat('H:i', $dados['chegada_estimada'] ?? '00:00'); //obj carbon
+
+        $partida         = $vPartida->format('H:i'); //string em si já formatada
+        $chegada         = $vChegada->format('H:i'); //string em si já formatada
+
+        //bloco de lógica para tratamento de horários inválidos
+        if ($vChegada->lessThan($vPartida)) {
+            //partidas noturnas >=18 com chegadas de manha <= 12h são aceitas como dia seguinte
+            if ($vPartida->hour >= 18 && $vChegada->hour <= 12) {
+                $chegada .= ' (+1)'; //
+            } else {
+                // se for um dado ruim ele aparece a string
+                $chegada .= ' *saber mais* ';
+            }
+        }
+        //------------------------------------------
         $id              = (int) ($dados['id'] ?? 0);
-        $partida         = Carbon::parse((string) ($dados['partida'] ?? '00:00'))->format('H:i');
-        $chegada = Carbon::parse((string) ($dados['chegada_estimada'] ?? '00:00'), 'UTC')->format('H:i');//adicionado a timezone pois estava quebrando o teste
         $categoria       = Categoria::tryFrom((string)($dados['tipo']??'')) ?? Categoria::Convencional;
         $assentos        = (int) ($dados['assentos'] ?? 0);
         $diasDaSemana    = (array) ($dados['diasDaSemana'] ?? []);
@@ -47,8 +62,3 @@ final readonly class HorarioResultadoDTO
         );
     }
 }
-//Aqui eu estabeleci o HorarioResultadoDTO e configurei o __construct. Na propriedade categoria, em específico, o DTO define que o objeto receberá o Enum Categoria.
-//Os dados brutos chegam através do parâmetro de array $dados. A partir dele, eu cato o resto das informações que serão tratadas. No caso da categoria, o código pega a string contida na chave 'tipo' da API e a armazena na variável $categoria.
-// Se não vier nada ou o valor for inválido, entra em ação um fallback padrão que receberá Categoria::Convencional.
-//Em precoMinimo e precoMaximo, usa o isset para verificar se os campos existem e não são nulos.
-// Se não forem nulos, ele colocará os dados corretos vindos da API. Caso contrário, ativa o Fallback e resgata os preços padrões recebidos por parâmetro.

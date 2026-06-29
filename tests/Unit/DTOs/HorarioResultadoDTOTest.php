@@ -8,8 +8,8 @@ use App\Enums\Categoria;
 test('deve instanciar HorarioResultadoDTO mapeando os dados com sucesso e formatando as horas com Carbon', function () {
     $dadosBrutos = [
         'id'                    => 45,
-        'partida'               => '14:35:00',
-        'chegada_estimada'      => '18:10:00',
+        'partida'               => '14:35',
+        'chegada_estimada'      => '18:10',
         'tipo'                  => 'leito',
         'assentos'              => 32,
         'diasDaSemana'          => ['Segunda', 'Quarta'],
