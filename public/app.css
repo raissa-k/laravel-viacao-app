@@ -403,3 +403,11 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
     text-align: center;
 }
 
+@media(max-width: 200px) {
+    .empty-state_title{
+        font-size: 10px;
+    }
+    .empty-state_message{
+        font-size: 10px;
+    }
+}

@@ -1525,3 +1525,19 @@ details:not([open]) .horarios-toggle-icon::before {
     font-size: 0.75rem;
     font-weight: 600;
 }
+
+
+@media (max-width: 200px) {
+    .inline-form {
+        font-size: 10px;
+    }
+    .card{
+        margin-top: 50px;
+    }
+    .nav-pub > .container {
+        height: 140px;
+    }
+    .btn.btn-blue {
+        font-size: 12px;
+    }
+}
