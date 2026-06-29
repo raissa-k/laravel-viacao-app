@@ -61,9 +61,11 @@
                         :data-duracao-min="$linha->duracaoMinutos"
                     />
                 @empty
-                    <div class="empty-state">
-                        <p>Nenhuma viagem encontrada para esta data.</p>
-                    </div>
+                    <x-empty-state
+                        title="Nenhuma viagem encontrada para esta data."
+                        message="Considere mudar a data ou origem/destino e tente novamente."
+                        icon="{{asset('favicon.ico')}}"
+                    />
                 @endforelse
             </div>
         </div>
