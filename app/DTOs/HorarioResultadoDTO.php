@@ -38,7 +38,7 @@ final readonly class HorarioResultadoDTO
                 $chegada .= ' (+1)'; //
             } else {
                 // se for um dado ruim ele aparece a string
-                $chegada .= ' *saber mais* ';
+                $chegada .= ' * ';
             }
         }
         //------------------------------------------
