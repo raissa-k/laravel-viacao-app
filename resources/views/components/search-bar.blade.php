@@ -59,7 +59,9 @@
                     type="date"
                     id="data"
                     name="data"
+                    min="{{ date('Y-m-d') }}"
                     value="{{ old('data', request('data')) }}"
+                    required
                 >
             </div>
             <div class="field">
