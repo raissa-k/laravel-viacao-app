@@ -184,7 +184,7 @@ A vantagem é que você compõe o layout no HTML sem precisar ficar criando clas
 }
 
 .mb-lg {
-    margin-bottom: 32px;
+    margin-bottom: 10px;
 }
 
 /* BOTÕES */
@@ -455,7 +455,7 @@ Composição no HTML: <button class="btn btn-primary">Entrar</button>
 /* SEÇÃO DE VIAÇÕES */
 
 .section {
-    padding: 56px 0;
+    padding: 20px 0;
 }
 
 .section-alt {
@@ -769,8 +769,8 @@ Sem isso, o card ficaria colado no topo da página.
 .filtros-categoria {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 15px;
     margin-top: 15px;
 }
 
@@ -781,6 +781,7 @@ Sem isso, o card ficaria colado no topo da página.
     background-color: transparent;
     color: #333;
     cursor: pointer;
+    font-size: 15px;
     font-weight: bold;
     transition: all 0.2s ease-in-out;
 }
@@ -791,9 +792,9 @@ Sem isso, o card ficaria colado no topo da página.
 
 /* Aplicando o Token de cor padronizado conforme o Review */
 .filtro-pill[aria-pressed="true"] {
-    background-color: #007bff;
+    background-color: var(--primary);
     color: white;
-    border-color: #007bff;
+    border-color: var(--primary);
 }
 
 .nav-pub {
@@ -1207,7 +1208,7 @@ details:not([open]) .horarios-toggle-icon::before {
 }
 
 .h1-discreto {
-    font-size: 1rem;
+    font-size: 15px;
     font-weight: normal;
     margin: 0;
 }
