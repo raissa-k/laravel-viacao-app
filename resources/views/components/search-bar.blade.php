@@ -59,7 +59,9 @@
                     type="date"
                     id="data"
                     name="data"
+                    min="{{ date('Y-m-d') }}"
                     value="{{ old('data', request('data')) }}"
+                    required
                 >
             </div>
             <div class="field">
@@ -78,6 +80,15 @@
             </div>
         </div>
 
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <button class="btn btn-blue" type="submit">Buscar passagem</button>
     </form>
 </div>
