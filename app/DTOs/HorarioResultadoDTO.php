@@ -23,13 +23,42 @@ final readonly class HorarioResultadoDTO
 
 
     /** Constrói o DTO a partir do array bruto devolvido pela API. */
-    public static function fromArray(array $dados, float $precoMinimo, ?float $precoMaximo = null): self
+    public static function fromArray(array $dados, float $precoMinimo, ?float $precoMaximo = null, int $duracaoMinutos = 0): self
     {
         $id              = (int) ($dados['id'] ?? 0);
-        $partida         = Carbon::parse((string) ($dados['partida'] ?? '00:00'))->format('H:i');
-        $chegada         = Carbon::parse((string) ($dados['chegada_estimada'] ?? '00:00'))->format('H:i');
+
+        try {
+            $partida         = Carbon::parse((string) ($dados['partida'] ?? '00:00'))->format('H:i');
+        } catch (\Throwable $e) {
+            $partida         = '00:00';
+        }
+
+        // Converte os minutos vindos da API para horas arredondadas (ex: 360min -> 6h)
+        $horasDuracao    = $duracaoMinutos > 0 ? (int) ceil($duracaoMinutos / 60) : 1;
+
+        try {
+            $chegada         = Carbon::parse((string) ($dados['chegada_estimada'] ?? '00:00'))->format('H:i');
+
+            // Se a chegada for menor ou igual à partida, calculamos a diferença simulando a virada de dia
+            if (Carbon::parse($chegada)->lessThanOrEqualTo(Carbon::parse($partida))) {
+                // Exemplo: sai 22:00 e chega 04:00 (Soma 1 dia na chegada para dar +6 horas de viagem)
+                $diffHoras = Carbon::parse($partida)->diffInHours(Carbon::parse($chegada)->addDay());
+
+                // Se a diferença calculada for bizarra em relação à duração esperada da linha (tolerância de 2h)
+                // significa que o dado da API está corrompido (ex: sai 12:00 e chega 11:00 numa viagem de 17h)
+                if ($duracaoMinutos > 0 && abs($diffHoras - $horasDuracao) > 2) {
+                    $chegada = Carbon::parse($partida)->addHours($horasDuracao)->format('H:i');
+                }
+            }
+        } catch (\Throwable $e) {
+            $chegada         = Carbon::parse($partida)->addHours($horasDuracao)->format('H:i');
+        }
+
         $categoria       = Categoria::tryFrom((string)($dados['tipo']??'')) ?? Categoria::Convencional;
-        $assentos        = (int) ($dados['assentos'] ?? 0);
+
+        // Garante que assentos negativos vindos da API (como o -12) virem pelo menos 0
+        $assentos        = max(0, (int) ($dados['assentos'] ?? 0));
+
         $diasDaSemana    = (array) ($dados['diasDaSemana'] ?? []);
 
         $precoMinimo     = isset($dados['preco_min']) ? (float) $dados['preco_min'] : $precoMinimo;
