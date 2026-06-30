@@ -8,6 +8,7 @@
         <div class="container">
             <x-search-bar layout="horizontal"
                           :cidades="$cidades"
+                          :action="route('busca')"
             />
         </div>
     </div>
