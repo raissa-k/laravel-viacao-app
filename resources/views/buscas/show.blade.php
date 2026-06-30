@@ -22,7 +22,6 @@
                 Voltar para Resultados
             </a>
         </div>
-
         <section class="operadora-card">
             <div class="operadora-item">
                 <span class="operadora-label">OPERADORA</span>
@@ -30,7 +29,15 @@
             </div>
             <div class="operadora-item">
                 <span class="operadora-label">DURAÇÃO MÉDIA</span>
-                <strong class="operadora-valor">{{ isset($linha->duracao_media_min) ? floor($linha->duracao_media_min / 60) . 'h' : '4h' }}</strong>
+                <strong class="operadora-valor">
+                    @php
+                        $horasRaw = isset($linha->duracao_media_min) ? round($linha->duracao_media_min / 60) : 4;
+                        if ($horasRaw < 0) {
+                            $horasRaw = 24 + $horasRaw;
+                        }
+                    @endphp
+                    {{ $horasRaw }}h
+                </strong>
             </div>
             <div class="operadora-item">
                 <span class="operadora-label">DISTÂNCIA</span>
