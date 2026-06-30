@@ -12,7 +12,7 @@
 
 <div class="card search-card-{{ $layout }}">
     @if($layout === 'vertical')
-        <div class="card-title">Buscar passagem</div>
+        <div class="card-title"><p>Buscar passagem</p></div>
     @endif
     <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}"
           action="{{ $action }}" method="GET">
