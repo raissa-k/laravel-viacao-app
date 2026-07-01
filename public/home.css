@@ -1526,6 +1526,11 @@ details:not([open]) .horarios-toggle-icon::before {
     font-weight: 600;
 }
 
+@media (max-width: 500px) {
+    .nav-pub > .container {
+        height: 90px;
+    }
+}
 
 @media (max-width: 200px) {
     .inline-form {
