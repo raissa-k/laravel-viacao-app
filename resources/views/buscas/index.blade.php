@@ -84,14 +84,15 @@
             const sortSelector = document.getElementById('sort-selector');
             const todosFiltros = document.querySelectorAll('[data-filter]');
 
-            const originalOrder = Array.from(container?.children || []);
+            //conta só os cards reais, ignorando o empty-state
+            const originalOrder = Array.from(container?.querySelectorAll('[data-categoria]') || []);
             const totalItems = originalOrder.length;
 
             function updateCounter() {
                 if (!countElement || !container) return;
                 const botaoAtivo = document.querySelector('[data-filter][aria-pressed="true"]');
                 const filtroAtivo = botaoAtivo ? botaoAtivo.dataset.filter : 'todas';
-                const visiveis = Array.from(container.children).filter(card => card.style.display !== 'none').length;
+                const visiveis = originalOrder.filter(card => card.style.display !== 'none').length;
 
                 if (filtroAtivo === 'todas') {
                     countElement.textContent = totalItems === 1
@@ -117,7 +118,7 @@
                 botaoClicado.setAttribute('aria-pressed', 'true');
 
                 // 3. Aplica o filtro nos cards
-                Array.from(container.children).forEach(card => {
+                container.querySelectorAll('[data-categoria]').forEach(card => {
                     card.style.display = (filtroAtivo === 'todas' || card.dataset.categoria === filtroAtivo) ? '' : 'none';
                 });
 
