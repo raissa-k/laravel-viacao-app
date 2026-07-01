@@ -20,7 +20,7 @@
                         <div class="horario-card-horario">
                             <span class="horario-card-hora horario-chegada">
                                 {{ $h->chegada }}
-                                @if($h->chegaDiaSeguinte)
+                                @if($h->chegaDiaSeguinte ?? false)
                                     <span class="day-offset">+1<span class="day-tooltip">Chegada no dia seguinte</span>
                                     </span>
                                 @endif</span>
