@@ -18,7 +18,12 @@
                             <span class="horario-card-label">partida</span>
                         </div>
                         <div class="horario-card-horario">
-                            <span class="horario-card-hora">{{ $h->chegada }}</span>
+                            <span class="horario-card-hora horario-chegada">
+                                {{ $h->chegada }}
+                                @if($h->chegaDiaSeguinte ?? false)
+                                    <span class="day-offset">+1<span class="day-tooltip">Chegada no dia seguinte</span>
+                                    </span>
+                                @endif</span>
                             <span class="horario-card-label">chegada</span>
                         </div>
                     </div>

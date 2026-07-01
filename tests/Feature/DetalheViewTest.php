@@ -20,13 +20,14 @@ it('view de detalhe exibe nome da operadora, horários e terminais sem o control
     $terminalDestino = (object) ['nome' => 'Rodoviária de São Paulo'];
 
     $horario         = (object) [
-        'partida'   => '08:00',
-        'chegada'   => '12:30',
-        'categoria' => null,
-        'assentos'  => null,
-        'dias'      => [],
-        'preco'     => null,
-        'precoMax'  => null,
+        'partida'          => '08:00',
+        'chegada'          => '12:30',
+        'chegaDiaSeguinte' => true,
+        'categoria'        => null,
+        'assentos'         => null,
+        'dias'             => [],
+        'preco'            => null,
+        'precoMax'         => null,
     ];
 
     $this->view('buscas.show', [
@@ -44,7 +45,8 @@ it('view de detalhe exibe nome da operadora, horários e terminais sem o control
         ->assertSee('Rodoviária de São Paulo')
         ->assertSee('08:00')
         ->assertSee('12:30')
-        ->assertSee('Horários disponíveis');
+        ->assertSee('Horários disponíveis')
+        ->assertSee('Chegada no dia seguinte');
 });
 
 it('view de detalhe exibe empty-state quando não há horários', function () {
