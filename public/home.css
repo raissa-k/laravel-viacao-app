@@ -679,6 +679,7 @@ Sem isso, o card ficaria colado no topo da página.
     align-items: center;
     gap: 8px;
     margin-top: 4px;
+    flex-wrap: wrap;
 }
 
 .linha-card-categoria {
@@ -698,6 +699,7 @@ Sem isso, o card ficaria colado no topo da página.
     align-items: flex-end;
     gap: 8px;
     flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 .linha-card-preco-text {
