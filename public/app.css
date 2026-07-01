@@ -411,3 +411,39 @@ align-items: center alinha verticalmente o botão e o link de cancelar.
         font-size: 10px;
     }
 }
+
+.horario-chegada{
+    position: relative;
+    display: inline-block;
+}
+
+.day-offset{
+    position: absolute;
+    top: -6px;
+    right: -18px;
+    font-size: .6rem;
+    font-weight: 700;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+.day-tooltip{
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    left: 50%;
+    top: -42px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 8px 12px;
+    background: #222;
+    color: white;
+    border-radius: 6px;
+    font-size: .75rem;
+    transition: .2s;
+}
+
+.day-offset:hover .day-tooltip{
+    visibility: visible;
+    opacity: 1;
+}

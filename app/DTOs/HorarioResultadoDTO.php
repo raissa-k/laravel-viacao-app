@@ -13,6 +13,7 @@ final readonly class HorarioResultadoDTO
         public int    $id,
         public string $partida,
         public string $chegada,
+        public bool $chegaDiaSeguinte = false,
         public Categoria $categoria, //aqui é o uso do Enum
         public int $assentos,
         public array  $diasDaSemana,
@@ -70,22 +71,24 @@ final readonly class HorarioResultadoDTO
 
         $partida         = $vPartida->format('H:i'); //string em si já formatada
         $chegada         = $vChegada->format('H:i'); //string em si já formatada
+        $chegaDiaSeguinte = false;
 
-        //bloco de lógica para tratamento de horários inválidos
+       //bloco de lógica para tratamento de horários inválidos (o +1 que chega no dia seguinte está sendo tratado no blade resources/views/components/horario-card.blade.php.)
         if ($vChegada->lessThan($vPartida)) {
             //partidas noturnas >=18 com chegadas de manha <= 12h são aceitas como dia seguinte
             if ($vPartida->hour >= 18 && $vChegada->hour <= 12) {
-                $chegada .= ' (+1)'; //
+                $chegaDiaSeguinte = true;
             } else {
                 // se for um dado ruim ele aparece a string
-                $chegada .= ' * ';
-            }
+                $chegaDiaSeguinte = true;
+            } // não sei se prescisa de else, mas deixei por precaução
         }
 
         return new self(
             id: $id,
             partida: $partida,
             chegada: $chegada,
+            chegaDiaSeguinte: $chegaDiaSeguinte,
             categoria: $categoria,
             assentos: $assentos,
             diasDaSemana: $diasDaSemana,
