@@ -26,8 +26,6 @@ final readonly class HorarioResultadoDTO
     public static function fromArray(array $dados, float $precoMinimo, ?float $precoMaximo = null, int $duracaoMinutos = 0): self
     {
         $id              = (int) ($dados['id'] ?? 0);
-        $partida         = Carbon::parse((string) ($dados['partida'] ?? '00:00'))->format('H:i');
-        $chegada         = Carbon::parse((string) ($dados['chegada_estimada'] ?? '00:00'))->format('H:i');
 
         try {
             $partida         = Carbon::parse((string) ($dados['partida'] ?? '00:00'))->format('H:i');
@@ -58,8 +56,17 @@ final readonly class HorarioResultadoDTO
         $precoMinimo     = isset($dados['preco_min']) ? (float) $dados['preco_min'] : $precoMinimo;
         $precoMaximo     = isset($dados['preco_max']) ? (float) $dados['preco_max'] : $precoMaximo;
 
-        $vPartida        = Carbon::createFromFormat('H:i', $dados['partida'] ?? '00:00'); //obj carbon puro
-        $vChegada        = Carbon::createFromFormat('H:i', $dados['chegada_estimada'] ?? '00:00'); //obj carbon
+        try {
+            $vPartida        = Carbon::createFromFormat('H:i', $dados['partida'] ?? '00:00'); //obj carbon puro
+        } catch (\Throwable $e) {
+            $vPartida        = Carbon::createFromFormat('H:i', '00:00'); //obj carbon puro
+        }
+
+        try {
+            $vChegada        = Carbon::createFromFormat('H:i', $dados['chegada_estimada'] ?? '00:00'); //obj carbon
+        } catch (\Throwable $e) {
+            $vChegada        = (clone $vPartida)->addHours($horasDuracao); //obj carbon
+        }
 
         $partida         = $vPartida->format('H:i'); //string em si já formatada
         $chegada         = $vChegada->format('H:i'); //string em si já formatada

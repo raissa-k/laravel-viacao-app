@@ -12,7 +12,7 @@
 
 <div class="card search-card-{{ $layout }}">
     @if($layout === 'vertical')
-        <h2 class="card-title">Buscar passagem</h2>
+        <div class="card-title"><p>Buscar passagem</p></div>
     @endif
     <form class="search-form {{ $layout === 'horizontal' ? 'search-form-horizontal' : '' }}"
           action="{{ $action }}" method="GET">
@@ -26,7 +26,7 @@
             >
                 @foreach($cidades as $cidade)
                     <option value="{{ $cidade->id }}"
-                    @selected(old('origem', request('origem')) == $cidade->id)>
+                        @selected(old('origem', request('origem')) == $cidade->id)>
                         {{ $cidade->nome }}
                         {{ $cidade->uf ? ' - ' . $cidade->uf : '' }}
                     </option>
@@ -59,7 +59,9 @@
                     type="date"
                     id="data"
                     name="data"
+                    min="{{ date('Y-m-d') }}"
                     value="{{ old('data', request('data')) }}"
+                    required
                 >
             </div>
             <div class="field">
